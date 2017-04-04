@@ -74,7 +74,8 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
 
     Route::get('/city/getData', 'Admin\CityController@getData');
     Route::resource('city', 'Admin\CityController');
-      Route::get('/banner/getData', 'Admin\BannerController@getData');
+    
+    Route::get('/banner/getData', 'Admin\BannerController@getData');
     Route::resource('banner','Admin\BannerController');
 
 });
@@ -82,11 +83,21 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
  /**
  * For API
  */
+
 Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth'], function() {
     Route::auth();
+    
+    /* Brodcast Request */
 
-    
-    Route::post('/home/getAllCityData','Api\HomeController@getAllCityData');
-    
+    Route::post('/brodcast/brodcastInitData','Api\BrodcastController@getBrodcastInitData');    
+    Route::post('/brodcast/newProductRequest','Api\BrodcastController@sendNewProductRequest');
+    Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
+    Route::post('/brodcast/productsByBrandId','Api\BrodcastController@getProductsByBrandId');
+
+    /* Brodcast Response */
+
+    /* User Management */
+    Route::resource('/user/registerMobile','Api\UserController@getRegisterMobile');
+
     
 });
