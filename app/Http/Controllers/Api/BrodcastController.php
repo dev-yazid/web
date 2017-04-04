@@ -111,7 +111,7 @@ class BrodcastController extends Controller
                 $brodRequest->user_id              = $request->brod_uid;
                 //$brodRequest->req_image            = "";                
                 $brodRequest->is_seller_replied    = 0;
-                $brodRequest->status               = 0;
+                $brodRequest->status               = 0; 
 
                 if($request->hasFile('brod_img'))
                 {
