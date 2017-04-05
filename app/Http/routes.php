@@ -86,18 +86,26 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
 
 Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth'], function() {
     Route::auth();
-    
-    /* Brodcast Request */
 
+    /* common Api */
+    //Route::post('/user/getAllCities','Api\UserController@getAllCities');
+     
+    /* Brodcast Request */
     Route::post('/brodcast/brodcastInitData','Api\BrodcastController@getBrodcastInitData');    
     Route::post('/brodcast/newProductRequest','Api\BrodcastController@sendNewProductRequest');
     Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
-    Route::post('/brodcast/productsByBrandId','Api\BrodcastController@getProductsByBrandId');
+    Route::post('/brodcast/productsByBrandId','Api\BrodcastController@getProductsByBrandId');  
 
+    /* Buyer Management*/
+    Route::post('/user/registerMobile','Api\UserController@getRegisterMobile');
+    Route::post('/user/sendCodeAgain','Api\UserController@getSendCodeAgain');
+    Route::post('/user/verifyMobile','Api\UserController@getVerifyMobile');    
+    Route::post('/user/updateProfile','Api\UserController@getUpdateProfile');
+    Route::post('/user/userLogin','Api\UserController@getUserLogin');
+    Route::post('/user/buyerRegisterInit','Api\UserController@getBuyerRegisterInit');
+    Route::post('/user/logout','Api\UserController@getLogout');
+
+    /* Seller Management*/
     /* Brodcast Response */
-
-    /* User Management */
-    Route::resource('/user/registerMobile','Api\UserController@getRegisterMobile');
-
-    
+      
 });

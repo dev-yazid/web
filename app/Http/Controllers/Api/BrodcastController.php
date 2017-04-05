@@ -58,8 +58,6 @@ class BrodcastController extends Controller
         }       
     }
 
-
-
     public function getProductsByBrandId(Request $request) {
 
         if($request->bid && $request->bid > 0)
@@ -84,8 +82,6 @@ class BrodcastController extends Controller
 
     public function sendNewProductRequest(Request $request) { 
 
-        //print_r($request->all());
-        //die;
         if($request->all() && count($request->all()) > 0)
         {
             $validator = Validator::make($request->all(), [
@@ -137,8 +133,7 @@ class BrodcastController extends Controller
         {   
             $productsByBrandId = array();
             $this->resultapi('0','Request Details Not Found.', true);
-        }
-        
+        }        
     }
 
     public function getAllBrodRequest() {
