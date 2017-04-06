@@ -74,7 +74,8 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
 
     Route::get('/city/getData', 'Admin\CityController@getData');
     Route::resource('city', 'Admin\CityController');
-      Route::get('/banner/getData', 'Admin\BannerController@getData');
+    
+    Route::get('/banner/getData', 'Admin\BannerController@getData');
     Route::resource('banner','Admin\BannerController');
 
 });
@@ -82,11 +83,37 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
  /**
  * For API
  */
+
 Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth'], function() {
     Route::auth();
 
-    
-    Route::post('/home/getAllCityData','Api\HomeController@getAllCityData');
-    
-    
+    /* common Api */
+    //Route::post('/user/getAllCities','Api\UserController@getAllCities');
+     
+    /* Brodcast Request */
+    Route::post('/brodcast/brodcastInitData','Api\BrodcastController@getBrodcastInitData');    
+    Route::post('/brodcast/newProductRequest','Api\BrodcastController@sendNewProductRequest');
+    Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
+    Route::post('/brodcast/productsByBrandId','Api\BrodcastController@getProductsByBrandId');  
+
+    /* Buyer Management */
+
+    /* Before Logged In */
+    Route::post('/user/registerMobile','Api\UserController@getRegisterMobile');
+    Route::post('/user/sendCodeAgain','Api\UserController@getSendCodeAgain');
+    Route::post('/user/verifyMobile','Api\UserController@getVerifyMobile');    
+    Route::post('/user/updateProfile','Api\UserController@getUpdateProfile');
+    Route::post('/user/userLogin','Api\UserController@getUserLogin');
+    Route::post('/user/buyerRegisterInit','Api\UserController@getBuyerRegisterInit');
+
+    /* After Logged In */
+    Route::post('/user/myProfilUpdate','Api\UserController@getUpdateProfileByUser');
+    Route::post('/user/myProfileDetails','Api\UserController@getMyProfileDetails');
+    Route::post('/user/viewBrodreqByUser','Api\UserController@getViewRequestByUser');
+    Route::post('/user/changePassword','Api\UserController@getChangePassword');   
+    Route::post('/user/logout','Api\UserController@getLogout');
+
+    /* Seller Management*/
+    /* Brodcast Response */
+      
 });

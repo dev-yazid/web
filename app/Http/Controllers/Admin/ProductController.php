@@ -9,6 +9,7 @@ use DB;
 use Session;
 use Auth;
 use App\Product;
+use App\Brand;
 use App\ActivityLog;
 use Illuminate\Support\Facades\Input;
 use File;
@@ -34,7 +35,12 @@ class ProductController extends Controller {
      * Fetch data tobe used in datatable
      */
     public function getData() {
-        return Datatables::of(Product::query())->make(true);
+        $prodDetails = Product::query()
+            ->join('brands', 'products.brand', '=', 'brands.id')
+            ->select('products.*','brands.brand')
+            ->get();
+
+        return Datatables::of($prodDetails)->make(true);
     }
 
     /**
@@ -43,7 +49,7 @@ class ProductController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function create() {
-        $brandname = DB::table('brands')->lists('brand', 'id');
+        $brandname = DB::table('brands')->where('status',1)->orderBy('brand')->lists('brand', 'id');
         $startyear = 1980;
         $now = date('Y');
         $yeararr = array();
