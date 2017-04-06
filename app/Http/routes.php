@@ -96,13 +96,21 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
     Route::post('/brodcast/productsByBrandId','Api\BrodcastController@getProductsByBrandId');  
 
-    /* Buyer Management*/
+    /* Buyer Management */
+
+    /* Before Logged In */
     Route::post('/user/registerMobile','Api\UserController@getRegisterMobile');
     Route::post('/user/sendCodeAgain','Api\UserController@getSendCodeAgain');
     Route::post('/user/verifyMobile','Api\UserController@getVerifyMobile');    
     Route::post('/user/updateProfile','Api\UserController@getUpdateProfile');
     Route::post('/user/userLogin','Api\UserController@getUserLogin');
     Route::post('/user/buyerRegisterInit','Api\UserController@getBuyerRegisterInit');
+
+    /* After Logged In */
+    Route::post('/user/myProfilUpdate','Api\UserController@getUpdateProfileByUser');
+    Route::post('/user/myProfileDetails','Api\UserController@getMyProfileDetails');
+    Route::post('/user/viewBrodreqByUser','Api\UserController@getViewRequestByUser');
+    Route::post('/user/changePassword','Api\UserController@getChangePassword');   
     Route::post('/user/logout','Api\UserController@getLogout');
 
     /* Seller Management*/

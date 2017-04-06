@@ -3,44 +3,39 @@ namespace App;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Hash;
+use DB;
 
 class User extends Authenticatable
-{
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    
-    protected $fillable = [
-    'firstname', 'lastname', 'email', 'password',
-    ];
+{    
+    public static function getProfileDetails($userId)
+    {  
+        $userDetails = DB::table('users')
+        ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
+        ->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')
+        ->select('users.name','users.email','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','cities.name as city')
+        ->where('users.id',$userId)
+        ->first();
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-    'password', 'remember_token',
-    ];
-
-    // ************* Check Site User Login *************
-    public function authenticateSiteUser($mobile, $password)
-    {
-        $user = User::where('email', $mobile)->first();
-
-        if (!isset($user->password) || !Hash::check($password, $user->password)) {
-            return false;
-        }
-        return $user;
+       return $userDetails;
     }
 
-    public static $CareTakerRules = array(
-        'first_name' =>'required',
-        'last_name' =>'required',
-        'email' =>'required|email', 
-        'password' =>'required|same:confirm_password',
-        'confirm_password' =>'required|same:password'
-    );
+    public static function updatePassword($request)
+    {  
+        $is_password_updated = 0;
+
+        $userDetails = DB::table('users')
+        ->where('id',$request->$uid)
+        ->where('phone_number',$request->$phone_number)
+        ->first();
+
+        if(count($userDetails) > 0)
+        {
+           $userDetails->password = trim(bcrypt($request->$password));
+           $userDetails->save();
+
+           $is_password_updated = 1; 
+        }
+
+       return $is_password_updated;
+    }
 }

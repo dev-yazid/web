@@ -20,6 +20,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use App\UserProfiles;
 use App\User;
 use App\Cities;
+use App\BrodRequest;
 use Auth;
 
 class UserController extends Controller
@@ -211,7 +212,7 @@ class UserController extends Controller
                         /*$user = Auth::user();
                         print_r($user);
                         die;*/
-                        $this->resultapi('1','Profile Details Updated SucessFully.', true);
+                        $this->resultapi('1','Profile Details Updated Sucessfully.', true);
                     } 
                     else
                     {
@@ -264,6 +265,127 @@ class UserController extends Controller
         {
             $this->resultapi('0','Request Details Not Found.', 0);
         }
+    }
+
+    public function getMyProfileDetails(Request $request)
+    {
+        if($request->uid)
+        {
+            $myProfileDetails = User::getProfileDetails($request->uid);
+
+            if(count($myProfileDetails))
+            {
+                $this->resultapi('1','Profile Details Found.', $myProfileDetails);
+            }
+            else
+            {
+                $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
+            }
+        } 
+        else
+        {
+            $myProfileDetails = array();
+            $this->resultapi('0','User Id Not Found.', $myProfileDetails);
+        }
+    }
+
+    public function getUpdateProfileByUser(Request $request) {
+
+        if($request->uid)
+        {
+            $updateUser = User::where('id', '=', $request->uid)->where('mobile_verified','Yes')->first();
+
+            if(count($updateUser) > 0)
+            {
+                $updateUser->phone_number      = $request->phone_number;
+                //$updateUser->password            = bcrypt($request->password);
+                $updateUser->name                = trim($request->name) ? $request->name : $request->phone_number;
+                $updateUser->email               = trim($request->email);
+                //$updateUser->usertype            = 'customer';
+                //$updateUser->mobile_verified     = "Yes";
+                //$updateUser->is_customer_updated = 1;
+                //$updateUser->save();
+
+                $updateProf                      = UserProfiles::where('user_id',$updateUser->id)->first();
+                $updateProf->customer_address    = trim($request->customer_address) ? $request->customer_address : "";
+                $updateProf->customer_city       = trim($request->customer_city) ? $request->customer_city : "";
+                $updateProf->customer_zipcode    = trim($request->customer_zipcode) ? $request->customer_zipcode :'';
+                //$updateProf->save();
+
+                if($updateUser->save() && $updateProf->save())
+                {
+                    $this->resultapi('1','Profile Details Updated Sucessfully.', true);
+                } 
+                else
+                {
+                    $this->resultapi('0','Some Problem With Update Profile.', false);
+                }                    
+            }
+            else
+            {
+                $this->resultapi('0','User Not Found.', false);
+            }           
+        }
+        else
+        {
+            $this->resultapi('0','Request Details Not Found.', 0);
+        }
+    }    
+
+    public function getViewRequestByUser(Request $request)
+    {          
+        //echo $request->uid;
+        if($request->uid)
+        {
+            $brodRequestByUser = BrodRequest::getBrodRequestByUser($request->uid);
+            
+            if(count($brodRequestByUser))
+            {
+                $this->resultapi('1','Brodcast Request Found.', $brodRequestByUser);
+            }
+            else
+            {
+                $this->resultapi('0','No Brodcast Request Found.', $brodRequestByUser);
+            }
+        }
+        else
+        {
+            $this->resultapi('0','User Not Found.', false);
+        } 
+    }
+
+    public function getChangePassword(Request $request)
+    {        
+        if($request->phone_number && $request->password && $request->uid)
+        {
+            $validator = Validator::make($request->all(), [                
+                'phone_number'       => 'required|min:10|numeric',
+                'password'           => 'required',
+                'uid'                => 'required|numeric',               
+            ]);
+            
+            if ($validator->fails()) 
+            {
+                $this->resultapi('0', $validator->errors()->all(), 0);
+            }
+            else
+            {
+                $changePassword = User::updatePassword($request);
+                
+                if($changePassword === 1)
+                {
+                    $this->resultapi('1','Password Changed Sucesfully.', true);
+                }
+                else
+                {
+                    $this->resultapi('0','Some Problem In Change Password.', false);
+                }
+            }
+        }
+        else
+        {
+            $this->resultapi('0','User Details Not Found.', false);
+        } 
     }
 
     public function getLogout()

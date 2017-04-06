@@ -19,7 +19,7 @@
             serverSide: true,
             autoWidth: false,
             bRetrieve: true,
-            iDisplayLength: 25,
+            iDisplayLength: 50,
             sPaginationType: "full_numbers",
             ajax: '{{ url('/admin/product/getData') }}',
             sDom: "<'row'<'col-lg-6 leave_filter'><'col-lg-3'l><'col-lg-3'f>r>t<'row'<'col-sm-6'i><'col-sm-6'p>>",

@@ -43,7 +43,7 @@ class ProductController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function create() {
-        $brandname = DB::table('brands')->lists('brand', 'id');
+        $brandname = DB::table('brands')->where('status',1)->orderBy('brand')->lists('brand', 'id');
         $startyear = 1980;
         $now = date('Y');
         $yeararr = array();
