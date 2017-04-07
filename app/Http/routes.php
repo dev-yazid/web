@@ -110,10 +110,12 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/user/myProfilUpdate','Api\UserController@getUpdateProfileByUser');
     Route::post('/user/myProfileDetails','Api\UserController@getMyProfileDetails');
     Route::post('/user/viewBrodreqByUser','Api\UserController@getViewRequestByUser');
+    Route::post('/user/viewResponse','Api\UserController@getViewResponse');
+    Route::post('/user/removeResponse','Api\UserController@getRemoveResponse');
+    Route::post('/user/markPriceNotiRead','Api\UserController@getMarkPriceReadUpdateNoti');
     Route::post('/user/changePassword','Api\UserController@getChangePassword');   
     Route::post('/user/logout','Api\UserController@getLogout');
 
     /* Seller Management*/
-    /* Brodcast Response */
       
 });

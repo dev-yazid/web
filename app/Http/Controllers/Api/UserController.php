@@ -21,6 +21,7 @@ use App\UserProfiles;
 use App\User;
 use App\Cities;
 use App\BrodRequest;
+use App\BrodResponse;
 use Auth;
 
 class UserController extends Controller
@@ -334,7 +335,6 @@ class UserController extends Controller
 
     public function getViewRequestByUser(Request $request)
     {          
-        //echo $request->uid;
         if($request->uid)
         {
             $brodRequestByUser = BrodRequest::getBrodRequestByUser($request->uid);
@@ -352,6 +352,69 @@ class UserController extends Controller
         {
             $this->resultapi('0','User Not Found.', false);
         } 
+    }
+
+    public function getViewResponse(Request $request)
+    {          
+        if($request->request_id)
+        {
+            $allResponse = BrodResponse::getBrodResponseByReqId($request);
+            
+            if(count($allResponse))
+            {
+                $this->resultapi('1','Brodcast Request Found.', $allResponse);
+            }
+            else
+            {
+                $this->resultapi('0','No Brodcast Request Found.', $allResponse);
+            }
+        }
+        else
+        {
+            $this->resultapi('0','User Not Found.', false);
+        } 
+    }
+
+    public function getRemoveResponse(Request $request)
+    {            
+        if ($request->res_id) 
+        {
+            $resUpdated = BrodResponse::removeResponse($request->res_id);
+            
+            if($resUpdated === 1)
+            {
+                $this->resultapi('1','Seller Removed Form List Sucessfully.', true);
+            }
+            else
+            {
+                $this->resultapi('0','Invalid Response Id.', false);
+            }            
+        }
+        else
+        {
+            $this->resultapi('0','Seller Response Id Not Found.', false);
+        }        
+    }
+
+    public function getMarkPriceReadUpdateNoti(Request $request)
+    {            
+        if($request->res_id) 
+        {
+            $resUpdated = BrodResponse::priceUpdateNotiRead($request->res_id);
+            
+            if($resUpdated === 1)
+            {
+                $this->resultapi('1','Price Notification Status Changed.', true);
+            }
+            else
+            {
+                $this->resultapi('0','Invalid Response Id.', false);
+            }            
+        }
+        else
+        {
+            $this->resultapi('0','Seller Response Id Not Found.', false);
+        }        
     }
 
     public function getChangePassword(Request $request)
@@ -386,7 +449,7 @@ class UserController extends Controller
         {
             $this->resultapi('0','User Details Not Found.', false);
         } 
-    }
+    }        
 
     public function getLogout()
     {        

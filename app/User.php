@@ -4,6 +4,7 @@ namespace App;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Hash;
 use DB;
+use App\BrodResponse;
 
 class User extends Authenticatable
 {    
@@ -13,6 +14,18 @@ class User extends Authenticatable
         ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
         ->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')
         ->select('users.name','users.email','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','cities.name as city')
+        ->where('users.id',$userId)
+        ->first();
+
+       return $userDetails;
+    }
+
+    public static function getSellerDetails($userId)
+    {  
+        $userDetails = DB::table('users')
+        ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
+        ->leftJoin('cities', 'user_profiles.shop_city', '=', 'cities.id')
+        ->select('users.id','users.name','users.email','user_profiles.customer_address','user_profiles.shop_name','user_profiles.shop_mobile','user_profiles.shop_address','user_profiles.shop_zipcode','user_profiles.shop_location_map','user_profiles.shop_start_time','user_profiles.shop_close_time','cities.name as shop_city')
         ->where('users.id',$userId)
         ->first();
 
@@ -38,4 +51,20 @@ class User extends Authenticatable
 
        return $is_password_updated;
     }
+
+    public static function responseViewedBySeller($res_id)
+    {  
+        $resUpdated = 0;
+
+        $resDetails = BrodResponse::find($res_id);
+
+        if(count($resDetails) > 0)
+        {
+            $resDetails->read_status = 1;
+            $resDetails->save();
+            $resUpdated = 1;
+        }
+
+        return $resUpdated;
+    }   
 }

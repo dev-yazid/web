@@ -19,13 +19,6 @@ class BrodRequest extends Model
 
 	public static function getBrodRequestByUser($uid)
 	{
-		$brodRequestByUser =  DB::table('brod_requests')		
-		->leftJoin('brands', 'brod_requests.brand_id', '=', 'brands.id')
-		->leftJoin('products', 'brod_requests.prod_id', '=', 'products.id')
-		->select('brod_requests.id','brod_requests.status','brod_requests.is_seller_replied','brod_requests.description','brands.brand','products.pname','brod_requests.prod_year','brod_requests.created_at')
-		->where('user_id',$uid)
-		->get();
-
 		if(count($brodRequestByUser) > 0)
 		{
 			foreach ($brodRequestByUser as $key => $value)
