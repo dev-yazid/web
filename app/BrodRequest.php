@@ -4,20 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use DB;
+use App\BrodResponse;
+use App\BrodRequest;
 
 class BrodRequest extends Model
 {
-    public static function getAllBrodRequest()
-	{
-		$allBrodRequest =  DB::table('brod_requests')
-		//->select('id','description','created_at','req_image','status',)
-		//->where('user_id',$uid)
-		->get();
-
-		return $allBrodRequest;
-	}
-
-	public static function getBrodRequestByUser($uid)
+    public static function getBrodRequestByUser($uid)
 	{
 		if(count($brodRequestByUser) > 0)
 		{
@@ -27,8 +19,28 @@ class BrodRequest extends Model
 			}			
 		}
 
-		print_r($brodRequestByUser);
-
 		return $brodRequestByUser;
 	}
+
+	/* seller */
+	public static function getAllBrodRequest()
+	{
+		$allBrodRequest = DB::table('brod_requests')
+		->orderBy('id','desc')
+		->get();
+
+		print_r($allBrodRequest);
+		die;
+
+		return $allBrodRequest;
+	}
+
+	public static function getRequestDetailsByReqId($rId)
+	{
+		$allBrodRequest = DB::table('brod_requests')
+		->where('id',$rId)
+		->first();
+
+		return $allBrodRequest;
+	}	
 }

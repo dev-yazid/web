@@ -150,7 +150,7 @@ class UserController extends Controller
                 }
                 else
                 {
-                    $this->resultapi('2','Wrong Mobile Number Or Verification Code.', false);
+                    $this->resultapi('0','Wrong Mobile Number Or Verification Code.', false);
                 }
             }
         }
@@ -198,13 +198,13 @@ class UserController extends Controller
                     $updateUser->name                = trim($request->name) ? $request->name : $request->phone_number;
                     $updateUser->email               = trim($request->email);
                     $updateUser->usertype            = 'customer';
-                    $updateUser->mobile_verified     = "Yes";
+                    $updateUser->mobile_verified     = 'Yes';
                     $updateUser->is_customer_updated = 1;
                     //$updateUser->save();
 
                     $updateProf                      = UserProfiles::where('user_id',$updateUser->id)->first();
-                    $updateProf->customer_address    = trim($request->customer_address) ? $request->customer_address : "";
-                    $updateProf->customer_city       = trim($request->customer_city) ? $request->customer_city : "";
+                    $updateProf->customer_address    = trim($request->customer_address) ? $request->customer_address : '';
+                    $updateProf->customer_city       = trim($request->customer_city) ? $request->customer_city : '';
                     $updateProf->customer_zipcode    = trim($request->customer_zipcode) ? $request->customer_zipcode :'';
                     //$updateProf->save();
 
@@ -414,6 +414,27 @@ class UserController extends Controller
         else
         {
             $this->resultapi('0','Seller Response Id Not Found.', false);
+        }        
+    }
+
+    public function getProductConfirmedByBuyer(Request $request)
+    {            
+        if($request->res_id) 
+        {
+            $prodConfirmation = BrodResponse::productConfirmedByBuyer($request->res_id);
+            
+            if($prodConfirmation === 1)
+            {
+                $this->resultapi('1','Product Confirmed By Buyer.', true);
+            }
+            else
+            {
+                $this->resultapi('0','Invalid Response Id.', false);
+            }            
+        }
+        else
+        {
+            $this->resultapi('0','Buyer Response Id Not Found.', false);
         }        
     }
 

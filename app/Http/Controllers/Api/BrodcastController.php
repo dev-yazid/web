@@ -46,15 +46,16 @@ class BrodcastController extends Controller
     
     public function getBrodcastInitData() { 
         
+        $bserUrlImg = asset('/public/asset/brand/');       
+        
         $allBrands = Brand::getAllBrands();
-
         if(count($allBrands))
         {
-            $this->resultapi('1','Brands Found.', $allBrands);  
+            $this->resultapi2('1',$bserUrlImg, $allBrands);  
         }
         else
         {
-            $this->resultapi('0','No Brands Found.', $allBrands);
+            $this->resultapi2('0',$bserUrlImg, $allBrands);
         }       
     }
 
@@ -78,7 +79,6 @@ class BrodcastController extends Controller
             $this->resultapi('0','Brand Id Not Found.', $productsByBrandId);
         }
     }
-
 
     public function sendNewProductRequest(Request $request) { 
 
@@ -112,7 +112,7 @@ class BrodcastController extends Controller
                 if($request->hasFile('brod_img'))
                 {
                     $file = $request->file('brod_img');           
-                    $destinationPath = public_path().'/asset/BrodRequestImg/';           
+                    $destinationPath = public_path().'/asset/BrodcastImg/';           
                     $timestamp = time().  uniqid(); 
                     $filename = $timestamp.'_'.trim($file->getClientOriginalName());
                     $file->move($destinationPath,$filename);
@@ -153,6 +153,15 @@ class BrodcastController extends Controller
 
         $finalArray['STATUS']   = $status;
         $finalArray['MESSAGE']  = $message;
+        $finalArray['DATA']     = $result;
+
+        echo json_encode($finalArray);  
+    }
+
+    public function resultapi2($status,$message,$result = array()) {
+
+        $finalArray['STATUS']   = $status;
+        $finalArray['imgPath']  = $message;
         $finalArray['DATA']     = $result;
 
         echo json_encode($finalArray);  

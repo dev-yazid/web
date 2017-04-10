@@ -55,7 +55,7 @@ class BrodResponse extends Model
     public static function priceUpdateNotiRead($res_id)
     {
     	$resUpdated = 0;
-    	
+
         $resDetails = BrodResponse::find($res_id);
 
         if(count($resDetails) > 0)
@@ -67,5 +67,44 @@ class BrodResponse extends Model
         }
 
         return $resUpdated;
-    }     
+    } 
+
+    public static function productConfirmedByBuyer($res_id)
+    {
+    	$resUpdated = 0;
+    	
+        $prodConfirmation = BrodResponse::find($res_id);
+
+        if(count($prodConfirmation) > 0)
+        {	
+        	$prodConfirmation->is_prod_confirm_by_buyer = 1;
+        	$prodConfirmation->price_updated = 1;
+        	$prodConfirmation->read_status   = 1;
+        	$prodConfirmation->save();
+
+        	$resUpdated = 1;
+        }
+
+        return $resUpdated;
+    }
+
+    /* seller Section */
+    public static function productConfirmedBySeller($res_id)
+    {
+    	$resUpdated = 0;
+    	
+        $prodConfirmation = BrodResponse::find($res_id);
+
+        if(count($prodConfirmation) > 0)
+        {	
+        	$prodConfirmation->is_prod_confirm_by_seller = 1;
+        	//$prodConfirmation->price_updated = 1;
+        	//$prodConfirmation->read_status   = 1;
+        	$prodConfirmation->save();
+
+        	$resUpdated = 1;
+        }
+
+        return $resUpdated;
+    }      
 }

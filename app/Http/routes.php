@@ -94,7 +94,8 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/brodcast/brodcastInitData','Api\BrodcastController@getBrodcastInitData');    
     Route::post('/brodcast/newProductRequest','Api\BrodcastController@sendNewProductRequest');
     Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
-    Route::post('/brodcast/productsByBrandId','Api\BrodcastController@getProductsByBrandId');  
+    Route::post('/brodcast/productsByBrandId','Api\BrodcastController@getProductsByBrandId');    
+    Route::post('/brodcast/updateProductRequest','Api\BrodcastController@getUpdateProductRequest');  
 
     /* Buyer Management */
 
@@ -107,15 +108,28 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/user/buyerRegisterInit','Api\UserController@getBuyerRegisterInit');
 
     /* After Logged In */
+    Route::post('/user/logout','Api\UserController@getLogout');
     Route::post('/user/myProfilUpdate','Api\UserController@getUpdateProfileByUser');
     Route::post('/user/myProfileDetails','Api\UserController@getMyProfileDetails');
     Route::post('/user/viewBrodreqByUser','Api\UserController@getViewRequestByUser');
     Route::post('/user/viewResponse','Api\UserController@getViewResponse');
     Route::post('/user/removeResponse','Api\UserController@getRemoveResponse');
     Route::post('/user/markPriceNotiRead','Api\UserController@getMarkPriceReadUpdateNoti');
-    Route::post('/user/changePassword','Api\UserController@getChangePassword');   
-    Route::post('/user/logout','Api\UserController@getLogout');
+    Route::post('/user/changePassword','Api\UserController@getChangePassword');
+    Route::post('/user/productConfirmedByBuyer','Api\UserController@getProductConfirmedByBuyer');   
+    
 
     /* Seller Management*/
+
+    Route::post('/seller/sellerLogin','Api\SellerController@getSellerLogin');
+    Route::post('/seller/sellerDetails','Api\SellerController@getSellerDetails');
+    Route::post('/seller/allBrodRequest','Api\SellerController@getAllBrodRequests');
+    Route::post('/seller/sellerRegister','Api\SellerController@getRegisterSeller');
+    Route::post('/seller/updateSeller','Api\SellerController@getUpdateSellerProfile');
+    
+    Route::post('/seller/sendEmailVeriCodeAgain','Api\SellerController@getSendEmailVerifyCodeAgain');
+    /* Route::post('/seller/viewRequestDeatils','Api\SellerController@getRequestDeatils'); *?
+    /* Route::post('/seller/sellerChangedPassword','Api\SellerController@getChangePasswordSeller'); */
+    Route::post('/seller/productConfirmedBySeller','Api\SellerController@getProductConfirmedBySeller');
       
 });
