@@ -49,7 +49,7 @@ class SellerController extends Controller
         if($request->all())
         {
             $validator = Validator::make($request->all(), [                
-                'name'              => 'required|min:1|',
+                //'name'              => 'required|min:1|',
                 'password'          => 'required|min:4|',
                 'email'             => 'required|email|unique:users',
                 'shop_mobile'       => 'required',               
@@ -74,19 +74,19 @@ class SellerController extends Controller
                 $email_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
 
                 $regNewMobile = new User;
-                $regNewMobile->name               = trim($request->name);
+                //$regNewMobile->name               = trim($request->name);
                 $regNewMobile->email              = trim($request->email);
                 $regNewMobile->password           = bcrypt($request->password);
                 $regNewMobile->email_verify_code  = $email_verify_code;                
                 $regNewMobile->email_verified     = "No";
-                $regNewMobile->email_verify_code  = $email_verify_code;
+                $regNewMobile->status             = 0;
 
                 $regNewProfile = new UserProfiles;
                 $regNewProfile->user_id             = DB::getPdo()->lastInsertId();
                 $regNewProfile->shop_name           = $request->shop_name;
                 $regNewProfile->shop_mobile         = $request->shop_mobile;
                 $regNewProfile->shop_address        = $request->shop_address;
-                $regNewProfile->shop_document       = $request->shop_document;
+                //$regNewProfile->shop_document       = $request->shop_document;
                 $regNewProfile->shop_city           = $request->shop_city;
                 $regNewProfile->shop_start_time     = $request->shop_start_time;
                 $regNewProfile->shop_close_time     = $request->shop_close_time;
@@ -95,14 +95,35 @@ class SellerController extends Controller
 
                 if( $regNewMobile->save() && $regNewProfile->save() )
                 {
+                    /* for Seller */
                     $subject  =  "Email Verification";
                     $content  =  "Your Email Verification Code Is : ".$email_verify_code;
-
+                    
                     $mail_data = array(
                         'content'   => $content,
                         'toEmail'   => trim($request->email),
                         'subject'   => $subject,
                         'fromEmail' => 'admin@feeh.com'
+                    );
+
+                    $sent = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data) {
+                        $message->to($mail_data['toEmail']);
+                        $message->from($mail_data['fromEmail']);
+                        $message->subject($mail_data['subject']);
+                    });
+
+                    /* Seller register Notification for Admin By Email */
+                    $adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
+                    //$adminEmail  =  $adminDetails->email;
+                    $adminEmail  =  'amitg@techuz.com';
+                    $subject     =  "New Seller Register";
+                    $content     =  "A New User Registered With Shop Name : ".$email_verify_code." And Email : ".$request->email;
+
+                    $mail_data = array(
+                        'content'   => $content,
+                        'toEmail'   => trim($request->email),
+                        'subject'   => $subject,
+                        'fromEmail' => trim($request->email)
                     );
 
                     $sent = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data) {
@@ -164,7 +185,8 @@ class SellerController extends Controller
                 $updateSellerProfile->shop_mobile         = $request->shop_mobile;
                 $updateSellerProfile->shop_address        = $request->shop_address;
                 $updateProfileSeller->email_verified      = $updateProfileSeller->email_verified;
-                
+                $updateProfileSeller->status              = $updateProfileSeller->status;
+
                 if($updateProfileSeller->mobile_verified=='Yes' && $updateProfileSeller->email_verified=='Yes')
                 {
                     $updateSellerProfile->usertype  = 'Both';
@@ -235,7 +257,7 @@ class SellerController extends Controller
                     }
                     else
                     {
-                        $this->resultapi('0','Some Problem with Email Send.', true);
+                        $this->resultapi('0','Some Problem with Send Email.', true);
                     }
                 }
                 else
@@ -269,12 +291,12 @@ class SellerController extends Controller
             }
             else
             {
-                if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password),'email_verified' => 'Yes')))
+                if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password),'email_verified' => 'Yes', 'status' => '1')))
                 {
                     $user = Auth::user();
                     $user['tokenId'] = $this->jwtAuth->fromUser($user);
                     $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();
-                    $this->resultapi('1','Login Sucessfully as Seller.', $user);
+                    $this->resultapi('1','Logged In Sucessfully.', $user);
                 } 
                 else
                 {

@@ -570,7 +570,7 @@ class UserController extends Controller
             }
             else
             {
-                $changePassword = User::updatePassword($request);
+                $changePassword = User::updatePassword($request->phone_number, $request->password, $request->uid);
                 
                 if($changePassword === 1)
                 {

@@ -20,18 +20,17 @@ class User extends Authenticatable
        return $userDetails;
     }    
 
-    public static function updatePassword($request)
+    public static function updatePassword($phoneNumber, $password, $uid)
     {  
         $is_password_updated = 0;
 
-        $userDetails = DB::table('users')
-        ->where('id',$request->$uid)
-        ->where('phone_number',$request->$phone_number)
-        ->first();
+        $userDetails = User::find($uid)
+        ->where('phone_number',$phoneNumber)
+        ->first();     
 
         if(count($userDetails) > 0)
         {
-           $userDetails->password = trim(bcrypt($request->$password));
+           $userDetails->password = trim(bcrypt($password));
            $userDetails->save();
 
            $is_password_updated = 1; 
@@ -71,14 +70,13 @@ class User extends Authenticatable
        return $userDetails;
     }
 
-    public static function updatePasswordSeller($request)
+    public static function updatePasswordSeller($email, $password, $uid)
     {  
         $is_password_updated = 0;
         //echo $request->$uid;
 
-        $userDetails = DB::table('users')
-        ->where('id',$request->$uid)
-        ->where('email',$request->$email)
+        $userDetails = User::find($uid)
+        ->where('email',$email)
         ->first();
 
         if(count($userDetails) > 0)
