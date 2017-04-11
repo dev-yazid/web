@@ -92,8 +92,7 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
      
     /* Brodcast Request */
     Route::post('/brodcast/brodcastInitData','Api\BrodcastController@getBrodcastInitData');    
-    Route::post('/brodcast/newProductRequest','Api\BrodcastController@sendNewProductRequest');
-    Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
+    Route::post('/brodcast/newProductRequest','Api\BrodcastController@sendNewProductRequest');   
     Route::post('/brodcast/productsByBrandId','Api\BrodcastController@getProductsByBrandId');    
     Route::post('/brodcast/updateProductRequest','Api\BrodcastController@getUpdateProductRequest');  
 
@@ -106,10 +105,18 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/user/updateProfile','Api\UserController@getUpdateProfile');
     Route::post('/user/userLogin','Api\UserController@getUserLogin');
     Route::post('/user/buyerRegisterInit','Api\UserController@getBuyerRegisterInit');
+   
+   /*  
+       Not In Used
+       
+       Route::post('/user/getVerifyCode','Api\UserController@getCurrentVerificationCode'); 
+       Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
+       Route::post('/user/myProfilUpdate','Api\UserController@getUpdateProfileByUser');
+     */
 
     /* After Logged In */
     Route::post('/user/logout','Api\UserController@getLogout');
-    Route::post('/user/myProfilUpdate','Api\UserController@getUpdateProfileByUser');
+    
     Route::post('/user/myProfileDetails','Api\UserController@getMyProfileDetails');
     Route::post('/user/viewBrodreqByUser','Api\UserController@getViewRequestByUser');
     Route::post('/user/viewResponse','Api\UserController@getViewResponse');
@@ -120,7 +127,6 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     
 
     /* Seller Management*/
-
     Route::post('/seller/sellerLogin','Api\SellerController@getSellerLogin');
     Route::post('/seller/sellerDetails','Api\SellerController@getSellerDetails');
     Route::post('/seller/allBrodRequest','Api\SellerController@getAllBrodRequests');

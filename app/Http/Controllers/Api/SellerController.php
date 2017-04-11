@@ -163,6 +163,16 @@ class SellerController extends Controller
                 $updateSellerProfile->shop_name           = $request->shop_name;
                 $updateSellerProfile->shop_mobile         = $request->shop_mobile;
                 $updateSellerProfile->shop_address        = $request->shop_address;
+                $updateProfileSeller->email_verified      = $updateProfileSeller->email_verified;
+                
+                if($updateProfileSeller->mobile_verified=='Yes' && $updateProfileSeller->email_verified=='Yes')
+                {
+                    $updateSellerProfile->usertype  = 'Both';
+                }
+                else
+                {
+                    $updateSellerProfile->usertype  = 'Seller';
+                }
                 /*$updateSellerProfile->shop_document       = $request->shop_document;*/
                 $updateSellerProfile->shop_city           = $request->shop_city;
                 $updateSellerProfile->shop_start_time     = $request->shop_start_time;
@@ -263,8 +273,7 @@ class SellerController extends Controller
                 {
                     $user = Auth::user();
                     $user['tokenId'] = $this->jwtAuth->fromUser($user);
-                    //echo $userToken  = Session::token();
-                    //die;
+                    $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();
                     $this->resultapi('1','Login Sucessfully as Seller.', $user);
                 } 
                 else

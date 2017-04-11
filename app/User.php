@@ -13,7 +13,7 @@ class User extends Authenticatable
         $userDetails = DB::table('users')
         ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
         ->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')
-        ->select('users.name','users.email','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','cities.name as city')
+        ->select('users.name','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','user_profiles.customer_email','cities.name as city')
         ->where('users.id',$userId)
         ->first();
 
