@@ -12,6 +12,8 @@
 */
 
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Authorization ,Content-Type, Accept");
+
 
 View::addExtension('html', 'php');
 
@@ -31,12 +33,6 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
     Route::get('/', function() { return Redirect::to("admin/login"); });
     Route::resource('dashboard', 'Admin\DashboardController');
 
-    /*Route::get('/categories/getData', 'Admin\CategoriesController@getData');
-    Route::resource('categories', 'Admin\CategoriesController');
-
-    Route::get('/skills/getData', 'Admin\SkillsController@getData');
-    Route::resource('skills', 'Admin\SkillsController');*/
-
     Route::get('/product/getData', 'Admin\ProductController@getData');
     Route::resource('product', 'Admin\ProductController');
 
@@ -55,7 +51,6 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
 
     Route::get('/brand/getData', 'Admin\BrandController@getData');
     Route::resource('brand', 'Admin\BrandController');
-
        
     Route::get('/job/getData', 'Admin\JobController@getData');
     Route::resource('job', 'Admin\JobController');  
@@ -86,10 +81,7 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
 
 Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth'], function() {
     Route::auth();
-
-    /* common Api */
-    //Route::post('/user/getAllCities','Api\UserController@getAllCities');
-     
+    
     /* Brodcast Request */
     Route::post('/brodcast/brodcastInitData','Api\BrodcastController@getBrodcastInitData');    
     Route::post('/brodcast/newProductRequest','Api\BrodcastController@sendNewProductRequest');   
@@ -104,19 +96,18 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/user/verifyMobile','Api\UserController@getVerifyMobile');    
     Route::post('/user/updateProfile','Api\UserController@getUpdateProfile');
     Route::post('/user/userLogin','Api\UserController@getUserLogin');
-    Route::post('/user/buyerRegisterInit','Api\UserController@getBuyerRegisterInit');
+    Route::post('/user/cityList','Api\UserController@getBuyerRegisterInit');
    
-   /*  
+    /*
        Not In Used
-       
+       Route::post('/user/getAllCities','Api\UserController@getAllCities');      
        Route::post('/user/getVerifyCode','Api\UserController@getCurrentVerificationCode'); 
        Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
        Route::post('/user/myProfilUpdate','Api\UserController@getUpdateProfileByUser');
-     */
+    */
 
     /* After Logged In */
-    Route::post('/user/logout','Api\UserController@getLogout');
-    
+    Route::post('/user/logout','Api\UserController@getLogout');    
     Route::post('/user/myProfileDetails','Api\UserController@getMyProfileDetails');
     Route::post('/user/viewBrodreqByUser','Api\UserController@getViewRequestByUser');
     Route::post('/user/viewResponse','Api\UserController@getViewResponse');
@@ -127,15 +118,24 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     
 
     /* Seller Management*/
-    Route::post('/seller/sellerLogin','Api\SellerController@getSellerLogin');
-    Route::post('/seller/sellerDetails','Api\SellerController@getSellerDetails');
-    Route::post('/seller/allBrodRequest','Api\SellerController@getAllBrodRequests');
+
+    /* Before Logged In */
     Route::post('/seller/sellerRegister','Api\SellerController@getRegisterSeller');
-    Route::post('/seller/updateSeller','Api\SellerController@getUpdateSellerProfile');
-    
+    Route::post('/seller/sellerLogin','Api\SellerController@getSellerLogin');    
     Route::post('/seller/sendEmailVeriCodeAgain','Api\SellerController@getSendEmailVerifyCodeAgain');
-    /* Route::post('/seller/viewRequestDeatils','Api\SellerController@getRequestDeatils'); *?
+    Route::post('/seller/emailVerify','Api\SellerController@getEmailVerify');
+
     /* Route::post('/seller/sellerChangedPassword','Api\SellerController@getChangePasswordSeller'); */
+    
+    /* After Logged In */
+    Route::post('/seller/sellerDetails','Api\SellerController@getSellerDetails');
+    Route::post('/seller/allBrodRequest','Api\SellerController@getAllBrodRequests');    
+    Route::post('/seller/updateSeller','Api\SellerController@getUpdateSellerProfile');
+    /* Route::post('/seller/viewRequestDeatils','Api\SellerController@getRequestDeatils'); */    
     Route::post('/seller/productConfirmedBySeller','Api\SellerController@getProductConfirmedBySeller');
+
+    /* Test Details */
+    Route::post('/user/testUser','Api\UserController@testUser');
+
       
 });

@@ -6,14 +6,15 @@ use Hash;
 use DB;
 use App\BrodResponse;
 
+
 class User extends Authenticatable
 {    
     public static function getProfileDetails($userId)
     {  
         $userDetails = DB::table('users')
         ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-        ->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')
-        ->select('users.name','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','user_profiles.customer_email','cities.name as city')
+        //->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')
+        ->select('users.name','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','user_profiles.customer_email','user_profiles.customer_city')
         ->where('users.id',$userId)
         ->first();
 
@@ -54,8 +55,8 @@ class User extends Authenticatable
 
         return $resUpdated;
     }
-    /* Seller Part */
 
+    /* Seller Part */
     public static function getSellerDetails($userId)
     {  
         $userDetails = DB::table('users')
@@ -64,17 +65,13 @@ class User extends Authenticatable
         ->select('users.id','users.name','users.email','user_profiles.customer_address','user_profiles.shop_name','user_profiles.shop_mobile','user_profiles.shop_address','user_profiles.shop_zipcode','user_profiles.shop_location_map','user_profiles.shop_start_time','user_profiles.shop_close_time','user_profiles.shop_location_map','cities.name as shop_city')
         ->where('users.id',$userId)
         ->first();
-
-        //print_r($userDetails);
-
+        
        return $userDetails;
     }
 
     public static function updatePasswordSeller($email, $password, $uid)
     {  
         $is_password_updated = 0;
-        //echo $request->$uid;
-
         $userDetails = User::find($uid)
         ->where('email',$email)
         ->first();

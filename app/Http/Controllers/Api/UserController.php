@@ -23,6 +23,10 @@ use App\Cities;
 use App\BrodRequest;
 use App\BrodResponse;
 use Auth;
+use Form;
+use File;
+use Image;
+
 
 use Twilio\Rest\Client;
 
@@ -33,10 +37,13 @@ class UserController extends Controller
     private $jwtAuth;
     function __construct(Request $request, User $user, ResponseFactory $responseFactory, JWTAuth $jwtAuth)
     {
+        header('Content-Type: application/json');
         $this->user = $user;
         $this->jwtAuth = $jwtAuth;
         $this->req = $request;
         $this->res = $responseFactory;
+        
+        $this->middleware('jwt.auth', ['except' => ['testUser','getVerifyMobile','getRegisterMobile','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
     }
     /**
      * Display a listing of the resource.
@@ -44,15 +51,30 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function getRegisterMobile(Request $request) {
-        //die("getRegisterMobile");
+    public function testUser(Request $request)
+    {
+        if(Auth::attempt(array('phone_number' => $request->phone_number, 'password' => $request->password)))
+        {
+           // echo header('ssss');
+            $user = Auth::user();
+            //$user['tokenId']     = $this->jwtAuth->fromUser($user);
+            //$user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();
+            print_r($user);
 
-        //print_r($request->all());
-        //die;
+            //$this->resultapi('1','Mobile Verified SucessFully..', $user);
+        } 
+        else
+        {
+            $user = array();
+            $this->resultapi('0','Some Problem With Mobile Verification', $user);
+        }
+    }
+
+    public function getRegisterMobile(Request $request) {
         if($request->phone_number)
         {
-            $validator = Validator::make($request->all(), [                
-                //'phone_number'  => 'required|min:10|numeric|unique:users',               
+            $validator = Validator::make($request->all(), [
+                'phone_number'  => 'required|min:10|numeric|unique:users',
             ]);
             
             if ($validator->fails()) 
@@ -135,45 +157,13 @@ class UserController extends Controller
             $this->resultapi('0','Mobile Number Not Found.', 0);
         }
     }
-    /* 
-    public function getCurrentVerificationCode(Request $request) {
-        if($request->phone_number)
-        {   
-            $validator = Validator::make($request->all(), [                
-                'phone_number'  => 'required|min:10|numeric',               
-            ]);
-            
-            if ($validator->fails()) 
-            {
-                $this->resultapi('0', $validator->errors()->all(), 0);
-            }
-            else
-            {
-                $veriCodeMobile = User::where('phone_number', '=', $request->phone_number)->first();
-                
-                if(count($veriCodeMobile) > 0)
-                {                
-                    $veriCodeMobile = $veriCodeMobile->mobile_verify_code;
-                    $this->resultapi('1','Verification Code found.',$veriCodeMobile);
-                }
-                else
-                {
-                    $this->resultapi('0','Mobile Number Not Exist.', 0);
-                }
-            }
-        }   
-        else
-        {
-            $this->resultapi('0','Mobile Number Not Exist.', 0);
-        }
-    } */
 
     public function getSendCodeAgain(Request $request) {
 
         if($request->phone_number)
         {
-            $validator = Validator::make($request->all(), [                
-                'phone_number'  => 'required|min:10|numeric',               
+            $validator = Validator::make($request->all(), [
+                'phone_number'  => 'required|min:10|numeric',
             ]);
             
             if ($validator->fails()) 
@@ -185,7 +175,7 @@ class UserController extends Controller
                 $digits = 4;
                 $mobile_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
 
-                /* need to integrate Sms Gateway Here */                
+                /* need to integrate Sms Gateway Here */
 
                 $regNewMobile = User::where('phone_number', '=', $request->phone_number)->first();
 
@@ -221,9 +211,9 @@ class UserController extends Controller
 
         if($request->phone_number && $request->verification_code)
         {
-            $validator = Validator::make($request->all(), [                
+            $validator = Validator::make($request->all(), [
                 'phone_number'       => 'required|min:10|numeric',
-                'verification_code'  => 'required|min:4|numeric',               
+                'verification_code'  => 'required|min:4|numeric',
             ]);
             
             if ($validator->fails()) 
@@ -260,8 +250,6 @@ class UserController extends Controller
                     {
                         $this->resultapi('0','Some Problem With User Authentication.', false);
                     }
-
-                    //$this->resultapi('1','Mobile Verified SucessFully.', true);
                 }
                 else
                 {
@@ -293,9 +281,9 @@ class UserController extends Controller
 
         if($request->all())
         {
-            $validator = Validator::make($request->all(), [                
+            $validator = Validator::make($request->all(), [
                 'phone_number'       => 'required|min:10|numeric',
-                'uid'                => 'required|numeric',               
+                'uid'                => 'required|numeric',
             ]);
             
             if ($validator->fails()) 
@@ -304,7 +292,7 @@ class UserController extends Controller
             }
             else
             {
-                $updateUser = User::where('id', '=', $request->uid)->first();
+                $updateUser = User::where('id',$request->uid)->first();
 
                 if(count($updateUser) > 0)
                 {                    
@@ -322,7 +310,7 @@ class UserController extends Controller
                     }                  
 
                     $updateProf                   = UserProfiles::where('user_id',$updateUser->id)->first();
-                    $updateProf->updateProf       = trim($request->customer_email);
+                    $updateProf->customer_email   = trim($request->customer_email);
                     $updateProf->customer_address = trim($request->customer_address) ? $request->customer_address : '';
                     $updateProf->customer_city    = trim($request->customer_city) ? $request->customer_city : '';
                     $updateProf->customer_zipcode = trim($request->customer_zipcode) ? $request->customer_zipcode :'';
@@ -352,9 +340,9 @@ class UserController extends Controller
 
         if($request->phone_number && $request->password)
         {
-            $validator = Validator::make($request->all(), [                
+            $validator = Validator::make($request->all(), [
                 'phone_number'       => 'required|min:10|numeric',
-                'password'           => 'required|min:4',               
+                'password'           => 'required|min:4',
             ]);
             
             if ($validator->fails()) 
@@ -367,7 +355,7 @@ class UserController extends Controller
                 {
                     $user = Auth::user();
                     $user['tokenId']     = $this->jwtAuth->fromUser($user);
-                    $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                   
+                    $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get(); 
                     $this->resultapi('1','Logeed In SucessFully.', $user);
                 } 
                 else
@@ -385,69 +373,32 @@ class UserController extends Controller
 
     public function getMyProfileDetails(Request $request)
     {
-        if($request->uid)
+        if(Auth::check())
         {
-            $myProfileDetails = User::getProfileDetails($request->uid);
-
-            if(count($myProfileDetails))
+            if($request->uid)
             {
-                $this->resultapi('1','Profile Details Found.', $myProfileDetails);
-            }
-            else
-            {
-                $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
-            }
-        } 
-        else
-        {
-            $myProfileDetails = array();
-            $this->resultapi('0','User Id Not Found.', $myProfileDetails);
-        }
-    }
+                $myProfileDetails = User::getProfileDetails($request->uid);
 
-    /* public function getUpdateProfileByUser(Request $request) {
-
-        if($request->uid)
-        {
-            $updateUser = User::where('id', '=', $request->uid)->where('mobile_verified','Yes')->first();
-
-            if(count($updateUser) > 0)
-            {
-                $updateUser->phone_number        = $request->phone_number;
-                //$updateUser->password            = bcrypt($request->password);
-                $updateUser->name                = trim($request->name) ? $request->name : "Feeh User";
-                $updateUser->email               = trim($request->email);
-                //$updateUser->usertype            = 'customer';
-                //$updateUser->mobile_verified     = "Yes";
-                $updateUser->is_customer_updated = 1;
-                //$updateUser->save();
-
-                $updateProf                      = UserProfiles::where('user_id',$updateUser->id)->first();
-                $updateProf->customer_email    = trim($request->customer_email) ? $request->customer_email : "";
-                $updateProf->customer_address    = trim($request->customer_address) ? $request->customer_address : "";
-                $updateProf->customer_city       = trim($request->customer_city) ? $request->customer_city : "";
-                $updateProf->customer_zipcode    = trim($request->customer_zipcode) ? $request->customer_zipcode :'';
-                //$updateProf->save();
-
-                if($updateUser->save() && $updateProf->save())
+                if(count($myProfileDetails))
                 {
-                    $this->resultapi('1','Profile Details Updated Sucessfully.', true);
-                } 
+                    $this->resultapi('1','Profile Details Found.', $myProfileDetails);
+                }
                 else
                 {
-                    $this->resultapi('0','Some Problem With Update Profile.', false);
-                }                    
-            }
+                    $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
+                }
+            } 
             else
             {
-                $this->resultapi('0','User Details Not Found.', false);
-            }           
+                $myProfileDetails = array();
+                $this->resultapi('0','User Id Not Found.', $myProfileDetails);
+            }
         }
         else
         {
-            $this->resultapi('0','Request Details Not Found.', 0);
+           $this->resultapi('0','Authentication Failed.', $myProfileDetails); 
         }
-    } */   
+    }
 
     public function getViewRequestByUser(Request $request)
     {          
@@ -493,7 +444,7 @@ class UserController extends Controller
 
     public function getRemoveResponse(Request $request)
     {            
-        if ($request->res_id) 
+        if($request->res_id) 
         {
             $resUpdated = BrodResponse::removeResponse($request->res_id);
             
