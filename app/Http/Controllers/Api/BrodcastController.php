@@ -28,10 +28,14 @@ class BrodcastController extends Controller
     private $jwtAuth;
     function __construct(Request $request, User $user, ResponseFactory $responseFactory, JWTAuth $jwtAuth)
     {
+        header('Content-Type: application/json');
+
         $this->user = $user;
         $this->jwtAuth = $jwtAuth;
         $this->req = $request;
         $this->res = $responseFactory;
+
+        $this->middleware('jwt.auth', ['except' => ['getBrodcastInitData','getProductsByBrandId','sendNewProductRequest']]);
     }
 
     /**
@@ -39,10 +43,6 @@ class BrodcastController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
-    public function header() {
-       header('Content-Type: application/json');
-    }
     
     public function getBrodcastInitData() { 
         
@@ -90,7 +90,8 @@ class BrodcastController extends Controller
                 'brod_bid'   => 'required|numeric',
                 'brod_pid'   => 'required|numeric',
                 'brod_year'  => 'required|numeric',
-                'brod_uid'   => 'required|numeric',                
+                'brod_uid'   => 'required|numeric',
+                'brod_img'   => 'mimes:jpeg,jpg,png,gif|max:1024'              
             ]);
             
             if ($validator->fails()) 
@@ -111,11 +112,18 @@ class BrodcastController extends Controller
 
                 if($request->hasFile('brod_img'))
                 {
-                    $file = $request->file('brod_img');           
-                    $destinationPath = public_path().'/asset/BrodcastImg/';           
+                    $file = $request->file('brod_img');
+                    $path = public_path().'/asset/brodcastImg/';
+                    $thumbPath = public_path('/asset/brodcastImg/thumb/');
+
                     $timestamp = time().  uniqid(); 
                     $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                    $file->move($destinationPath,$filename);
+                    $file->move($path,$filename);
+
+                    $img = Image::make($path.$filename);
+                    $img->resize(100, 100, function ($constraint) { 
+                        $constraint->aspectRatio();
+                    })->save($thumbPath.'/'.$filename);
 
                     $brodRequest->req_image   = $filename;
                 }
@@ -136,7 +144,88 @@ class BrodcastController extends Controller
         }        
     }
 
-    public function getAllBrodRequest() {
+    public function getUpdateProductRequest(Request $request) { 
+        if(Auth::check())
+        {
+            if($request->all() && count($request->all()) > 0)
+            {
+                $validator = Validator::make($request->all(), [
+                    
+                    'brod_id'    => 'required|numeric',
+                    'brod_desc'  => 'required|max:255',
+                    'brod_bid'   => 'required|numeric',
+                    'brod_pid'   => 'required|numeric',
+                    'brod_year'  => 'required|numeric',
+                    'brod_uid'   => 'required|numeric',
+                    'brod_img'   => 'mimes:jpeg,jpg,png,gif|max:1024'               
+                ]);
+                
+                if ($validator->fails()) 
+                {
+                    $this->resultapi('0',$validator->errors()->all(), 0);
+                }
+                else
+                {
+                    $brodResponse = BrodResponse::where('request_id',$request->brod_id)->first();
+                    if($brodResponse->is_prod_confirm_by_seller == 1)
+                    {
+                        $brodRequest                       = BrodRequest::find($request->brod_id);              
+                        $brodRequest->description          = $request->brod_desc;
+                        $brodRequest->brand_id             = $request->brod_bid;
+                        $brodRequest->prod_id              = $request->brod_pid;
+                        $brodRequest->prod_year            = $request->brod_year;
+                        $brodRequest->user_id              = $request->brod_uid;
+                        //$brodRequest->req_image            = "";                
+                        //$brodRequest->is_seller_replied    = 0;
+                        $brodRequest->is_details_updated   = 1;
+                        $brodRequest->is_seller_replied    = 0;
+                        $brodRequest->status               = 0; 
+
+                        if($request->hasFile('brod_img'))
+                        {
+                            $file = $request->file('brod_img');
+                            $path = public_path().'/asset/brodcastImg/';
+                            $thumbPath = public_path('/asset/brodcastImg/thumb/');
+
+                            $timestamp = time().  uniqid(); 
+                            $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                            $file->move($path,$filename);
+
+                            $img = Image::make($path.$filename);
+                            $img->resize(100, 100, function ($constraint) { 
+                                $constraint->aspectRatio();
+                            })->save($thumbPath.'/'.$filename);
+
+                            $brodRequest->req_image   = $filename;
+                        }
+                        else
+                        {   
+                            $brodRequest->req_image   = "";
+                        }
+
+                        $brodRequest->save();
+
+                        $this->resultapi('1','Product Request Updated Sucessfully.', true);
+                    }
+                    else
+                    {
+                        $this->resultapi('0','Product Request Confirmed By Client.', true);
+                    }
+                }
+            } 
+            else
+            {   
+                $productsByBrandId = array();
+                $this->resultapi('0','Request Details Not Found.', true);
+            }
+        }
+        else
+        {            
+            $this->resultapi('0','Authentication Failed.', 0);
+        }         
+    }
+
+    /*public function getAllBrodRequest() {
           
         $allBrodRequest = BrodRequest::getAllBrodRequest();
         if(count($allBrodRequest))
@@ -147,7 +236,7 @@ class BrodcastController extends Controller
         {
             $this->resultapi('0','No Brodcast Request Found.', $allBrodRequest);
         }        
-    }
+    }*/
 
     public function resultapi($status,$message,$result = array()) {
 

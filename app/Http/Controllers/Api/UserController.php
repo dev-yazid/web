@@ -22,6 +22,7 @@ use App\User;
 use App\Cities;
 use App\BrodRequest;
 use App\BrodResponse;
+use App\Transaction;
 use Auth;
 use Form;
 use File;
@@ -87,14 +88,13 @@ class UserController extends Controller
                 $phoneNumber = $request->phone_number;
                 $mobile_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
 
-
                 /*$sid = 'AC4ab5b2e4a9da816dc45e5af158dc770d';
                 $token = 'c2bed0cfbdee0f4dad5db438219b995e';*/
 
                 /*$sid = 'ACa19d22e0d513e7601aa8c06f71b433d0';
                 $token = '2d1cb1a4a9a496caf6225ebd122de083';
 
-              $client = new Client($sid, $token);
+                $client = new Client($sid, $token);
   
                 $number = $client->incomingPhoneNumbers->create(
                     array(

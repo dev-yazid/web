@@ -57,16 +57,16 @@ class SellerController extends Controller
             $validator = Validator::make($request->all(), [                
                 'seller_name'       => 'required',
                 'password'          => 'required|min:4',
-                'email'             => 'required|email|unique:users',                
+                'email'             => 'required|email|unique:users',
                 'shop_mobile'       => 'required',               
                 'shop_name'         => 'required',
                 'shop_address'      => 'required',
-                'file'              => 'required|mimes:jpeg,jpg,png,pdf|max:1024',
+                'file'              => 'mimes:jpeg,jpg,png,pdf|max:1024',
                 'shop_city'         => 'required',
                 'shop_start_time'   => 'required',
                 'shop_close_time'   => 'required',
                 'shop_location_map' => 'required',
-                'shop_zipcode'      => 'required|numeric',                
+                'shop_zipcode'      => 'required|numeric',              
             ]);
             
             if ($validator->fails()) 
@@ -77,6 +77,7 @@ class SellerController extends Controller
             {   
                 $digits = 4;
                 $email_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                $filename = "";
 
                 $regNewMobile = new User;                
                 $regNewMobile->email              = trim($request->email);
@@ -119,7 +120,7 @@ class SellerController extends Controller
                     $regNewProfile->shop_close_time     = $request->shop_close_time;
                     $regNewProfile->shop_location_map   = $request->shop_location_map;
                     $regNewProfile->shop_zipcode        = $request->shop_zipcode;
-                    $regNewProfile->shop_document       = $filename;
+                    $regNewProfile->shop_document       = $filename ? $filename : "";
                 }
 
                 if( $regNewMobile->save() && $regNewProfile->save() )
@@ -183,21 +184,84 @@ class SellerController extends Controller
     }
 
     public function getUpdateSellerProfile(Request $request) {
-
-        if($request->all())
+        if(Auth::check())
         {
+            if($request->all())
+            {
+                $validator = Validator::make($request->all(), [                
+                    'uid'               => 'required|numeric',
+                    'seller_name'       => 'required',
+                    'shop_mobile'       => 'required',               
+                    'shop_name'         => 'required',
+                    'shop_address'      => 'required',
+                    'shop_city'         => 'required|numeric',
+                    'shop_start_time'   => 'required|numeric',
+                    'shop_close_time'   => 'required|numeric',
+                    'shop_location_map' => 'required',
+                    'shop_zipcode'      => 'required|numeric',
+                    'shop_document'     => 'required',                
+                ]);
+                
+                if ($validator->fails()) 
+                {
+                    $this->resultapi('0', $validator->errors()->all(), 0);
+                }
+                else
+                {   
+                    $updateProfileSeller        = User::where('id',$request->uid)->first();                
+                    $updateProfileSeller->name  = trim($request->name);
+
+                    $updateSellerProfile = UserProfiles::where('user_id', '=', $request->uid)->first();
+                    $updateSellerProfile->seller_name         = $request->seller_name;
+                    $updateSellerProfile->shop_name           = $request->shop_name;
+                    $updateSellerProfile->shop_mobile         = $request->shop_mobile;
+                    $updateSellerProfile->shop_address        = $request->shop_address;
+                    $updateProfileSeller->email_verified      = $updateProfileSeller->email_verified;
+                    $updateProfileSeller->status              = $updateProfileSeller->status;
+
+                    if($updateProfileSeller->mobile_verified=='Yes' && $updateProfileSeller->email_verified=='Yes')
+                    {
+                        $updateSellerProfile->usertype  = 'Both';
+                    }
+                    else
+                    {
+                        $updateSellerProfile->usertype  = 'Seller';
+                    }
+                    /*$updateSellerProfile->shop_document       = $request->shop_document;*/
+                    $updateSellerProfile->seller_name         = $request->seller_name;
+                    $updateSellerProfile->shop_city           = $request->shop_city;
+                    $updateSellerProfile->shop_start_time     = $request->shop_start_time;
+                    $updateSellerProfile->shop_close_time     = $request->shop_close_time;
+                    $updateSellerProfile->shop_location_map   = $request->shop_location_map;
+                    $updateSellerProfile->shop_zipcode        = $request->shop_zipcode;
+
+                    if( $updateSellerProfile->save() && $updateProfileSeller->save() )
+                    {                    
+                        $this->resultapi('1','Seller Details Updated Sucessfully.', true);                    
+                    }
+                    else
+                    {
+                        $this->resultapi('0','Some Problem with Seller Registration Process.', true);
+                    }
+                }
+            }
+            else
+            {
+                $this->resultapi('0','Request Details Not Found.', 0);
+            }
+        }
+        else
+        {            
+            $this->resultapi('0','Authentication Failed.', 0);
+        }  
+    }
+
+    public function getSendEmailVerifyCodeAgain(Request $request) {
+
+        if($request->email)
+        {            
             $validator = Validator::make($request->all(), [                
-                'uid'               => 'required|numeric',
-                'seller_name'       => 'required',
-                'shop_mobile'       => 'required',               
-                'shop_name'         => 'required',
-                'shop_address'      => 'required',
-                'shop_city'         => 'required|numeric',
-                'shop_start_time'   => 'required|numeric',
-                'shop_close_time'   => 'required|numeric',
-                'shop_location_map' => 'required',
-                'shop_zipcode'      => 'required|numeric',
-                'shop_document'     => 'required',                
+                'email'  => 'required|email'
             ]);
             
             if ($validator->fails()) 
@@ -205,105 +269,60 @@ class SellerController extends Controller
                 $this->resultapi('0', $validator->errors()->all(), 0);
             }
             else
-            {   
-                $updateProfileSeller = User::where('id', '=', $request->uid)->first();                
-                $updateProfileSeller->name                = trim($request->name);
-
-                $updateSellerProfile = UserProfiles::where('user_id', '=', $request->uid)->first();
-                $updateSellerProfile->shop_name           = $request->shop_name;
-                $updateSellerProfile->shop_mobile         = $request->shop_mobile;
-                $updateSellerProfile->shop_address        = $request->shop_address;
-                $updateProfileSeller->email_verified      = $updateProfileSeller->email_verified;
-                $updateProfileSeller->status              = $updateProfileSeller->status;
-
-                if($updateProfileSeller->mobile_verified=='Yes' && $updateProfileSeller->email_verified=='Yes')
-                {
-                    $updateSellerProfile->usertype  = 'Both';
-                }
-                else
-                {
-                    $updateSellerProfile->usertype  = 'Seller';
-                }
-                /*$updateSellerProfile->shop_document       = $request->shop_document;*/
-                $updateSellerProfile->seller_name         = $request->seller_name;
-                $updateSellerProfile->shop_city           = $request->shop_city;
-                $updateSellerProfile->shop_start_time     = $request->shop_start_time;
-                $updateSellerProfile->shop_close_time     = $request->shop_close_time;
-                $updateSellerProfile->shop_location_map   = $request->shop_location_map;
-                $updateSellerProfile->shop_zipcode        = $request->shop_zipcode;
-
-                if( $updateSellerProfile->save() && $updateProfileSeller->save() )
-                {                    
-                    $this->resultapi('1','Seller Details Updated Sucessfully.', true);                    
-                }
-                else
-                {
-                    $this->resultapi('0','Some Problem with Seller Registration Process.', true);
-                }
-            }
-        }
-        else
-        {
-            $this->resultapi('0','Request Details Not Found.', 0);
-        }
-    }
-
-    public function getSendEmailVerifyCodeAgain(Request $request) {
-
-        if($request->email)
-        {
-            $emailVerification = User::where('email', '=', $request->email)->first();
-            if(count($emailVerification) > 0)
             {
-                /*if($emailVerification->email_verified  == "No")
-                {*/
-                    $digits = 4;
-                    $email_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                $emailVerification = User::where('email', '=', $request->email)->first();
+                if(count($emailVerification) > 0)
+                {
+                    /*if($emailVerification->email_verified  == "No")
+                    {*/
+                        $digits = 4;
+                        $email_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
 
-                    $emailVerification->email_verified       = 'No';
-                    $emailVerification->email_verify_code    = $email_verify_code;
-                    //$emailVerification->save();
-                    /* email */
-                    if($emailVerification->save())
-                    {
-                        $subject  =  "Re::Email Verification Code";
-                        $content  =  "Your Email Verification Code Is : ".$email_verify_code;
-
-                        $mail_data = array(
-                            'content'   => $content,
-                            'toEmail'   => trim($emailVerification->email),
-                            'subject'   => $subject,
-                            'fromEmail' => 'admin@feeh.com'
-                        );
-
-                        $sent = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data){
-                                $message->to($mail_data['toEmail']);
-                                $message->from($mail_data['fromEmail']);
-                                $message->subject($mail_data['subject']);
-                            });
-
-                        if($sent)
+                        $emailVerification->email_verified       = 'No';
+                        $emailVerification->email_verify_code    = $email_verify_code;
+                        //$emailVerification->save();
+                        /* email */
+                        if($emailVerification->save())
                         {
-                            $this->resultapi('1','Re Email Verification Code Send To Your Registered Email Address.', true);
+                            $subject  =  "Re::Email Verification Code";
+                            $content  =  "Your Email Verification Code Is : ".$email_verify_code;
+
+                            $mail_data = array(
+                                'content'   => $content,
+                                'toEmail'   => trim($emailVerification->email),
+                                'subject'   => $subject,
+                                'fromEmail' => 'admin@feeh.com'
+                            );
+
+                            $sent = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data){
+                                    $message->to($mail_data['toEmail']);
+                                    $message->from($mail_data['fromEmail']);
+                                    $message->subject($mail_data['subject']);
+                                });
+
+                            if($sent)
+                            {
+                                $this->resultapi('1','Re Email Verification Code Send To Your Registered Email Address.', true);
+                            }
+                            else
+                            {
+                                $this->resultapi('0','Some Problem with Send Email.', true);
+                            }
                         }
                         else
                         {
-                            $this->resultapi('0','Some Problem with Send Email.', true);
+                            $this->resultapi('0','Some Problem with Email Send.', true);
                         }
-                    }
+                    /*}
                     else
                     {
-                        $this->resultapi('0','Some Problem with Email Send.', true);
-                    }
-                /*}
+                        $this->resultapi('0','Email Already Verified.', true);
+                    }*/
+                }
                 else
                 {
-                    $this->resultapi('0','Email Already Verified.', true);
-                }*/
-            }
-            else
-            {
-                $this->resultapi('0','Email Not Exist.', 0);
+                    $this->resultapi('0','Email Not Exist.', 0);
+                }
             }
         }
         else
@@ -355,7 +374,7 @@ class SellerController extends Controller
         {
             $validator = Validator::make($request->all(), [                
                 'email'              => 'required|email',
-                'password'           => 'required|max:8',               
+                'password'           => 'required|max:8|min:4',               
             ]);
             
             if ($validator->fails()) 
@@ -369,12 +388,13 @@ class SellerController extends Controller
                     $user = Auth::user();
                     $user['tokenId'] = $this->jwtAuth->fromUser($user);
                     $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();
+
                     $this->resultapi('1','Logged In Sucessfully.', $user);
                 } 
                 else
                 {
                     $user = array();
-                    $this->resultapi('0','Some Problem With Seller Login.', $user);
+                    $this->resultapi('0','Invalid Login Details.', $user);
                 }
             }
         }
@@ -385,116 +405,222 @@ class SellerController extends Controller
     }
 
     public function getSellerDetails(Request $request)
-    {
-        if($request->uid)
-        {
-            $myProfileDetails = User::getSellerDetails($request->uid);
-
-            if(count($myProfileDetails))
+    {   
+        if(Auth::check())
+        {     
+            if($request->uid)
             {
-                $this->resultapi('1','Profile Details Found.', $myProfileDetails);
-            }
+                $myProfileDetails = User::getSellerDetails($request->uid);
+
+                if(count($myProfileDetails))
+                {
+                    $this->resultapi('1','Profile Details Found.', $myProfileDetails);
+                }
+                else
+                {
+                    $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
+                }
+            } 
             else
             {
-                $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
+                $myProfileDetails = array();
+                $this->resultapi('0','User Id Not Found.', $myProfileDetails);
             }
-        } 
+        }
         else
         {
             $myProfileDetails = array();
-            $this->resultapi('0','User Id Not Found.', $myProfileDetails);
-        }
+            $this->resultapi('0','Authentication Failed.', $myProfileDetails);
+        }   
     }
 
-    public function getAllBrodRequests()
+    public function getAllBrodRequests(Request $request)
     {   
-        $allResponse = BrodResponse::getAllBrodRequest();
-        
-        if(count($allResponse))
+        if(Auth::check())
         {
-            $this->resultapi('1','Brodcast Request Found.', $allResponse);
+            if($request->uid)
+            {
+                $allResponse = BrodRequest::getAllBrodRequest($request->uid);
+
+                if(count($allResponse))
+                {
+                    $this->resultapi('1','Brodcast Request Found.', $allResponse);
+                }
+                else
+                {
+                    $this->resultapi('0','No Brodcast Request Found.', $allResponse);
+                } 
+            }
+            else
+            {
+                $allResponse = array();
+                $this->resultapi('0','User Id Not Found.', $allResponse);
+            }
         }
         else
         {
-            $this->resultapi('0','No Brodcast Request Found.', $allResponse);
-        }        
+            $allResponse = array();
+            $this->resultapi('0','Authentication Failed.', $allResponse);
+        }      
+    }
+
+    public function getUpdateResponseBySeller(Request $request)
+    {   
+        if(Auth::check())
+        {
+            if($request->res_id && $request->price)
+            {
+                $validator = Validator::make($request->all(), [                
+                    'res_id'   => 'required|numeric',
+                    'price'    => 'required|max:6',               
+                ]);
+            
+                if ($validator->fails()) 
+                {
+                    $this->resultapi('0', $validator->errors()->all(), 0);
+                }
+                else
+                {
+                    $respDetail = BrodResponse::find($request->res_id);
+
+                    if(count($respDetail) > 0)
+                    {   
+                        if($respDetail->is_prod_confirm_by_buyer == 1)
+                        {
+                            $this->resultapi('0','Product Already Confirmed by Customer.', true);
+                        }
+                        elseif($respDetail->removed_by_user == 1)
+                        {
+                            $this->resultapi('0','Customer Rejected Your Proposal.', true);
+                        }
+                        else
+                        {                           
+                            $respDetail->price          = $request->price;
+                            $respDetail->price_updated  = 1;
+                            $respDetail->save();
+
+                            $reqDetail = BrodRequest::find($respDetail->request_id);
+                            $reqDetail->is_seller_replied = 1;
+                            $reqDetail->save();
+
+                            $this->resultapi('1','Response Details Updated Sucessfully.', true);
+                        }
+                    }
+                    else
+                    {
+                        $this->resultapi('0','Response Details Not Exist.', $allResponse);
+                    }
+                }
+            }
+            else
+            {
+                $allResponse = array();
+                $this->resultapi('0','Details Not Found.', $allResponse);
+            }
+        }
+        else
+        {
+            $allResponse = array();
+            $this->resultapi('0','Authentication Failed.', $allResponse);
+        }      
     }
 
     public function getProductConfirmedBySeller(Request $request)
     {            
-        if($request->res_id) 
+        if(Auth::check())
         {
-            $prodConfirmation = BrodResponse::productConfirmedBySeller($request->res_id);
-            
-            if($prodConfirmation === 1)
+            if($request->res_id) 
             {
-                $this->resultapi('1','Product Confirmed By Seller.', true);
+                $prodConfirmation = BrodResponse::productConfirmedBySeller($request->res_id);
+                
+                if($prodConfirmation === 1)
+                {
+                    $this->resultapi('1','Product Confirmed By Seller.', true);
+                }
+                else
+                {
+                    $this->resultapi('0','Invalid Response Id.', false);
+                }            
             }
             else
             {
-                $this->resultapi('0','Invalid Response Id.', false);
-            }            
+                $this->resultapi('0','Seller Response Id Not Found.', false);
+            }
         }
         else
-        {
-            $this->resultapi('0','Seller Response Id Not Found.', false);
-        }        
+        {           
+            $this->resultapi('0','Authentication Failed.', false);
+        }          
     }
 
     public function getChangePasswordSeller(Request $request)
     {        
-        if($request->email && $request->password && $request->uid)
+        if(Auth::check())
         {
-            $validator = Validator::make($request->all(), [                
-                'email'       => 'required',
-                'password'    => 'required',
-                'uid'         => 'required|numeric',               
-            ]);
-            
-            if ($validator->fails()) 
+            if($request->email && $request->password && $request->uid)
             {
-                $this->resultapi('0', $validator->errors()->all(), 0);
-            }
-            else
-            {
-                $changePassword = User::updatePasswordSeller($request->email, $request->password, $request->uid);
+                $validator = Validator::make($request->all(), [                
+                    'email'       => 'required',
+                    'password'    => 'required',
+                    'uid'         => 'required|numeric',               
+                ]);
                 
-                if($changePassword === 1)
+                if ($validator->fails()) 
                 {
-                    $this->resultapi('1','Password Updated Sucesfully.', true);
+                    $this->resultapi('0', $validator->errors()->all(), 0);
                 }
                 else
                 {
-                    $this->resultapi('0','Some Problem In Change Password.', false);
+                    $changePassword = User::updatePasswordSeller($request->email, $request->password, $request->uid);
+                    
+                    if($changePassword === 1)
+                    {
+                        $this->resultapi('1','Password Updated Sucesfully.', true);
+                    }
+                    else
+                    {
+                        $this->resultapi('0','Some Problem In Change Password.', false);
+                    }
                 }
-            }
-        }
-        else
-        {
-            $this->resultapi('0','User Details Not Found.', false);
-        } 
-    }
-
-    /*public function getViewRequestByUser(Request $request)
-    {          
-        if($request->uid)
-        {
-            $brodRequestByUser = BrodRequest::getBrodRequestByUser($request->uid);
-            
-            if(count($brodRequestByUser))
-            {
-                $this->resultapi('1','Brodcast Request Found.', $brodRequestByUser);
             }
             else
             {
-                $this->resultapi('0','No Brodcast Request Found.', $brodRequestByUser);
+                $this->resultapi('0','User Details Not Found.', false);
             }
         }
         else
         {
-            $this->resultapi('0','User Not Found.', false);
-        } 
-    }*/       
+            $this->resultapi('0','Authentication Failed.', false);
+        }   
+    }
+
+    public function getRequestDeatils(Request $request)
+    {          
+        if(Auth::check())
+        {
+            if($request->req_id && $request->uid )
+            {
+                $brodRequestByUser = BrodResponse::getRequestDetailsBySeller($request->req_id, $request->uid);
+                
+                if(count($brodRequestByUser))
+                {
+                    $this->resultapi('1','Brodcast Request Found.', $brodRequestByUser);
+                }
+                else
+                {
+                    $this->resultapi('0','No Brodcast Request Found.', $brodRequestByUser);
+                }
+            }
+            else
+            {
+                $this->resultapi('0','User Not Found.', false);
+            }
+        }
+        else
+        {            
+            $this->resultapi('0','Authentication Failed.', false);
+        }   
+    }       
 
     public function resultapi($status,$message,$result = array()) {
 
@@ -508,8 +634,8 @@ class SellerController extends Controller
     public function resultapi2($status,$result = array(),$message) {
 
         $finalArray['STATUS']   = $status;
-        $finalArray['imgPath']  = $message;
-        $finalArray['DATA']     = $result;
+        $finalArray['IMGPATH']  = $message;
+        $finalArray['MESSAGE']  = $result;
 
         echo json_encode($finalArray);  
     }    

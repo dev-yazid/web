@@ -10,6 +10,8 @@ use App\UserProfiles;
 
 use App\Cities;
 use App\BrodResponse;
+use App\BrodRequest;
+use App\Transaction;
 
 class BrodResponse extends Model
 {
@@ -20,7 +22,7 @@ class BrodResponse extends Model
         ->where('removed_by_user',0)
         ->select('id','seller_id','request_id','price','price_updated','read_status','removed_by_user')
         ->orderBy('id','desc')
-        ->get(); 
+        ->get();
 
         if(count($resDetails) > 0)
         {
@@ -80,9 +82,21 @@ class BrodResponse extends Model
         	$prodConfirmation->is_prod_confirm_by_buyer = 1;
         	$prodConfirmation->price_updated = 1;
         	$prodConfirmation->read_status   = 1;
-        	$prodConfirmation->save();
+        	
+            if($prodConfirmation->save())
+            {
+                $transaction = new Transaction;
+                $transaction->cust_id               = $prodConfirmation->customer_id;
+                $transaction->seller_id             = $prodConfirmation->seller_id;
+                $transaction->request_id            = $prodConfirmation->request_id;
+                $transaction->customer_confirmation = 1;
+                $transaction->seller_confirmation   = 0;
+                $transaction->save();
 
-        	$resUpdated = 1;
+                $resUpdated = 1;
+            }
+
+        	
         }
 
         return $resUpdated;
@@ -100,11 +114,15 @@ class BrodResponse extends Model
         	$prodConfirmation->is_prod_confirm_by_seller = 1;
         	//$prodConfirmation->price_updated = 1;
         	//$prodConfirmation->read_status   = 1;
-        	$prodConfirmation->save();
-
-        	$resUpdated = 1;
+        	if($prodConfirmation->save())
+            {
+                $transaction = Transaction::where($prodConfirmation->request_id);
+                $transaction->seller_confirmation   = 1;
+                $transaction->save()
+            	$resUpdated = 1;
+            }
         }
 
         return $resUpdated;
-    }      
+    }    
 }

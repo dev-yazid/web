@@ -59,12 +59,19 @@ class User extends Authenticatable
     /* Seller Part */
     public static function getSellerDetails($userId)
     {  
+        //echo "fsdfsd";
         $userDetails = DB::table('users')
         ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-        ->leftJoin('cities', 'user_profiles.shop_city', '=', 'cities.id')
-        ->select('users.id','users.name','users.email','user_profiles.customer_address','user_profiles.shop_name','user_profiles.shop_mobile','user_profiles.shop_address','user_profiles.shop_zipcode','user_profiles.shop_location_map','user_profiles.shop_start_time','user_profiles.shop_close_time','user_profiles.shop_location_map','cities.name as shop_city')
+        //->leftJoin('cities', 'user_profiles.shop_city', '=', 'cities.id')
+        ->select('users.id','users.name','users.email','user_profiles.customer_address','user_profiles.seller_name','user_profiles.shop_name','user_profiles.shop_mobile','user_profiles.shop_address','user_profiles.shop_zipcode','user_profiles.shop_location_map','user_profiles.shop_start_time','user_profiles.shop_close_time','user_profiles.shop_location_map','user_profiles.shop_city')
         ->where('users.id',$userId)
         ->first();
+
+        if(count($userDetails) > 0)
+        {
+            $mapUrl ='https://www.google.com/maps?q=';
+            $userDetails->map_location = $mapUrl.$userDetails->shop_location_map;           
+        }
         
        return $userDetails;
     }

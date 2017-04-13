@@ -114,8 +114,7 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/user/removeResponse','Api\UserController@getRemoveResponse');
     Route::post('/user/markPriceNotiRead','Api\UserController@getMarkPriceReadUpdateNoti');
     Route::post('/user/changePassword','Api\UserController@getChangePassword');
-    Route::post('/user/productConfirmedByBuyer','Api\UserController@getProductConfirmedByBuyer');   
-    
+    Route::post('/user/productConfirmedByBuyer','Api\UserController@getProductConfirmedByBuyer');
 
     /* Seller Management*/
 
@@ -124,15 +123,19 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/seller/sellerLogin','Api\SellerController@getSellerLogin');    
     Route::post('/seller/sendEmailVeriCodeAgain','Api\SellerController@getSendEmailVerifyCodeAgain');
     Route::post('/seller/emailVerify','Api\SellerController@getEmailVerify');
-
-    /* Route::post('/seller/sellerChangedPassword','Api\SellerController@getChangePasswordSeller'); */
+    Route::post('/seller/sellerChangedPassword','Api\SellerController@getChangePasswordSeller');
     
     /* After Logged In */
     Route::post('/seller/sellerDetails','Api\SellerController@getSellerDetails');
     Route::post('/seller/allBrodRequest','Api\SellerController@getAllBrodRequests');    
     Route::post('/seller/updateSeller','Api\SellerController@getUpdateSellerProfile');
-    /* Route::post('/seller/viewRequestDeatils','Api\SellerController@getRequestDeatils'); */    
+    Route::post('/seller/viewRequestDeatils','Api\SellerController@getRequestDeatils');  
     Route::post('/seller/productConfirmedBySeller','Api\SellerController@getProductConfirmedBySeller');
+    Route::post('/seller/updateResponse','Api\SellerController@getUpdateResponseBySeller');
+
+    /* Messages chat */
+    Route::post('/chat/message','Api\MessageController@sendMessage');
+    Route::post('/chat/getAllMessages','Api\MessageController@getAllMessages');    
 
     /* Test Details */
     Route::post('/user/testUser','Api\UserController@testUser');
