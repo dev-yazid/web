@@ -155,10 +155,11 @@ class MessageController extends Controller
                         $msgStatus->read_status = 1;
                         $msgStatus->save();
                     }
-                }   
+                }
+
+                $this->resultapi('1','Message Send Sucessfully', $allMessages);   
             }
-            //print_r($allMessages);
-            $this->resultapi('1','Message Send Sucessfully', $allMessages);
+            //print_r($allMessages);            
         }
         else
         {            
