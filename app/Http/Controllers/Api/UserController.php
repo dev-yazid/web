@@ -74,7 +74,7 @@ class UserController extends Controller
     public function getAppInitData(Request $request)
     {
         $appInitData = array(
-            'ip'                   => request()->ip(),
+            'ip'                   => $request->ip(),
             'msgImgPath'           => asset('/public/asset/Message/'),
             'msgImgPathThumb'      => asset('/public/asset/Message/thumb/'),
             'brandImgPath'         => asset('/public/asset/brand/'),
