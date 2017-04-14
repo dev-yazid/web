@@ -40,6 +40,12 @@
             </div>
         </div>
         <div class="form-group"> 
+            <div class="col-md-12">
+                {!! Form::label('seller_name', 'Seller Name' , array('class' => 'required')); !!}
+                {!! Form::text('seller_name',null,array('class'=>'form-control')) !!}
+            </div>
+        </div>  
+        <div class="form-group"> 
             <div class="col-md-6">
                 {!! Form::label('shop_name', 'Shop Name', array('class' => 'required')); !!}
                 {!! Form::text('shop_name',null,array('class'=>'form-control')) !!}
@@ -74,10 +80,8 @@
                 {!! Form::label('shop_close_time', 'Shop Close Time'); !!}
                 {!! Form::text('shop_close_time',null,array('class'=>'form-control')) !!}
             </div>            
-        </div>
-        <div class="form-group">
             <div class="col-md-6">
-                {!! Form::label('map_url', 'Google Map URL' , array('class' => 'required')); !!}
+                {!! Form::label('map_url', 'Google (Lat, Long)' , array('class' => 'required')); !!}
                 {!! Form::url('map_url', null, ['class' => 'form-control' ]) !!}
             </div>
         </div>

@@ -67,9 +67,8 @@ class ProductController extends Controller {
      */
     public function store(Request $request) {
         $validator = Validator::make($request->all(), [
-                    'pname' => 'required|max:100',
-                    'year' => 'required',
-                    'status' => 'required',
+            'pname' => 'required|max:100',                    
+            'status' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -80,7 +79,7 @@ class ProductController extends Controller {
 
         $prod = new Product;
         $prod->pname = trim($request->pname);
-        $prod->brand = trim($request->brand);
+        //$prod->brand = trim($request->brand);
         $prod->year = trim($request->year);
         $prod->status = $request->status;
         $prod->save();
@@ -123,9 +122,7 @@ class ProductController extends Controller {
             $yeararr[$i] = $i;
         }
         $qual = Product::find($id);
-       /* echo '<pre>';
-        print_r($qual);
-        exit;*/
+  
         if (empty($qual)) {
             Session::flash('error_msg', 'Page not found.');
             return redirect('/admin/product');
@@ -142,10 +139,9 @@ class ProductController extends Controller {
      */
     public function update(Request $request, $id) {
         $validator = Validator::make($request->all(), [
-                    'pname' => 'required|max:100',
-                    'brand' => 'required',
-                    'year' => 'required',
-                    'status' => 'required',
+            'pname' => 'required|max:100',
+            'brand' => 'required',
+            'status' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -156,7 +152,7 @@ class ProductController extends Controller {
 
         $prod = Product::find($id);
         $prod->pname = trim($request->pname);
-        $prod->year = $request->year;
+        //$prod->year = $request->year;
         $prod->brand = $request->brand;
         $prod->status = $request->status;
         $prod->update();

@@ -77,16 +77,16 @@ class UserController extends Controller
             
             'name'              => 'required|max:100',            
             'email'             => 'required|max:100|unique:users',            
-            'password'          => 'required|min:6|same:confirmpassword',
-            'confirmpassword'   => 'required|min:6|same:password',
+            'password'          => 'required|min:4|same:confirmpassword',
+            'confirmpassword'   => 'required|min:4|same:password',
             'status'            => 'required',
             'shop_mobile'       => 'required|max:10',
             'shop_name'         => 'required|max:100',
             'shop_address'      => 'required|max:100',
             'shop_city'         => 'required|max:100',
             'shop_zipcode'      => 'required|max:100',   
-            'shop_start_time'   => 'required|date_format:H:i',
-            'shop_close_time'   => 'required|date_format:H:i|after:shop_start_time',
+            'shop_start_time'   => 'required',
+            'shop_close_time'   => 'required',
             'map_url'           => 'required',
             'shop_document'     => 'mimes:jpeg,jpg,png,doc,pdf|max:1024',
             
@@ -99,26 +99,6 @@ class UserController extends Controller
             ->withErrors($validator);
         }
         
-        if($validator->passes() && $request->hasFile('shop_document'))
-        {
-            $file = $request->file('shop_document');      
-            $destinationPath = public_path().'/asset/licence/';           
-            $timestamp = time().  uniqid(); 
-            $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-            $extension = $file->getClientOriginalExtension(); // getting fileextension
-            $file->move($destinationPath,$filename);  
-        }
-        /*
-        $file = Request::file('filefield');
-        $extension = $file->getClientOriginalExtension();
-        Storage::disk('local')->put($file->getFilename().'.'.$extension,  File::get($file));
-        $entry = new Fileentry();
-        $entry->mime = $file->getClientMimeType();
-        $entry->original_filename = $file->getClientOriginalName();
-        $entry->filename = $file->getFilename().'.'.$extension;
-        $entry->save();
-        */
-        
         $user = new User;
         $user->name                 = $request->name;     
         $user->email                = $request->email;        
@@ -129,6 +109,7 @@ class UserController extends Controller
         $user->usertype             = 'Seller';
         $user->email_verify_code    = "";
         $user->email_verified       = 'Yes';
+
         /******************************/
         
         if($user->save())
@@ -136,6 +117,7 @@ class UserController extends Controller
             $lastUserinsertedId = $user->id;
             $userProfile = new UserProfiles;
             $userProfile->user_id           = $lastUserinsertedId;
+            $userProfile->seller_name       = $request->seller_name;
             $userProfile->shop_name         = $request->shop_name;
             $userProfile->shop_mobile       = $request->shop_mobile;
             $userProfile->shop_address      = $request->shop_address;           
@@ -144,9 +126,26 @@ class UserController extends Controller
             $userProfile->shop_start_time   = $request->shop_start_time ? $request->shop_start_time : "";
             $userProfile->shop_close_time   = $request->shop_close_time ? $request->shop_close_time : "";
             $userProfile->shop_location_map = $request->map_url;
+
+            $bserUrlImg = asset('/public/asset/shopLicence/thumb/');
             if($request->hasFile('shop_document'))
-            $userProfile->shop_document     = $filename;
-            
+            {           
+                $file = $request->file('shop_document');
+                $path = public_path().'/asset/shopLicence/';
+                $thumbPath = public_path('/asset/shopLicence/thumb/');
+
+                $timestamp = time().  uniqid(); 
+                $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                $file->move($thumbPath,$filename);
+                $file->move($path,$filename);
+
+                /*$img = Image::make($path.$filename);
+                $img->resize(100, 100, function ($constraint) { 
+                    $constraint->aspectRatio();
+                })->save($thumbPath.'/'.$filename);*/
+            }
+
+            $userProfile->shop_document     = $filename;            
             $userProfile->save();
           
             $msg = "Seller Registered Successfully.";

@@ -87,6 +87,13 @@
             <h4 class="col-lg-12 control-label">Shop Details</h4>
         </div>
 
+         <div class="form-group">
+            <label class="col-lg-3 control-label">Seller Name</label>
+            <div class="col-lg-9">
+                <p><?php echo $user->seller_name; ?></p>
+            </div>
+        </div>
+
         <div class="form-group">
             <label class="col-lg-3 control-label">Shop Name</label>
             <div class="col-lg-9">
@@ -125,21 +132,23 @@
         <div class="clear"></div>
 
         <div class="form-group">
-            <label class="col-lg-3 control-label">Shop Document</label>
+            <label class="col-lg-3 control-label">Shop Licence</label>
             <div class="col-lg-9">
-                <p><a href="{{ asset("public/asset/licence/".$user->shop_document) }}" target="blank">                 
+                <p>
+                    <a href="{{ asset('public/asset/shopLicence/'.$user->shop_document) }}" target="_blank">
                         <?php //echo $user->shop_document; 
-                        echo 'View Document'; ?></a>
+                        echo 'View Licence'; ?>
+                    </a>
                 </p>
             </div>
         </div>
         
         <div class="clear"></div>
         <div class="form-group">
-            <label class="col-lg-3 control-label">Shop Location Map</label>
+            <label class="col-lg-3 control-label">Shop Location</label>
             <div class="col-lg-9">
-                <p><a href="{{ $user->shop_location_map }}" target="blank">                 
-                        <?php echo 'View Map'; ?></a>
+                <p><a href="https://www.google.com/maps?q={{trim($user->shop_location_map)}}" target="_blank">
+                    <?php echo 'View Location'; ?></a>
                 </p>
             </div>
         </div>
@@ -162,8 +171,8 @@
             <label class="col-lg-3 control-label">Customer Address</label>
             <div class="col-lg-9">
                 <p>
-    <?php echo $user->customer_address; ?> |
-    <?php echo $user->customercity->name; ?> |
+                    <?php echo $user->customer_address; ?> |
+                    <?php echo $user->customercity->name; ?> |
                     <?php echo $user->customer_zipcode; ?> |
                     <?php echo "Soudi Arabia"; ?>
 

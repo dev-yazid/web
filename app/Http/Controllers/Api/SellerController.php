@@ -43,7 +43,7 @@ class SellerController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['getEmailVerify','getSendEmailVerifyCodeAgain','getRegisterSeller']]);
+        $this->middleware('jwt.auth', ['except' => ['getSellerLogin','getMobileVerify','getSendEmailVerifyCodeAgain','getRegisterSeller']]);
     }
     /**
      * Display a listing of the resource.
@@ -61,7 +61,7 @@ class SellerController extends Controller
                 'shop_mobile'       => 'required',               
                 'shop_name'         => 'required',
                 'shop_address'      => 'required',
-                'file'              => 'mimes:jpeg,jpg,png,pdf|max:1024',
+                //'file'              => 'mimes:jpeg,jpg,png,pdf,doc|max:1024',
                 'shop_city'         => 'required',
                 'shop_start_time'   => 'required',
                 'shop_close_time'   => 'required',
@@ -76,72 +76,63 @@ class SellerController extends Controller
             else
             {   
                 $digits = 4;
-                $email_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                $email_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
                 $filename = "";
 
                 $regNewMobile = new User;                
                 $regNewMobile->email              = trim($request->email);
                 $regNewMobile->password           = bcrypt($request->password);
+                $regNewMobile->phone_number       = trim($request->shop_mobile);
                 $regNewMobile->usertype           = "Seller";
                 $regNewMobile->email_verify_code  = $email_verify_code;                
                 $regNewMobile->email_verified     = "No";
                 $regNewMobile->status             = 0;
+                                 
+                /* for Shop Licence Image Upload */
+                $bserUrlImg = asset('/public/asset/shopLicence/thumb/');
+                if($request->hasFile('file'))
+                {           
+                    $file = $request->file('file');
+                    $path = public_path().'/asset/shopLicence/';
+                    $thumbPath = public_path('/asset/shopLicence/thumb/');
 
+                    $timestamp = time().  uniqid(); 
+                    $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                    $file->move($thumbPath,$filename);
+
+                    /*$img = Image::make($path.$filename);
+                    $img->resize(100, 100, function ($constraint) { 
+                        $constraint->aspectRatio();
+                    })->save($thumbPath.'/'.$filename);*/
+                }
                 if($regNewMobile->save())
-                {                    
-                    /* for Shop Licence Image Upload */
-                    $bserUrlImg = asset('/public/asset/shopLicence/thumb/');
-                    if($request->hasFile('file'))
-                    {           
-                        $file = $request->file('file');
-                        $path = public_path().'/asset/shopLicence/';
-                        $thumbPath = public_path('/asset/shopLicence/thumb/');
-
-                        $timestamp = time().  uniqid(); 
-                        $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                        $file->move($path,$filename);
-
-                        $img = Image::make($path.$filename);
-                        $img->resize(100, 100, function ($constraint) { 
-                            $constraint->aspectRatio();
-                        })->save($thumbPath.'/'.$filename);
-                    }
-
+                {
                     $insertedUser = User::where('email',trim($request->email))->first();
                     $regNewProfile = new UserProfiles;
                     $regNewProfile->seller_name         = trim($request->seller_name);
                     $regNewProfile->user_id             = $insertedUser->id;
                     $regNewProfile->shop_name           = $request->shop_name;
                     $regNewProfile->shop_mobile         = $request->shop_mobile;
-                    $regNewProfile->shop_address        = $request->shop_address;
-                    //$regNewProfile->shop_document       = $request->shop_document;
+                    $regNewProfile->shop_address        = $request->shop_address;                    
                     $regNewProfile->shop_city           = $request->shop_city;
                     $regNewProfile->shop_start_time     = $request->shop_start_time;
                     $regNewProfile->shop_close_time     = $request->shop_close_time;
                     $regNewProfile->shop_location_map   = $request->shop_location_map;
                     $regNewProfile->shop_zipcode        = $request->shop_zipcode;
                     $regNewProfile->shop_document       = $filename ? $filename : "";
-                }
 
-                if( $regNewMobile->save() && $regNewProfile->save() )
-                {
-                    /* for Seller Email Verification Mail */
-                    $subject  =  "Email Verification";
-                    $content  =  "Your Email Verification Code Is : ".$email_verify_code;
-                    
-                    $mail_data = array(
-                        'content'   => $content,
-                        'toEmail'   => trim($request->email),
-                        'subject'   => $subject,
-                        'fromEmail' => 'admin@feeh.com'
-                    );
+                    /*if($insertedUser->mobile_verified=='Yes' && $insertedUser->email_verified=='Yes')
+                    {
+                        $regNewMobile->usertype  = 'Both';
+                    }
+                    else
+                    {
+                        $regNewMobile->usertype  = 'Seller';
+                    }*/
+                }             
 
-                    $sent = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data) {
-                        $message->to($mail_data['toEmail']);
-                        $message->from($mail_data['fromEmail']);
-                        $message->subject($mail_data['subject']);
-                    });
-
+                if($regNewMobile->save() && $regNewProfile->save() )
+                {                 
                     /* Seller register Notification for Admin By Email */
                     //$adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
                     //$adminEmail  =  $adminDetails->email;
@@ -160,26 +151,19 @@ class SellerController extends Controller
                         $message->to($mail_data['toEmail']);
                         $message->from($mail_data['fromEmail']);
                         $message->subject($mail_data['subject']);
-                    });
-
-                    if($sent)
-                    {
-                        $this->resultapi2('1','Registered Sucessfully and Verification Code Send To Your Email Address.', $bserUrlImg);
-                    }
-                    else
-                    {
-                        $this->resultapi2('0','Some Problem with Email Send.', $bserUrlImg);
-                    }
+                    });                    
+                    
+                    $this->resultapi('1','Registered Sucessfully and Verification Code Send To Your Mobile Number.',$insertedUser->email_verify_code);                    
                 }
                 else
                 {
-                    $this->resultapi2('0','Some Problem with Seller Registration Process.', $bserUrlImg);
+                    $this->resultapi('0','Some Problem with Seller Registration Process.', false);
                 }
             }
         }
         else
         {
-            $this->resultapi('0','Request Details Not Found.',$bserUrlImg);
+            $this->resultapi('0','Request Details Not Found.',false);
         }
     }
 
@@ -199,7 +183,7 @@ class SellerController extends Controller
                     'shop_close_time'   => 'required',
                     'shop_location_map' => 'required',
                     'shop_zipcode'      => 'required|numeric',
-                    'shop_document'     => 'required',                
+                    /*'shop_document'     => 'required', */               
                 ]);
                 
                 if ($validator->fails()) 
@@ -208,8 +192,9 @@ class SellerController extends Controller
                 }
                 else
                 {   
-                    $updateProfileSeller        = User::where('id',$request->uid)->first();                
-                    $updateProfileSeller->name  = trim($request->name);
+                    $updateProfileSeller                = User::where('id',$request->uid)->first();
+                    $updateProfileSeller->phone_number  = trim($request->shop_mobile);                
+                    $updateProfileSeller->name          = trim($request->name);
 
                     $updateSellerProfile = UserProfiles::where('user_id', '=', $request->uid)->first();
                     $updateSellerProfile->seller_name         = $request->seller_name;
@@ -218,15 +203,7 @@ class SellerController extends Controller
                     $updateSellerProfile->shop_address        = $request->shop_address;
                     $updateProfileSeller->email_verified      = $updateProfileSeller->email_verified;
                     $updateProfileSeller->status              = $updateProfileSeller->status;
-
-                    if($updateProfileSeller->mobile_verified=='Yes' && $updateProfileSeller->email_verified=='Yes')
-                    {
-                        $updateSellerProfile->usertype  = 'Both';
-                    }
-                    else
-                    {
-                        $updateSellerProfile->usertype  = 'Seller';
-                    }
+                    $updateSellerProfile->usertype           = 'Seller';                    
                     /*$updateSellerProfile->shop_document       = $request->shop_document;*/
                     $updateSellerProfile->seller_name         = $request->seller_name;
                     $updateSellerProfile->shop_city           = $request->shop_city;
@@ -241,7 +218,7 @@ class SellerController extends Controller
                     }
                     else
                     {
-                        $this->resultapi('0','Some Problem with Seller Registration Process.', true);
+                        $this->resultapi('0','Some Problem with Seller Registration Process.', false);
                     }
                 }
             }
@@ -257,87 +234,43 @@ class SellerController extends Controller
     }
 
     public function getSendEmailVerifyCodeAgain(Request $request) {
-
-        if($request->email)
-        {            
-            $validator = Validator::make($request->all(), [                
-                'email'  => 'required|email'
-            ]);
-            
-            if ($validator->fails()) 
-            {
-                $this->resultapi('0', $validator->errors()->all(), 0);
-            }
-            else
-            {
-                $emailVerification = User::where('email', '=', $request->email)->first();
-                if(count($emailVerification) > 0)
-                {
-                    /*if($emailVerification->email_verified  == "No")
-                    {*/
-                        $digits = 4;
-                        $email_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
-
-                        $emailVerification->email_verified       = 'No';
-                        $emailVerification->email_verify_code    = $email_verify_code;
-                        //$emailVerification->save();
-                        /* email */
-                        if($emailVerification->save())
-                        {
-                            $subject  =  "Re::Email Verification Code";
-                            $content  =  "Your Email Verification Code Is : ".$email_verify_code;
-
-                            $mail_data = array(
-                                'content'   => $content,
-                                'toEmail'   => trim($emailVerification->email),
-                                'subject'   => $subject,
-                                'fromEmail' => 'admin@feeh.com'
-                            );
-
-                            $sent = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data){
-                                    $message->to($mail_data['toEmail']);
-                                    $message->from($mail_data['fromEmail']);
-                                    $message->subject($mail_data['subject']);
-                                });
-
-                            if($sent)
-                            {
-                                $this->resultapi('1','Re Email Verification Code Send To Your Registered Email Address.', true);
-                            }
-                            else
-                            {
-                                $this->resultapi('0','Some Problem with Send Email.', true);
-                            }
-                        }
-                        else
-                        {
-                            $this->resultapi('0','Some Problem with Email Send.', true);
-                        }
-                    /*}
-                    else
-                    {
-                        $this->resultapi('0','Email Already Verified.', true);
-                    }*/
-                }
-                else
-                {
-                    $this->resultapi('0','Email Not Exist.', 0);
-                }
-            }
+                   
+        $validator = Validator::make($request->all(), [                
+            'phone_mumber'  => 'required'
+        ]);
+        
+        if ($validator->fails()) 
+        {
+            $this->resultapi('0', $validator->errors()->all(), 0);
         }
         else
         {
-            $this->resultapi('0','User Not Found.', 0);
+            $emailVerification = User::where('phone_mumber',$request->phone_mumber)->first();
+            if(count($emailVerification) > 0)
+            {
+                $digits = 4;
+                $email_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                // sms gateway 
+                $emailVerification->email_verified       = 'No';
+                $emailVerification->email_verify_code    = $email_verify_code;
+                $emailVerification->save();
+                                         
+                $this->resultapi('1','Re Verification Code Send To Your Mobile Number.', true);
+            }
+            else
+            {
+                $this->resultapi('1','Phone Mumber Not Exist.', true);
+            }
         }
     }
 
-    public function getEmailVerify(Request $request) {
+    public function getMobileVerify(Request $request) {
 
-        if($request->email && $request->password)
+        if($request->phone_number && $request->verification_code)
         {
             $validator = Validator::make($request->all(), [                
-                'email'             => 'required|email',
-                'security_code'     => 'required|max:4',               
+                'phone_number'          => 'required|min:10',
+                'verification_code'     => 'required|max:4',               
             ]);
             
             if ($validator->fails()) 
@@ -346,19 +279,23 @@ class SellerController extends Controller
             }
             else
             {
-                $emailCodeVerification = User::where('email',$request->email)->where('email_verify_code',$request->security_code)->first();
+                $emailCodeVerification = User::where('phone_number',$request->phone_number)->where('email_verify_code',$request->verification_code)->first();
 
                 if(count($emailCodeVerification) > 0 )
                 {
-                    $emailCodeVerification->email_verified == "Yes";
-                    $emailCodeVerification-save();
+                    $emailCodeVerification->email_verified = "Yes";
+                    if($emailCodeVerification->mobile_verified == "Yes")
+                    {
+                        $emailCodeVerification->usertype = 'Both';
+                    }
+                    $emailCodeVerification->save();
 
-                    $this->resultapi('1','Email Verified Sucessfully.', $user);
+                    $this->resultapi('1','Mobile Verified Sucessfully.', true);
                 } 
                 else
                 {
                     $user = array();
-                    $this->resultapi('0','User Details Not Found.', $user);
+                    $this->resultapi('0','Mobile Number Not Exist.', false);
                 }
             }
         }
@@ -369,38 +306,32 @@ class SellerController extends Controller
     }
 
     public function getSellerLogin(Request $request) {
-
-        if($request->email && $request->password)
+       
+        $validator = Validator::make($request->all(), [                
+            'email'       => 'required|email',
+            'password'    => 'required|max:8|min:4',               
+        ]);
+        
+        if ($validator->fails()) 
         {
-            $validator = Validator::make($request->all(), [                
-                'email'              => 'required|email',
-                'password'           => 'required|max:8|min:4',               
-            ]);
-            
-            if ($validator->fails()) 
-            {
-                $this->resultapi('0', $validator->errors()->all(), 0);
-            }
-            else
-            {
-                if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password),'email_verified' => 'Yes', 'status' => '1')))
-                {
-                    $user = Auth::user();
-                    $user['tokenId'] = $this->jwtAuth->fromUser($user);
-                    $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();
-
-                    $this->resultapi('1','Logged In Sucessfully.', $user);
-                } 
-                else
-                {
-                    $user = array();
-                    $this->resultapi('0','Invalid Login Details.', $user);
-                }
-            }
+            $this->resultapi('0', $validator->errors()->all(), 0);
         }
         else
         {
-            $this->resultapi('0','Request Details Not Matched.', 0);
+            /*if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password),'email_verified' => 'Yes', 'status' => '1')))*/
+            if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password))))
+            {
+                $user = Auth::user();
+                $user['tokenId'] = $this->jwtAuth->fromUser($user);
+                $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();
+
+                $this->resultapi('1','Logged In Sucessfully.', $user);
+            } 
+            else
+            {
+                $user = array();
+                $this->resultapi('0','Invalid Login Details.', $user);
+            }
         }
     }
 

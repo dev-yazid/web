@@ -6,7 +6,7 @@
     {!! Form::model($qual, array('route' => array('admin.product.update', $qual->id),'class'=>'form-horizontal','method'=>'PUT','id'=>'prod')) !!}
 
     <div class="form-group">
-        <div class="col-md-12">
+        <div class="col-md-6">
         {!! Form::label('brand', 'Product Brand' , array('class' => 'required')); !!}
         {!! Form::select('brand', $brandname, null, array('class' => 'form-control select2')) !!}
         </div>
@@ -18,10 +18,10 @@
         {!! Form::text('pname',null,array('class'=>'form-control' )) !!}
         </div>
 
-        <div class="col-md-6">
+       <!--  <div class="col-md-6">
         {!! Form::label('year', 'Product Year' , array('class' => 'required')); !!}
         {!! Form::select('year', $year, null, array('class' => 'form-control select2')) !!}
-        </div>
+        </div> -->
     </div>
 
     <div class="form-group">

@@ -125,7 +125,7 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/seller/sellerRegister','Api\SellerController@getRegisterSeller');
     Route::post('/seller/sellerLogin','Api\SellerController@getSellerLogin');    
     Route::post('/seller/sendEmailVeriCodeAgain','Api\SellerController@getSendEmailVerifyCodeAgain');
-    Route::post('/seller/emailVerify','Api\SellerController@getEmailVerify');
+    Route::post('/seller/mobileVerify','Api\SellerController@getMobileVerify');
     Route::post('/seller/sellerChangedPassword','Api\SellerController@getChangePasswordSeller');
     
     /* After Logged In */
