@@ -158,7 +158,7 @@ class MessageController extends Controller
                 }
                 $this->resultapi('1','Message Send Sucessfully', $allMessages);   
             }
-            //print_r($allMessages);            
+            //print_r($allMessages);           
         }
         else
         {            
