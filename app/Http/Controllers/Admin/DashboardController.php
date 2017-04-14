@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Product;
 use App\User;
 use App\Brand;
-use App\Api\Transaction;
+use App\Transaction;
 use App\BrodRequest;
 use App\BrodResponse;
 use App\Http\Requests;

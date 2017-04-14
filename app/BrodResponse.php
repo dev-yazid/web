@@ -5,9 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 use App\User;
-
 use App\UserProfiles;
-
 use App\Cities;
 use App\BrodResponse;
 use App\BrodRequest;
@@ -31,7 +29,7 @@ class BrodResponse extends Model
 		        $resDetails[$key]->response_type     = $value->read_status; /* new and old response 0 is new and 1 is old */ 
 		        $resDetails[$key]->chat_noti_count   = Message::getChatNotification($request);
 		        $resDetails[$key]->seller_details    = User::getSellerDetails($value->seller_id);
-		        $resDetails[$key]->read_status       = User::markResViewedByCustomer($value->id);			       	
+		        $resDetails[$key]->read_status       = User::markResViewedByCustomer($value->id);		       	
         	}
         }
 
@@ -95,8 +93,6 @@ class BrodResponse extends Model
 
                 $resUpdated = 1;
             }
-
-        	
         }
 
         return $resUpdated;
@@ -117,8 +113,8 @@ class BrodResponse extends Model
         	if($prodConfirmation->save())
             {
                 $transaction = Transaction::where($prodConfirmation->request_id);
-                $transaction->seller_confirmation   = 1;
-                $transaction->save()
+                $transaction->seller_confirmation = 1;
+                $transaction->save();
             	$resUpdated = 1;
             }
         }

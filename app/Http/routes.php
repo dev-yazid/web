@@ -81,6 +81,9 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
 
 Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth'], function() {
     Route::auth();
+
+    
+    Route::post('/app/appInitData','Api\UserController@getAppInitData');
     
     /* Brodcast Request */
     Route::post('/brodcast/brodcastInitData','Api\BrodcastController@getBrodcastInitData');    
@@ -133,7 +136,7 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/seller/productConfirmedBySeller','Api\SellerController@getProductConfirmedBySeller');
     Route::post('/seller/updateResponse','Api\SellerController@getUpdateResponseBySeller');
 
-    /* Messages chat */
+    /* Messages / chat */
     Route::post('/chat/message','Api\MessageController@sendMessage');
     Route::post('/chat/getAllMessages','Api\MessageController@getAllMessages');    
 

@@ -148,7 +148,7 @@ class MessageController extends Controller
 
                 foreach ($allMessages as $key => $value)
                 {
-                    $allMessages[$key]->imgpath = asset('/public/asset/Message/thumb');
+                    //$allMessages[$key]->imgpath = asset('/public/asset/Message/thumb');
                     if($value->read_status == 0 )
                     {
                         $msgStatus = Message::find($value->id);
@@ -156,7 +156,6 @@ class MessageController extends Controller
                         $msgStatus->save();
                     }
                 }
-
                 $this->resultapi('1','Message Send Sucessfully', $allMessages);   
             }
             //print_r($allMessages);            

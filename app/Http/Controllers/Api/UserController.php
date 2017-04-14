@@ -44,7 +44,7 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['testUser','getVerifyMobile','getRegisterMobile','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
+        $this->middleware('jwt.auth', ['except' => ['testUser','appInitData','getVerifyMobile','getRegisterMobile','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
     }
     /**
      * Display a listing of the resource.
@@ -71,6 +71,23 @@ class UserController extends Controller
         }
     }
 
+    public function getAppInitData()
+    {
+        $appInitData = array(
+            'ip'                   => $_SERVER['REMOTE_ADDR'],
+            'msgImgPath'           => asset('/public/asset/Message/'),
+            'msgImgPathThumb'      => asset('/public/asset/Message/thumb/'),
+            'brandImgPath'         => asset('/public/asset/brand/'),
+            'brandImgPathThumb'    => asset('/public/asset/brand/thumb/'),
+            'brodcastImgPath'      => asset('/public/asset/brodcastImg/'),
+            'brodcastImgPathThumb' => asset('/public/asset/brodcastImg/thumb/'),
+            'shopImgPath'          => asset('/public/asset/shopLicence/'),
+            'shopImgPathThumb'     => asset('/public/asset/shopLicence/thumb'),
+        );
+
+        $this->resultapi('0','App Init Data.', $appInitData);
+    }   
+
     public function getRegisterMobile(Request $request) {
         if($request->phone_number)
         {
@@ -86,7 +103,7 @@ class UserController extends Controller
             {
                 $digits = 4;
                 $phoneNumber = $request->phone_number;
-                $mobile_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
 
                 /*$sid = 'AC4ab5b2e4a9da816dc45e5af158dc770d';
                 $token = 'c2bed0cfbdee0f4dad5db438219b995e';*/
