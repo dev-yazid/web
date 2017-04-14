@@ -44,7 +44,7 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['testUser','appInitData','getVerifyMobile','getRegisterMobile','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
+        $this->middleware('jwt.auth', ['except' => ['testUser','getAppInitData','getVerifyMobile','getRegisterMobile','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
     }
     /**
      * Display a listing of the resource.
