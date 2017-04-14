@@ -71,10 +71,10 @@ class UserController extends Controller
         }
     }
 
-    public function getAppInitData()
+    public function getAppInitData(Request $request)
     {
         $appInitData = array(
-            'ip'                   => $_SERVER['REMOTE_ADDR'],
+            'ip'                   => request()->ip(),
             'msgImgPath'           => asset('/public/asset/Message/'),
             'msgImgPathThumb'      => asset('/public/asset/Message/thumb/'),
             'brandImgPath'         => asset('/public/asset/brand/'),
