@@ -211,7 +211,7 @@ class SellerController extends Controller
                         /*$img = Image::make($path.$filename);
                         $img->resize(100, 100, function ($constraint) { 
                             $constraint->aspectRatio();
-                        })->save($thumbPath.'/'.$filename);
+                        })->save($thumbPath.'/'.$filename);*/
                     }
 
                     $updateSellerProfile = UserProfiles::where('user_id', '=', $request->uid)->first();
@@ -220,15 +220,17 @@ class SellerController extends Controller
                     $updateSellerProfile->shop_mobile         = $request->shop_mobile;
                     $updateSellerProfile->shop_address        = $request->shop_address;
                     $updateProfileSeller->email_verified      = $updateProfileSeller->email_verified;
-                    $updateProfileSeller->status              = $updateProfileSeller->status;                    
+                    $updateProfileSeller->status              = $updateProfileSeller->status;                                       
+                    
                     $updateSellerProfile->seller_name         = $request->seller_name;
                     $updateSellerProfile->shop_city           = $request->shop_city;
                     $updateSellerProfile->shop_start_time     = $request->shop_start_time;
                     $updateSellerProfile->shop_close_time     = $request->shop_close_time;
                     $updateSellerProfile->shop_location_map   = $request->shop_location_map;
                     $updateSellerProfile->shop_zipcode        = $request->shop_zipcode;
-                    if($request->image_upload === "YES"){                                   
-                        $updateSellerProfile->shop_document   = $filename;
+                    if($request->image_upload === "YES")
+                    { 
+                        $updateSellerProfile->shop_document       = $filename;
                     }
 
                     if( $updateSellerProfile->save() && $updateProfileSeller->save() )
@@ -237,7 +239,7 @@ class SellerController extends Controller
                     }
                     else
                     {
-                        $this->resultapi('0','Some Problem with Seller Details Update.', false);
+                        $this->resultapi('0','Some Problem with Seller Registration Process.', false);
                     }
                 }
             }
@@ -349,11 +351,10 @@ class SellerController extends Controller
                     {
                         $user = Auth::user();
                         $user['tokenId'] = $this->jwtAuth->fromUser($user);
-                        $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                      
+                        $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                     
                         $mapUrl ='https://www.google.com/maps?q=';
                         $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
 
-                       // print_r($user);
                         $this->resultapi('1','Logged In Sucessfully.', $user);
                     } 
                     else
