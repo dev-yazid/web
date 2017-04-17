@@ -95,6 +95,7 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
 
     /* Before Logged In */
     Route::post('/user/registerMobile','Api\UserController@getRegisterMobile');
+    Route::post('/user/registerMobileTest','Api\UserController@getRegisterMobileTest');
     Route::post('/user/sendCodeAgain','Api\UserController@getSendCodeAgain');
     Route::post('/user/verifyMobile','Api\UserController@getVerifyMobile');    
     Route::post('/user/updateProfile','Api\UserController@getUpdateProfile');

@@ -61,7 +61,7 @@ class SellerController extends Controller
                 'shop_mobile'       => 'required',               
                 'shop_name'         => 'required',
                 'shop_address'      => 'required',
-                //'file'              => 'mimes:jpeg,jpg,png,pdf,doc|max:1024',
+                'file'              => 'mimes:jpeg,jpg,png,pdf,doc|max:1024',
                 'shop_city'         => 'required',
                 'shop_start_time'   => 'required',
                 'shop_close_time'   => 'required',
@@ -183,7 +183,7 @@ class SellerController extends Controller
                     'shop_close_time'   => 'required',
                     'shop_location_map' => 'required',
                     'shop_zipcode'      => 'required|numeric',
-                    /*'shop_document'     => 'required', */               
+                    'file'              => 'mimes:jpeg,jpg,png,pdf,doc|max:1024',               
                 ]);
                 
                 if ($validator->fails()) 
@@ -195,6 +195,24 @@ class SellerController extends Controller
                     $updateProfileSeller                = User::where('id',$request->uid)->first();
                     $updateProfileSeller->phone_number  = trim($request->shop_mobile);                
                     $updateProfileSeller->name          = trim($request->name);
+                    $updateProfileSeller->usertype      = 'Seller'; 
+
+                    $filename = "";
+                    if($request->image_upload === "YES")
+                    {           
+                        $file = $request->file('file');
+                        $path = public_path().'/asset/shopLicence/';
+                        $thumbPath = public_path('/asset/shopLicence/thumb/');
+
+                        $timestamp = time().  uniqid(); 
+                        $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                        $file->move($thumbPath,$filename);
+
+                        /*$img = Image::make($path.$filename);
+                        $img->resize(100, 100, function ($constraint) { 
+                            $constraint->aspectRatio();
+                        })->save($thumbPath.'/'.$filename);
+                    }
 
                     $updateSellerProfile = UserProfiles::where('user_id', '=', $request->uid)->first();
                     $updateSellerProfile->seller_name         = $request->seller_name;
@@ -202,15 +220,16 @@ class SellerController extends Controller
                     $updateSellerProfile->shop_mobile         = $request->shop_mobile;
                     $updateSellerProfile->shop_address        = $request->shop_address;
                     $updateProfileSeller->email_verified      = $updateProfileSeller->email_verified;
-                    $updateProfileSeller->status              = $updateProfileSeller->status;
-                    $updateSellerProfile->usertype           = 'Seller';                    
-                    /*$updateSellerProfile->shop_document       = $request->shop_document;*/
+                    $updateProfileSeller->status              = $updateProfileSeller->status;                    
                     $updateSellerProfile->seller_name         = $request->seller_name;
                     $updateSellerProfile->shop_city           = $request->shop_city;
                     $updateSellerProfile->shop_start_time     = $request->shop_start_time;
                     $updateSellerProfile->shop_close_time     = $request->shop_close_time;
                     $updateSellerProfile->shop_location_map   = $request->shop_location_map;
                     $updateSellerProfile->shop_zipcode        = $request->shop_zipcode;
+                    if($request->image_upload === "YES"){                                   
+                        $updateSellerProfile->shop_document   = $filename;
+                    }
 
                     if( $updateSellerProfile->save() && $updateProfileSeller->save() )
                     {                    
@@ -218,7 +237,7 @@ class SellerController extends Controller
                     }
                     else
                     {
-                        $this->resultapi('0','Some Problem with Seller Registration Process.', false);
+                        $this->resultapi('0','Some Problem with Seller Details Update.', false);
                     }
                 }
             }
@@ -236,7 +255,7 @@ class SellerController extends Controller
     public function getSendEmailVerifyCodeAgain(Request $request) {
                    
         $validator = Validator::make($request->all(), [                
-            'phone_mumber'  => 'required'
+            'phone_number'  => 'required',
         ]);
         
         if ($validator->fails()) 
@@ -245,7 +264,7 @@ class SellerController extends Controller
         }
         else
         {
-            $emailVerification = User::where('phone_mumber',$request->phone_mumber)->first();
+            $emailVerification = User::where('phone_number',$request->phone_mumber)->first();
             if(count($emailVerification) > 0)
             {
                 $digits = 4;
@@ -259,13 +278,13 @@ class SellerController extends Controller
             }
             else
             {
-                $this->resultapi('1','Phone Mumber Not Exist.', true);
+                $this->resultapi('0','Phone Number Not Exist.', false);
             }
         }
     }
 
     public function getMobileVerify(Request $request) {
-
+        
         if($request->phone_number && $request->verification_code)
         {
             $validator = Validator::make($request->all(), [                
@@ -279,7 +298,7 @@ class SellerController extends Controller
             }
             else
             {
-                $emailCodeVerification = User::where('phone_number',$request->phone_number)->where('email_verify_code',$request->verification_code)->first();
+                $emailCodeVerification = User::where('phone_number',$request->phone_number)->where('email_verify_code',$request->verification_code)->first();               
 
                 if(count($emailCodeVerification) > 0 )
                 {
@@ -317,20 +336,41 @@ class SellerController extends Controller
             $this->resultapi('0', $validator->errors()->all(), 0);
         }
         else
-        {
-            /*if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password),'email_verified' => 'Yes', 'status' => '1')))*/
-            if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password))))
-            {
-                $user = Auth::user();
-                $user['tokenId'] = $this->jwtAuth->fromUser($user);
-                $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();
+        {            
+            $userDetails = User::where('email',$request->email)->select('email_verified','email_verify_code','phone_number')->first();
 
-                $this->resultapi('1','Logged In Sucessfully.', $user);
-            } 
+            if(count($userDetails) > 0)
+            {
+                if($userDetails->email_verified == "Yes")
+                {
+                    /*if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password),'email_verified' => 'Yes', 'status' => '1')))*/
+
+                    if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password))))
+                    {
+                        $user = Auth::user();
+                        $user['tokenId'] = $this->jwtAuth->fromUser($user);
+                        $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                      
+                        $mapUrl ='https://www.google.com/maps?q=';
+                        $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
+
+                       // print_r($user);
+                        $this->resultapi('1','Logged In Sucessfully.', $user);
+                    } 
+                    else
+                    {
+                        $user = array();
+                        $this->resultapi('0','Invalid Login Details.', $user);
+                    }
+                }
+                else
+                {
+                    $this->resultapi('0','Your Mobile Number is not Verified.', $userDetails);
+                }
+            }
             else
             {
                 $user = array();
-                $this->resultapi('0','Invalid Login Details.', $user);
+                $this->resultapi('0','Email Address Not Exist.', $user);
             }
         }
     }

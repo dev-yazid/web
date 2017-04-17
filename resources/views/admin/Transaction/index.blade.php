@@ -5,13 +5,13 @@
     <thead>
         <tr>
             <th width="10%">Id</th>
-            <th width="20%">IP</th> 
-            <th width="10%">CID</th>
-            <th width="10%">PID</th>
-            <th width="10%">FID</th>
-            <th width="10%">Payment</th>
+            <th width="10%">cust Id</th> 
+            <th width="10%">seller Id</th>
+            <th width="10%">Req Id</th>
+            <th width="15%">Customer Confirmation</th>
+            <th width="15%">Seller Confirmation</th>
             <th width="15%">Created At</th>           
-            <th width="15%">Actions</th>
+            <th width="10%">Actions</th>
         </tr>
     </thead>
 </table>
@@ -23,17 +23,17 @@
             serverSide: true,
             autoWidth: false,
             bRetrieve: true,
-            iDisplayLength: 25,
+            iDisplayLength: 50,
             sPaginationType: "full_numbers",
             ajax: '{{ url('/admin/transaction/getData') }}',
             sDom: "<'row'<'col-lg-6 leave_filter'><'col-lg-3'l><'col-lg-3'f>r>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
             columns: [
             { data: 'id', name: 'id' },
-            { data: 'ip', name: 'ip' },
-            { data: 'cid', name: 'cid' },
-            { data: 'pid', name: 'pid' },
-            { data: 'fid', name: 'fid' },
-            { data: 'pay_status', name: 'pay_status' },
+            { data: 'cust_id', name: 'cust_id' },
+            { data: 'seller_id', name: 'seller_id' },
+            { data: 'request_id', name: 'request_id' },
+            { data: 'cust_confirmation', name: 'cust_confirmation' },
+            { data: 'seller_confirmation', name: 'seller_confirmation' },
             { data: 'created_at', name: 'created_at' },
             { data: 'updated_at', name: 'updated_at' }
             ],

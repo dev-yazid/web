@@ -10,40 +10,40 @@
     </div>
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-2 control-label">User IP Address</label>
+        <label class="col-lg-2 control-label">Customer Id</label>
         <div class="col-lg-10">
-            <p"><?php echo $page->ip; ?></p>
+            <p"><?php echo $page->cust_id; ?></p>
         </div>
     </div>
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-2 control-label">Client Id</label>
+        <label class="col-lg-2 control-label">Seller Id</label>
         <div class="col-lg-10">
-            <p><?php echo $page->cid; ?></p>
+            <p><?php echo $page->seller_id; ?></p>
         </div>
     </div>
     
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-2 control-label">Freelancer Id</label>
+        <label class="col-lg-2 control-label">Request Id</label>
         <div class="col-lg-10">
-            <p><?php echo $page->fid; ?></p>
+            <p><?php echo $page->request_id; ?></p>
         </div>
     </div>
 
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-2 control-label">Project Id</label>
+        <label class="col-lg-2 control-label">Is Customer Confirmed</label>
         <div class="col-lg-10">
-            <p><?php echo $page->pid; ?></p>
+            <p><?php echo $page->cust_confirmation; ?></p>
         </div>
     </div>
 
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-2 control-label">Payment Status</label>
+        <label class="col-lg-2 control-label">Is Customer Confirmed</label>
         <div class="col-lg-10">
-            <p><?php echo $page->pay_status == 1 ? "Active":"InActive"; ?></p>
+            <p><?php echo $page->seller_confirmation; ?></p>
         </div>
     </div>
 

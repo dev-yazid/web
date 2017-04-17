@@ -27,9 +27,10 @@ use Auth;
 use Form;
 use File;
 use Image;
-
-
 use Twilio\Rest\Client;
+
+
+
 
 class UserController extends Controller
 {
@@ -44,7 +45,7 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['testUser','getAppInitData','getVerifyMobile','getRegisterMobile','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
+        $this->middleware('jwt.auth', ['except' => ['testUser','getAppInitData','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
     }
     /**
      * Display a listing of the resource.
@@ -71,6 +72,79 @@ class UserController extends Controller
         }
     }
 
+    public function getRegisterMobileTest(Request $request) {
+        if($request->phone_number)
+        {
+            $validator = Validator::make($request->all(), [
+                'phone_number'  => 'required|min:10|numeric',
+            ]);
+            
+            if ($validator->fails()) 
+            {
+                $this->resultapi('0', $validator->errors()->all(), 0);
+            }
+            else
+            {
+                $checkMobileExist = User::where('phone_number',trim($request->phone_number))->first();
+
+                $digits = 4;
+                $phoneNumber = $request->phone_number;
+                $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+
+                $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                if($smsSend == 1)
+                {
+                    if(count($checkMobileExist) > 0)
+                    {
+                        $checkMobileExist->phone_number         = $request->phone_number;
+                        $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
+                        $checkMobileExist->mobile_verified      = "No";
+                        $checkMobileExist->save();
+
+                        $this->resultapi('1','4 Digit Mobile Verification Code Send.', $checkMobileExist->mobile_verify_code);
+                    }
+                    else
+                    {
+                        $regNewMobile = new User;
+                        $regNewMobile->phone_number         = $request->phone_number;
+                        $regNewMobile->mobile_verify_code   = $mobile_verify_code;
+                        $regNewMobile->mobile_verified      = "No";
+
+                        if($regNewMobile->save())
+                        {
+                            $userDetails = User::where('phone_number', '=', $request->phone_number)->first();
+
+                            if(count($userDetails) > 0)
+                            {
+                                $regNewProfile = new UserProfiles;
+                                $regNewProfile->user_id = $userDetails->id;
+                                $regNewProfile->save();
+
+                                $this->resultapi('1','4 Digit Mobile Verification Code Send.', $userDetails->mobile_verify_code);
+                            }
+                            else
+                            {
+                                $this->resultapi('0','User Details Not Found.', 0);
+                            }
+                        }
+                        else
+                        {
+                            $this->resultapi('0','User Details Not Found.', 0);
+                        }
+                    }
+                }
+                else
+                {
+                    $this->resultapi('0','Invalid Mobile Number.', 0);
+                }
+            }            
+        }
+        else
+        {
+            $this->resultapi('0','Mobile Number Not Found.', 0);
+        }
+    }
+
     public function getAppInitData(Request $request)
     {
         $appInitData = array(
@@ -86,7 +160,7 @@ class UserController extends Controller
         );
 
         $this->resultapi('0','App Init Data.', $appInitData);
-    }   
+    }
 
     public function getRegisterMobile(Request $request) {
         if($request->phone_number)
@@ -104,43 +178,7 @@ class UserController extends Controller
                 $digits = 4;
                 $phoneNumber = $request->phone_number;
                 $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
-
-                /*$sid = 'AC4ab5b2e4a9da816dc45e5af158dc770d';
-                $token = 'c2bed0cfbdee0f4dad5db438219b995e';*/
-
-                /*$sid = 'ACa19d22e0d513e7601aa8c06f71b433d0';
-                $token = '2d1cb1a4a9a496caf6225ebd122de083';
-
-                $client = new Client($sid, $token);
-  
-                $number = $client->incomingPhoneNumbers->create(
-                    array(
-                        "voiceUrl" => "http://demo.twilio.com/docs/voice.xml",
-                        "phoneNumber" => "+15005550006"
-                    )
-                );
-
-                print_r($number);
-                */
-                //echo $number->sid;
-
-
-                // Use the client to do fun stuff like send text messages!
-                /*$a = $client->messages->create(
-                    // the number you'd like to send the message to
-                    '+918306062028',
-                    array(
-                        // A Twilio phone number you purchased at twilio.com/console
-                        'from' => '+15005550006',
-                        // the body of the text message you'd like to send
-                        'body' => 'Hey Jenny! Good luck on the bar exam!'
-                    )
-                );
-
-               echo $a->status;
-
-                die("sms gateway integration.");
-            */
+                
                 $regNewMobile = new User;
                 $regNewMobile->phone_number         = $request->phone_number;
                 $regNewMobile->mobile_verify_code   = $mobile_verify_code;
@@ -190,7 +228,7 @@ class UserController extends Controller
             else
             {
                 $digits = 4;
-                $mobile_verify_code = str_pad(rand(0, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
 
                 /* need to integrate Sms Gateway Here */
 
@@ -359,7 +397,7 @@ class UserController extends Controller
         {
             $validator = Validator::make($request->all(), [
                 'phone_number'       => 'required|min:10|numeric',
-                'password'           => 'required|min:4',
+                'password'           => 'required|max:20',
             ]);
             
             if ($validator->fails()) 
@@ -368,7 +406,7 @@ class UserController extends Controller
             }
             else
             {
-                if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => $request->password,'mobile_verified' => 'Yes')))
+                if(Auth::attempt(array( 'phone_number' => $request->phone_number,'mobile_verify_code' => $request->password,'mobile_verified' => 'Yes')))
                 {
                     $user = Auth::user();
                     $user['tokenId']     = $this->jwtAuth->fromUser($user);
