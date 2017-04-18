@@ -72,7 +72,7 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
     
     Route::get('/banner/getData', 'Admin\BannerController@getData');
     Route::resource('banner','Admin\BannerController'); 
-
+ 
 });
 
  /**
