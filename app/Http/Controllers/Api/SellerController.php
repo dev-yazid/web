@@ -90,22 +90,22 @@ class SellerController extends Controller
                     $regNewMobile->status             = 0;
                                      
                     /* for Shop Licence Image Upload */
-                    $bserUrlImg = asset('/public/asset/shopLicence/thumb/');
-                    if($request->hasFile('file'))
-                    {           
-                        $file = $request->file('file');
-                        $path = public_path().'/asset/shopLicence/';
-                        $thumbPath = public_path('/asset/shopLicence/thumb/');
+                    # $bserUrlImg = asset('public/asset/shopLicence/thumb/');
+                    # if($request->hasFile('file'))
+                    # {           
+                    #     $file = $request->file('file');
+                    #     $path = public_path().'/asset/shopLicence/';
+                    #     $thumbPath = public_path('asset/shopLicence/thumb/');
 
-                        $timestamp = time().  uniqid(); 
-                        $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                        $file->move($thumbPath,$filename);
+                    #     $timestamp = time().  uniqid(); 
+                    #     $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                    #     $file->move($thumbPath,$filename);
 
-                        /*$img = Image::make($path.$filename);
-                        $img->resize(100, 100, function ($constraint) { 
-                            $constraint->aspectRatio();
-                        })->save($thumbPath.'/'.$filename);*/
-                    }
+                    #     /*$img = Image::make($path.$filename);
+                    #     $img->resize(100, 100, function ($constraint) { 
+                    #         $constraint->aspectRatio();
+                    #     })->save($thumbPath.'/'.$filename);*/
+                    # }
 
                     if($regNewMobile->save())
                     {
@@ -121,7 +121,9 @@ class SellerController extends Controller
                         $regNewProfile->shop_close_time     = $request->shop_close_time;
                         $regNewProfile->shop_location_map   = $request->shop_location_map;
                         $regNewProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode : "";
-                        $regNewProfile->shop_document       = $filename ? $filename : "";
+                        # $regNewProfile->shop_document       = $filename ? $filename : "";
+                        $regNewProfile->shop_document       = "";
+
 
                         /*if($insertedUser->mobile_verified=='Yes' && $insertedUser->email_verified=='Yes')
                         {
