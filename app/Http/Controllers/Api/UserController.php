@@ -218,7 +218,7 @@ class UserController extends Controller
             {
                 $this->resultapi('0', $validator->errors()->all(), 0);
             }
-            else
+            else 
             {
                 $regNewMobile = User::where('phone_number',$request->phone_number)->first();
 
