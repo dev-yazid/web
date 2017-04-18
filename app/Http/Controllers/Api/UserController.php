@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-
-
 use DB;
 use Illuminate\Support\Facades\Input;
 use Validator;
@@ -16,7 +14,6 @@ use Tymon\JWTAuth\JWTAuth;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Exceptions\JWTException;
-
 use App\UserProfiles;
 use App\User;
 use App\Cities;
@@ -28,9 +25,6 @@ use Form;
 use File;
 use Image;
 use Twilio\Rest\Client;
-
-
-
 
 class UserController extends Controller
 {
@@ -45,7 +39,7 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['testUser','getAppInitData','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
+        $this->middleware('jwt.auth', ['except' => ['testUser','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
     }
     /**
      * Display a listing of the resource.
@@ -72,11 +66,11 @@ class UserController extends Controller
         }
     }
 
-    public function getRegisterMobileTest(Request $request) {
+    public function getRegisterMobile(Request $request) {
         if($request->phone_number)
         {
             $validator = Validator::make($request->all(), [
-                'phone_number'  => 'required|min:10|numeric',
+                'phone_number'  => 'required|min:8|numeric',
             ]);
             
             if ($validator->fails()) 
@@ -92,51 +86,48 @@ class UserController extends Controller
                 $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
 
                 $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
-                if($smsSend == 1)
+               
+                if(count($checkMobileExist) > 0)
                 {
-                    if(count($checkMobileExist) > 0)
-                    {
-                        $checkMobileExist->phone_number         = $request->phone_number;
-                        $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
-                        $checkMobileExist->mobile_verified      = "No";
-                        $checkMobileExist->save();
+                    $checkMobileExist->phone_number         = $request->phone_number;
+                    $checkMobileExist->usertype         	= 'Buyer';
+                    $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
+                    $checkMobileExist->mobile_verified      = "No";
+                    $checkMobileExist->status               = 1;
+                    $checkMobileExist->save();
 
-                        $this->resultapi('1','4 Digit Mobile Verification Code Send.', $checkMobileExist->mobile_verify_code);
-                    }
-                    else
-                    {
-                        $regNewMobile = new User;
-                        $regNewMobile->phone_number         = $request->phone_number;
-                        $regNewMobile->mobile_verify_code   = $mobile_verify_code;
-                        $regNewMobile->mobile_verified      = "No";
+                    $this->resultapi('1','4 Digit Mobile Verification Code Send.', $checkMobileExist->mobile_verify_code);
+                }
+                else
+                {
+                    $regNewMobile = new User;
+                    $regNewMobile->phone_number         = $request->phone_number;
+                    $regNewMobile->mobile_verify_code   = $mobile_verify_code;
+                    $regNewMobile->status               = 1;
+                    $regNewMobile->mobile_verified      = "No";
 
-                        if($regNewMobile->save())
+                    if($regNewMobile->save())
+                    {
+                        $userDetails = User::where('phone_number', '=', $request->phone_number)->first();
+
+                        if(count($userDetails) > 0)
                         {
-                            $userDetails = User::where('phone_number', '=', $request->phone_number)->first();
+                            $regNewProfile = new UserProfiles;
+                            $regNewProfile->user_id = $userDetails->id;
+                            $regNewProfile->save();
 
-                            if(count($userDetails) > 0)
-                            {
-                                $regNewProfile = new UserProfiles;
-                                $regNewProfile->user_id = $userDetails->id;
-                                $regNewProfile->save();
-
-                                $this->resultapi('1','4 Digit Mobile Verification Code Send.', $userDetails->mobile_verify_code);
-                            }
-                            else
-                            {
-                                $this->resultapi('0','User Details Not Found.', 0);
-                            }
+                            $this->resultapi('1','4 Digit Mobile Verification Code Send.', $userDetails->mobile_verify_code);
                         }
                         else
                         {
                             $this->resultapi('0','User Details Not Found.', 0);
                         }
                     }
-                }
-                else
-                {
-                    $this->resultapi('0','Invalid Mobile Number.', 0);
-                }
+                    else
+                    {
+                        $this->resultapi('0','User Details Not Found.', 0);
+                    }
+                }                
             }            
         }
         else
@@ -162,11 +153,11 @@ class UserController extends Controller
         $this->resultapi('0','App Init Data.', $appInitData);
     }
 
-    public function getRegisterMobile(Request $request) {
+    public function getRegisterMobileTest(Request $request) {
         if($request->phone_number)
         {
             $validator = Validator::make($request->all(), [
-                'phone_number'  => 'required|min:10|numeric|unique:users',
+                'phone_number'  => 'required|min:8|numeric|unique:users',
             ]);
             
             if ($validator->fails()) 
@@ -178,6 +169,8 @@ class UserController extends Controller
                 $digits = 4;
                 $phoneNumber = $request->phone_number;
                 $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+
+                $sendSms = User::sendSms($request->phone_number,$mobile_verify_code );
                 
                 $regNewMobile = new User;
                 $regNewMobile->phone_number         = $request->phone_number;
@@ -218,7 +211,7 @@ class UserController extends Controller
         if($request->phone_number)
         {
             $validator = Validator::make($request->all(), [
-                'phone_number'  => 'required|min:10|numeric',
+                'phone_number'  => 'required|min:8|numeric',
             ]);
             
             if ($validator->fails()) 
@@ -227,28 +220,21 @@ class UserController extends Controller
             }
             else
             {
-                $digits = 4;
-                $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
-
-                /* need to integrate Sms Gateway Here */
-
-                $regNewMobile = User::where('phone_number', '=', $request->phone_number)->first();
+                $regNewMobile = User::where('phone_number',$request->phone_number)->first();
 
                 if(count($regNewMobile) > 0)
-                {
-                    /*if($regNewMobile->mobile_verified  == "No")
-                    {*/
-                        $regNewMobile->phone_number         = $request->phone_number;
-                        $regNewMobile->mobile_verify_code   = $mobile_verify_code;
-                        $regNewMobile->mobile_verified      = "No";
-                        $regNewMobile->save();
+                {                    
+                    $digits = 4;
+                	$mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                    $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
 
-                        $this->resultapi('1','Mobile Verification Code Send.', $regNewMobile->mobile_verify_code);
-                    /*}
-                    else
-                    {
-                        $this->resultapi('0','This Mobile Number Is Already Verified.', true);
-                    }*/
+                    $regNewMobile->phone_number         = $request->phone_number;
+                    $regNewMobile->mobile_verify_code   = $mobile_verify_code;
+                    $regNewMobile->psaaword 			= bcrypt($mobile_verify_code);
+                    $regNewMobile->mobile_verified      = "No";
+                    $regNewMobile->save();
+
+                    $this->resultapi('1','Mobile Verification Code Send.', $regNewMobile->mobile_verify_code);
                 }
                 else
                 {
@@ -267,7 +253,7 @@ class UserController extends Controller
         if($request->phone_number && $request->verification_code)
         {
             $validator = Validator::make($request->all(), [
-                'phone_number'       => 'required|min:10|numeric',
+                'phone_number'       => 'required|min:8|numeric',
                 'verification_code'  => 'required|min:4|numeric',
             ]);
             
@@ -337,7 +323,7 @@ class UserController extends Controller
         if($request->all())
         {
             $validator = Validator::make($request->all(), [
-                'phone_number'       => 'required|min:10|numeric',
+                'phone_number'       => 'required|min:8|numeric',
                 'uid'                => 'required|numeric',
             ]);
             
@@ -355,14 +341,14 @@ class UserController extends Controller
                     $updateUser->mobile_verified     = $updateUser->mobile_verified;
                     $updateUser->is_customer_updated = 1;
 
-                    if($updateUser->mobile_verified == 'Yes' && $updateUser->email_verified == 'Yes')
-                    {
-                        $updateUser->usertype  = 'Both';
-                    }
-                    else
-                    {
-                        $updateUser->usertype  = 'Seller';
-                    }                  
+                    # if($updateUser->mobile_verified == 'Yes' && $updateUser->email_verified == 'Yes')
+                    # {
+                    #     $updateUser->usertype  = 'Both';
+                    # }
+                    # else
+                    # {
+                    #     $updateUser->usertype  = 'Seller';
+                    # }                  
 
                     $updateProf                   = UserProfiles::where('user_id',$updateUser->id)->first();
                     $updateProf->customer_email   = trim($request->customer_email);
@@ -376,7 +362,7 @@ class UserController extends Controller
                     } 
                     else
                     {
-                        $this->resultapi('0','Some Problem With Update Profile.', false);
+                        $this->resultapi('0','Some Problem With Profile Update.', false);
                     }                    
                 }
                 else
@@ -392,11 +378,10 @@ class UserController extends Controller
     }
 
     public function getUserLogin(Request $request) {
-
         if($request->phone_number && $request->password)
         {
             $validator = Validator::make($request->all(), [
-                'phone_number'       => 'required|min:10|numeric',
+                'phone_number'       => 'required|min:8|numeric',
                 'password'           => 'required|max:20',
             ]);
             
@@ -406,7 +391,7 @@ class UserController extends Controller
             }
             else
             {
-                if(Auth::attempt(array( 'phone_number' => $request->phone_number,'mobile_verify_code' => $request->password,'mobile_verified' => 'Yes')))
+                if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => $request->password,'mobile_verified' => 'Yes')))
                 {
                     $user = Auth::user();
                     $user['tokenId']     = $this->jwtAuth->fromUser($user);
@@ -565,7 +550,7 @@ class UserController extends Controller
         if($request->phone_number && $request->password && $request->uid)
         {
             $validator = Validator::make($request->all(), [                
-                'phone_number'       => 'required|min:10|numeric',
+                'phone_number'       => 'required|min:8|numeric',
                 'password'           => 'required',
                 'uid'                => 'required|numeric',               
             ]);

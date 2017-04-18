@@ -38,7 +38,7 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
 
     Route::get('/user/getData', 'Admin\UserController@getData');
     Route::resource('user', 'Admin\UserController');
-    Route::get('/user/inactiveActiveUser/{id}', 'Admin\UserController@inactiveActiveUser');
+    Route::post('/user/statusChange', 'Admin\UserController@statusChange');
 
     Route::get('/response/getData', 'Admin\ResponseController@getData');
     Route::resource('response', 'Admin\ResponseController');

@@ -40,13 +40,21 @@
         <div class="col-lg-9">
             <p><?php echo $user->usertype ?></p>
         </div>
-    </div> 
+    </div>   
 
     <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-3 control-label">Is Customer Updated</label>
         <div class="col-lg-9">
             <p><?php echo $user->is_customer_updated == 1 ? "Yes" : "No" ?></p>
+        </div>
+    </div>
+
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Is Mobile Verified</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->mobile_verified == 1 ? "Yes" : "No" ?></p>
         </div>
     </div>
 
@@ -60,11 +68,11 @@
 
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-3 control-label">User Status</label>
+        <label class="col-lg-3 control-label">Is Mobile Verified</label>
         <div class="col-lg-9">
-            <p><?php echo $user->status == 1 ? "Active" : "InActive"; ?></p>
+            <p><?php echo $user->email_verified == 1 ? "Yes" : "No" ?></p>
         </div>
-    </div>    
+    </div>  
 
     <div class="clear"></div>
     <div class="form-group">
@@ -93,7 +101,7 @@
                 <p><?php echo $user->seller_name; ?></p>
             </div>
         </div>
-
+        <div class="clear"></div>
         <div class="form-group">
             <label class="col-lg-3 control-label">Shop Name</label>
             <div class="col-lg-9">
@@ -135,8 +143,8 @@
             <label class="col-lg-3 control-label">Shop Licence</label>
             <div class="col-lg-9">
                 <p>
-                    <a href="{{ asset('public/asset/shopLicence/'.$user->shop_document) }}" target="_blank">
-                        <?php //echo $user->shop_document; 
+                    <a href="{{ asset('public/asset/shopLicence/thumb/'.$user->shop_document) }}" target="_blank">
+                        <?php // echo $user->shop_document; 
                         echo 'View Licence'; ?>
                     </a>
                 </p>
@@ -179,6 +187,50 @@
                 </p>
             </div>
         </div>
-<?php } ?>  
+<?php } ?>
+
+ <div class="clear"></div>
+
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop Licence</label>
+        <div class="col-lg-9">
+            <p>
+                <a href="{{ asset('public/asset/shopLicence/thumb/'.$user->shop_document) }}" target="_blank">
+                    <?php //echo $user->shop_document; 
+                    echo 'View Licence'; ?>
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">User Status</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->status == 1 ? "Active" : "InActive"; ?></p>
+        </div>
+    </div>    
+    <div class="clear"></div>
+
+    <div class="form-group">
+        <label class="col-lg-3 control-label">User Status</label>
+        <div class="col-lg-9">
+            <div class="col-lg-3">       
+                {{ Form::open(array('url' => 'admin/user/statusChange','class'=>"form-horizontal")) }}
+                <div class="form-group">
+                   
+                        {!! Form::select('status', array('1' => 'Active', '0' => 'InActive'), $user->status, array('class' => 'form-control')) !!}
+                    </div> 
+                    <?php echo Form::hidden('id', $user->id); ?>
+                </div>      
+            </div>
+
+            {!! Form::submit('Save',array('class'=>'btn btn-primary')); !!}
+            <a class="btn btn-default" href="{{ url('/admin/user')}}">Cancel</a>
+
+            {!! Form::close() !!}
+            
+        </div>
+    </div>
 </div>
 @endsection

@@ -103,31 +103,18 @@ class User extends Authenticatable
         $sid    = 'AC4ab5b2e4a9da816dc45e5af158dc770d';
         $token  = 'c2bed0cfbdee0f4dad5db438219b995e';
 
-        try {
-            $client = new Client($sid, $token);
-            $a = $client->messages->create(
-                '+91'.$mobile,
-                array(                       
-                    'from' => '+18588159100',
-                    'body' => 'Your Feeh Account Verification Code is : '.$vcode,
-                )
-            );
-
-            # $response = $client->account->outgoing_caller_ids->create('+15554441234');
-            # print_r($response->validation_code);
-            # die;
-
+       
+        $client = new Client($sid, $token);
+        if($client->messages->create('+91'.$mobile,array('from' => '+18588159100','body' => 'Your Feeh Account Verification Code is : '.$vcode))){
+   
+            $smsSend = 1;
+            //echo "Send";
         }
-        catch (RestException $e)
+        else
         {
-            if($e->getStatus() == 404)
-            {
-                return "Number is invalid (unknown carrier and type)";
-            }
-            else
-            {
-                throw $e;
-            }
+            $smsSend = 0;
         }
+
+        return $smsSend;        
     }
 }

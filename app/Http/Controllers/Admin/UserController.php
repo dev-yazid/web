@@ -80,11 +80,10 @@ class UserController extends Controller
             'password'          => 'required|min:4|same:confirmpassword',
             'confirmpassword'   => 'required|min:4|same:password',
             'status'            => 'required',
-            'shop_mobile'       => 'required|max:10',
+            'shop_mobile'       => 'required',
             'shop_name'         => 'required|max:100',
             'shop_address'      => 'required|max:100',
             'shop_city'         => 'required|max:100',
-            'shop_zipcode'      => 'required|max:100',   
             'shop_start_time'   => 'required',
             'shop_close_time'   => 'required',
             'map_url'           => 'required',
@@ -104,6 +103,7 @@ class UserController extends Controller
         $user->email                = $request->email;        
         $user->password             = bcrypt($request->password);
         $user->status               = $request->status;
+        $user->phone_number         = $request->shop_mobile;
         $user->is_customer_updated  = 0;
         $user->is_seller_updated    = 1;            
         $user->usertype             = 'Seller';
@@ -122,7 +122,7 @@ class UserController extends Controller
             $userProfile->shop_mobile       = $request->shop_mobile;
             $userProfile->shop_address      = $request->shop_address;           
             $userProfile->shop_city         = $request->shop_city;
-            $userProfile->shop_zipcode      = $request->shop_zipcode;
+           // $userProfile->shop_zipcode      = $request->shop_zipcode;
             $userProfile->shop_start_time   = $request->shop_start_time ? $request->shop_start_time : "";
             $userProfile->shop_close_time   = $request->shop_close_time ? $request->shop_close_time : "";
             $userProfile->shop_location_map = $request->map_url;
@@ -137,7 +137,7 @@ class UserController extends Controller
                 $timestamp = time().  uniqid(); 
                 $filename = $timestamp.'_'.trim($file->getClientOriginalName());
                 $file->move($thumbPath,$filename);
-                $file->move($path,$filename);
+                //file->move($path,$filename);
 
                 /*$img = Image::make($path.$filename);
                 $img->resize(100, 100, function ($constraint) { 
@@ -243,8 +243,6 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {   
-        //print_r($request->all());
-       // die;
         $user = User::find($id);
         $error = false;
 
@@ -372,7 +370,8 @@ class UserController extends Controller
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
-     */    
+     */
+
     public function destroy($id)  {
         $user = User::findOrFail($id);
         $user->delete();
@@ -381,16 +380,33 @@ class UserController extends Controller
     } 
 
 
-    public function inactiveActiveUser($id){
-        $user = User::findOrFail($id); 
-
-        if(count($user)>0)
+    public function statusChange(Request $request){
+        if($request->id)
         {
-            if($user->status == "Active")
-                DB::table('users')->where('id',$id)->update(['status' => "InActive"]);
-            else  
-                DB::table('users')->where('id',$id)->update(['status' => "Active"]);
-        } 
+            $id = $request->id;       
+            $user = User::find($id);
+           
+            if(count($user) >0 )
+            {                
+                $user->status =trim($request->status);
+                $user->save();
+                               
+                $msg = "User Status Changed Successfully";
+                Session::flash('success_msg', $msg);
+                $log = ActivityLog::createlog(Auth::Id(),"Admin User",$msg,Auth::Id());                
+            }
+            else
+            {
+                $msg = "User Id Not Found.";
+                Session::flash('error_msg', $msg);                
+            }
+        }
+        else
+        {
+            $msg = "User Id Not Found.";
+            Session::flash('error_msg', $msg);                
+        }
+
         return redirect('/admin/user');
     }   
 }
