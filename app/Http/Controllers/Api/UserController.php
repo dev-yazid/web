@@ -230,7 +230,7 @@ class UserController extends Controller
 
                     $regNewMobile->phone_number         = $request->phone_number;
                     $regNewMobile->mobile_verify_code   = $mobile_verify_code;
-                    $regNewMobile->psaaword 			= bcrypt($mobile_verify_code);
+                    $regNewMobile->password 			= bcrypt($mobile_verify_code);
                     $regNewMobile->mobile_verified      = "No";
                     $regNewMobile->save();
 
