@@ -181,22 +181,25 @@ class BrodcastController extends Controller
                         $brodRequest->is_seller_replied    = 0;
                         $brodRequest->status               = 0; 
 
-                        if($request->hasFile('brod_img'))
+                        if($request->partrequest_image_upload === "YES")
                         {
-                            $file = $request->file('brod_img');
-                            $path = public_path().'/asset/brodcastImg/';
-                            $thumbPath = public_path('/asset/brodcastImg/thumb/');
+                            if($request->hasFile('brod_img'))
+                            {
+                                $file = $request->file('brod_img');
+                                $path = public_path().'/asset/brodcastImg/';
+                                $thumbPath = public_path('/asset/brodcastImg/thumb/');
 
-                            $timestamp = time().  uniqid(); 
-                            $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                            $file->move($path,$filename);
+                                $timestamp = time().  uniqid(); 
+                                $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                                $file->move($path,$filename);
 
-                            $img = Image::make($path.$filename);
-                            $img->resize(100, 100, function ($constraint) { 
-                                $constraint->aspectRatio();
-                            })->save($thumbPath.'/'.$filename);
+                                $img = Image::make($path.$filename);
+                                $img->resize(100, 100, function ($constraint) { 
+                                    $constraint->aspectRatio();
+                                })->save($thumbPath.'/'.$filename);
 
-                            $brodRequest->req_image   = $filename;
+                                $brodRequest->req_image   = $filename;
+                            }
                         }
                         else
                         {   
