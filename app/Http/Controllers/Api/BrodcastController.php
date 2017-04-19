@@ -20,6 +20,9 @@ use App\Brand;
 use App\Product;
 use App\BrodRequest;
 use App\BrodResponse;
+use File;
+use Image;
+
 
 class BrodcastController extends Controller
 {
@@ -91,7 +94,7 @@ class BrodcastController extends Controller
                 'brod_pid'   => 'required|numeric',
                 'brod_year'  => 'required|numeric',
                 'brod_uid'   => 'required|numeric',
-                'brod_img'   => 'mimes:jpeg,jpg,png,gif|max:1024'              
+                'brod_img'   => 'mimes:jpeg,jpg,png,gif|max:1024',             
             ]);
             
             if ($validator->fails()) 
@@ -110,22 +113,25 @@ class BrodcastController extends Controller
                 $brodRequest->is_seller_replied    = 0;
                 $brodRequest->status               = 0; 
 
-                if($request->hasFile('brod_img'))
+                if($request->partrequest_image_upload =="YES")
                 {
-                    $file = $request->file('brod_img');
-                    $path = public_path().'/asset/brodcastImg/';
-                    $thumbPath = public_path('/asset/brodcastImg/thumb/');
+                    if($request->hasFile('brod_img'))
+                    {
+                        $file = $request->file('brod_img');
+                        $path = public_path().'asset/brodcastImg/';
+                        $thumbPath = public_path('asset/brodcastImg/thumb');
 
-                    $timestamp = time().  uniqid(); 
-                    $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                    $file->move($path,$filename);
+                        $timestamp = time().  uniqid(); 
+                        $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                        $file->move($path,$filename);
 
-                    $img = Image::make($path.$filename);
-                    $img->resize(100, 100, function ($constraint) { 
-                        $constraint->aspectRatio();
-                    })->save($thumbPath.'/'.$filename);
+                        $img = Image::make($path.$filename);
+                        $img->resize(100, 100, function ($constraint) { 
+                            $constraint->aspectRatio();
+                        })->save($thumbPath.'/'.$filename);
 
-                    $brodRequest->req_image   = $filename;
+                        $brodRequest->req_image   = $filename;
+                    }
                 }
                 else
                 {   
