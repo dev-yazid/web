@@ -90,22 +90,22 @@ class SellerController extends Controller
                     $regNewMobile->status             = 0;
                                      
                     /* for Shop Licence Image Upload */
-                    # $bserUrlImg = asset('public/asset/shopLicence/thumb/');
-                    # if($request->hasFile('file'))
-                    # {           
-                    #     $file = $request->file('file');
-                    #     $path = public_path().'/asset/shopLicence/';
-                    #     $thumbPath = public_path('asset/shopLicence/thumb/');
+                    $bserUrlImg = asset('public/asset/shopLicence/thumb/');
+                    if($request->hasFile('file'))
+                    {           
+                        $file = $request->file('file');
+                        $path = public_path().'/asset/shopLicence/';
+                        $thumbPath = public_path('asset/shopLicence/thumb/');
 
-                    #     $timestamp = time().  uniqid(); 
-                    #     $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                    #     $file->move($thumbPath,$filename);
+                        $timestamp = time().  uniqid(); 
+                        $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                        $file->move($thumbPath,$filename);
 
-                    #     /*$img = Image::make($path.$filename);
-                    #     $img->resize(100, 100, function ($constraint) { 
-                    #         $constraint->aspectRatio();
-                    #     })->save($thumbPath.'/'.$filename);*/
-                    # }
+                        /*$img = Image::make($path.$filename);
+                        $img->resize(100, 100, function ($constraint) { 
+                             $constraint->aspectRatio();
+                        })->save($thumbPath.'/'.$filename);*/
+                    }
 
                     if($regNewMobile->save())
                     {
