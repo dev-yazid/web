@@ -4,3 +4,4 @@ public/app/lib/language/
 .env
 *.DS_Store
 /nbproject/private/
+public/asset/

@@ -111,7 +111,7 @@ class BrodcastController extends Controller
                 $brodRequest->user_id              = $request->brod_uid;
                 //$brodRequest->req_image            = "";                
                 $brodRequest->is_seller_replied    = 0;
-                $brodRequest->status               = 0; 
+                $brodRequest->status               = 1; 
 
                 if($request->partrequest_image_upload =="YES")
                 {
@@ -119,7 +119,7 @@ class BrodcastController extends Controller
                     {
                         $file = $request->file('brod_img');
                         $path = public_path().'asset/brodcastImg/';
-                        $thumbPath = public_path('asset/brodcastImg/thumb');
+                        $thumbPath = public_path('/asset/brodcastImg/thumb');
 
                         $timestamp = time().  uniqid(); 
                         $filename = $timestamp.'_'.trim($file->getClientOriginalName());
@@ -234,7 +234,7 @@ class BrodcastController extends Controller
         }         
     }
 
-    /*public function getAllBrodRequest() {
+    <?php /*public function getAllBrodRequest() {
           
         $allBrodRequest = BrodRequest::getAllBrodRequest();
         if(count($allBrodRequest))
@@ -245,7 +245,7 @@ class BrodcastController extends Controller
         {
             $this->resultapi('0','No Brodcast Request Found.', $allBrodRequest);
         }        
-    }*/
+    }*/ ?>
 
     public function resultapi($status,$message,$result = array()) {
 

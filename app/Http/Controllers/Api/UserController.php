@@ -39,7 +39,7 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['testUser','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin']]);
+        $this->middleware('jwt.auth', ['except' => ['testUser','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser']]);
     }
     /**
      * Display a listing of the resource.
@@ -436,17 +436,18 @@ class UserController extends Controller
         }
         else
         {
+           $myProfileDetails = array();
            $this->resultapi('0','Authentication Failed.', $myProfileDetails); 
         }
     }
 
     public function getViewRequestByUser(Request $request)
     {          
-        if($request->uid)
+        if($request->uid && $request->status && $request->page)
         {
-            $brodRequestByUser = BrodRequest::getBrodRequestByUser($request->uid);
+            $brodRequestByUser = BrodRequest::getBrodRequestByUser($request->uid,$request->status,$request->page);
             
-            if(count($brodRequestByUser))
+            if(count($brodRequestByUser) > 0)
             {
                 $this->resultapi('1','Brodcast Request Found.', $brodRequestByUser);
             }
