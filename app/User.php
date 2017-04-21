@@ -105,11 +105,11 @@ class User extends Authenticatable
 
        
         $client = new Client($sid, $token);
-        if($client->messages->create('+966'.$mobile,array('from' => '+18588159100','body' => 'Your Feeh Account Verification Code is : '.$vcode))){
+        if($client->messages->create('+91'.$mobile,array('from' => '+18588159100','body' => 'Your Feeh Account Verification Code is : '.$vcode))){
    
             $smsSend = 1;
             //echo "Send";
-        } 
+        }
         else
         {
             $smsSend = 0;

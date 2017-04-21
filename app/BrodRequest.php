@@ -20,15 +20,6 @@ class BrodRequest extends Model
 		->orderBy('brod_requests.id','desc')
 		->get();
 
-		# $count = count($brodRequestByUser);
-		# $total_page = $count/5;
-		# $str_arr = explode('.',$total_page);
-		# $ac_totl = floor($total_page) + $str_arr[0];
-		# if($str_arr[0]!=0){
-
-		# }
-		# echo $ac_totl;exit;
-		# //ac - pg;
 		if(count($brodRequestByUser) > 0)
 		{
 			foreach ($brodRequestByUser as $key => $value)
@@ -37,8 +28,8 @@ class BrodRequest extends Model
 			}			
 		}
 
-		print_r($brodRequestByUser->links());
-		die;
+		//print_r($brodRequestByUser->links());
+		//die;
 		
 		return $brodRequestByUser;
 	}
