@@ -234,7 +234,7 @@ class BrodcastController extends Controller
         }         
     }
 
-    <?php /*public function getAllBrodRequest() {
+    /*public function getAllBrodRequest() {
           
         $allBrodRequest = BrodRequest::getAllBrodRequest();
         if(count($allBrodRequest))
@@ -245,7 +245,7 @@ class BrodcastController extends Controller
         {
             $this->resultapi('0','No Brodcast Request Found.', $allBrodRequest);
         }        
-    }*/ ?>
+    }*/
 
     public function resultapi($status,$message,$result = array()) {
 
