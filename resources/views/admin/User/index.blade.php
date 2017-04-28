@@ -9,7 +9,7 @@
             <th width="15%">User Type</th>
             <th width="10%">Verified</th>
             <th width="10%">Status</th>
-            <th width="10%">Actions</th>
+            <th width="10%">Actions</th> 
         </tr>
     </thead>
 </table>
