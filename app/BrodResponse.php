@@ -13,45 +13,66 @@ use App\Transaction;
 
 class BrodResponse extends Model
 {
-   	public static function getBrodResponseByReqId($request)
+   	public static function getBrodResponseByReqId($requestId , $per_page)
     {  
+        //echo $requestId;
+        //die('Amit');
         $resDetails = DB::table('brod_responses')
-        ->where('request_id',$request->request_id)
+        ->where('request_id',$requestId)
         ->where('removed_by_user',0)
         ->select('id','seller_id','request_id','price','price_updated','read_status','removed_by_user')
         ->orderBy('id','desc')
-        ->get();
+        ->where('removed_by_user',0)
+        ->paginate($per_page);
+
+        //print_r( $resDetails); 
 
         if(count($resDetails) > 0)
         {
            foreach ($resDetails as $key => $value)
 			{   
-		        $resDetails[$key]->response_type     = $value->read_status; /* new and old response 0 is new and 1 is old */ 
-		        $resDetails[$key]->chat_noti_count   = Message::getChatNotification($request);
+
+                $resDetails[$key]->seller_details    = User::getSellerDetails($value->seller_id);
+                $resDetails[$key]->response_type     = $value->read_status; 
+		        $resDetails[$key]->chat_noti_count   = Message::getChatNotification($requestId);
 		        $resDetails[$key]->seller_details    = User::getSellerDetails($value->seller_id);
 		        $resDetails[$key]->read_status       = User::markResViewedByCustomer($value->id);		       	
         	}
+
+            $response = [
+            'events' => $resDetails->items(),
+            'pagination' => [
+                'total' => $resDetails->count(),
+                'per_page' => $resDetails->currentPage(),
+                'page' => $resDetails->currentPage() + 1,
+                'hasMorePages' => $resDetails->hasMorePages()
+            ]
+            ];
+        }
+        else
+        {
+            $response = array();
         }
 
-        return $resDetails;
+        return $response;
+        
     }
 
-    public static function removeResponse($res_id)
+    public static function removeResponse($res_id,$uid)
     {  
     	$resUpdated = 0;
 
-        $resDetails = BrodResponse::find($res_id);
+        $reqDetails = BrodRequest::where('id',$res_id)->where('user_id',$uid)->first();
 
-        if(count($resDetails) > 0)
+        if(count($reqDetails) > 0)
         {
-        	$resDetails->removed_by_user = 1;
-        	$resDetails->read_status 	 = 1;
-        	$resDetails->save();
+        	$reqDetails->removed_by_user = 1;
+        	$reqDetails->save();
         	$resUpdated = 1;
         }
         return $resUpdated;
     }
-
+    
     public static function priceUpdateNotiRead($res_id)
     {
     	$resUpdated = 0;
@@ -77,21 +98,32 @@ class BrodResponse extends Model
 
         if(count($prodConfirmation) > 0)
         {	
-        	$prodConfirmation->is_prod_confirm_by_buyer = 1;
-        	$prodConfirmation->price_updated = 1;
-        	$prodConfirmation->read_status   = 1;
-        	
-            if($prodConfirmation->save())
+        	if($prodConfirmation->is_prod_confirm_by_buyer == 0)
             {
-                $transaction = new Transaction;
-                $transaction->cust_id               = $prodConfirmation->customer_id;
-                $transaction->seller_id             = $prodConfirmation->seller_id;
-                $transaction->request_id            = $prodConfirmation->request_id;
-                $transaction->customer_confirmation = 1;
-                $transaction->seller_confirmation   = 0;
-                $transaction->save();
+                $prodConfirmation->is_prod_confirm_by_buyer = 1;
+            	$prodConfirmation->price_updated = 0;
+            	$prodConfirmation->read_status   = 1;
+            	
+                if($prodConfirmation->save())
+                {
+                    $reqDetails = BrodRequest::find($prodConfirmation->request_id);
+                    $reqDetails->status = 3; 
+                    $reqDetails->save();
 
-                $resUpdated = 1;
+                    $transaction = new Transaction;
+                    $transaction->cust_id               = $prodConfirmation->customer_id;
+                    $transaction->seller_id             = $prodConfirmation->seller_id;
+                    $transaction->request_id            = $prodConfirmation->request_id;
+                    $transaction->cust_confirmation     = 1;
+                    $transaction->seller_confirmation   = 0;
+                    $transaction->save();
+
+                    $resUpdated = 1;
+                }
+            }
+            else
+            {
+                $resUpdated = 2;
             }
         }
 
@@ -107,15 +139,33 @@ class BrodResponse extends Model
 
         if(count($prodConfirmation) > 0)
         {	
-        	$prodConfirmation->is_prod_confirm_by_seller = 1;
-        	//$prodConfirmation->price_updated = 1;
-        	//$prodConfirmation->read_status   = 1;
-        	if($prodConfirmation->save())
+        	if($prodConfirmation->is_prod_confirm_by_buyer == 1)
             {
-                $transaction = Transaction::where($prodConfirmation->request_id);
-                $transaction->seller_confirmation = 1;
-                $transaction->save();
-            	$resUpdated = 1;
+                if($prodConfirmation->is_prod_confirm_by_seller == 0)
+                {
+                    $prodConfirmation->is_prod_confirm_by_seller = 1;
+
+                	if($prodConfirmation->save())
+                    {
+                        $reqDetails = BrodRequest::find($prodConfirmation->request_id);
+                        $reqDetails->status = 3; 
+                        $reqDetails->save();
+
+                        $transaction = Transaction::where($prodConfirmation->request_id);
+                        $transaction->seller_confirmation = 1;
+                        $transaction->save();
+
+                    	$resUpdated = 1;
+                    }
+                }
+                else
+                {
+                    $resUpdated = 3;
+                }
+            }
+            else
+            {
+                $resUpdated = 2;
             }
         }
 

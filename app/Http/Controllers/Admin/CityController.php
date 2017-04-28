@@ -40,7 +40,7 @@ class CityController extends Controller
     public function getData() {
         
         $countries = Cities::query()      
-        ->where('status','1')
+        //->where('status','1')
         ->get();
      //   print_r($countries);exit;
         return Datatables::of($countries)->make(true);
@@ -84,7 +84,7 @@ class CityController extends Controller
         $city = new Cities;
         $city->name     = trim($request->name);
         $city->status   = $request->status;
-        $city->state_id = 1;
+        $city->state_id = '3149';
         $city->save();
 
         $msg = "City Added Successfully.";
@@ -161,7 +161,7 @@ class CityController extends Controller
         $city           = Cities::find($id);
         $city->name     = trim($request->name);
         $city->status   = $request->status;
-        $city->state_id = 1;     
+        $city->state_id = '3149';     
         $city->save();
 
         $msg = "City Updated Successfully.";

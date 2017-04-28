@@ -25,6 +25,7 @@ use Mail;
 use Form;
 use File;
 use Image;
+use Session;
 
 class SellerController extends Controller
 {
@@ -40,22 +41,21 @@ class SellerController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['getSellerLogin','getMobileVerify','getSendEmailVerifyCodeAgain','getRegisterSeller']]);
+        $this->middleware('jwt.auth', ['except' => ['getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
     }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-
+    
     public function getRegisterSeller(Request $request) {
         if($request->all())
         {
             $validator = Validator::make($request->all(), [                
                 'seller_name'       => 'required',
-                'password'          => 'required|min:4',
-                'email'             => 'required|email|unique:users',
-                'shop_mobile'       => 'required',               
+                'email'             => 'required|email',
+                'phone_number'      => 'required|unique:users|min:8',               
                 'shop_name'         => 'required',
                 'shop_address'      => 'required',
                 'file'              => 'mimes:jpeg,jpg,png,pdf,doc|max:1024',
@@ -71,23 +71,49 @@ class SellerController extends Controller
             }
             else
             {   
-                $checkMobile = User::where('phone_number',$request->shop_mobile)->first();
-                if(count($checkMobile) < 1)
+                $checkMobile = User::where('phone_number',$request->phone_number)->first();
+                if( count($checkMobile) > 0)
                 {
-                    $digits = 4;
+                    if($checkMobile->status == 1)
+                    {
+                        $seller_mobile_verify_code = rand (1000 , 9999);
+                        $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
+
+                        $checkMobile->email                        = trim($request->email);
+                        $checkMobile->name                        = trim($request->seller_name);
+                        $checkMobile->phone_number                 = trim($request->phone_number);
+                        $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
+                        $checkMobile->save();
+
+                        $this->resultapi('1','Verification Code Send To Your Mobile Number.',$seller_mobile_verify_code); 
+           
+                    }
+                    else if($checkMobile->status == 0)
+                    {
+                        
+                         $this->resultapi('2','You Have to Wait Until Admin Will Approve.',false);
+                    }
+                    else
+                    {
+                        $this->resultapi('0','Some Problem In Verification.',false);           
+                    }
+                }
+                else
+                {
+                    
+                    /*$digits = 4;
                     $email_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
 
-                    $sendSms = User::sendSms(trim($request->shop_mobile), trim($email_verify_code));
+                    $sendSms = User::sendSms(trim($request->shop_mobile), trim($email_verify_code));*/
 
                     $filename = "";
                     $regNewMobile = new User;                
                     $regNewMobile->email              = trim($request->email);
-                    $regNewMobile->password           = bcrypt($request->password);
-                    $regNewMobile->phone_number       = trim($request->shop_mobile);
-                    $regNewMobile->usertype           = "Seller";
-                    $regNewMobile->email_verify_code  = $email_verify_code;                
+                    $regNewMobile->phone_number       = trim($request->phone_number);
+                    //$regNewMobile->usertype           = "Seller";
+                    //$regNewMobile->email_verify_code  = $email_verify_code;                
                     $regNewMobile->email_verified     = "No";
-                    $regNewMobile->status             = 0;
+                    //$regNewMobile->status             = 0;
                                      
                     /* for Shop Licence Image Upload */
                     $bserUrlImg = asset('public/asset/shopLicence/thumb/');
@@ -100,11 +126,6 @@ class SellerController extends Controller
                         $timestamp = time().  uniqid(); 
                         $filename = $timestamp.'_'.trim($file->getClientOriginalName());
                         $file->move($thumbPath,$filename);
-
-                        /*$img = Image::make($path.$filename);
-                        $img->resize(100, 100, function ($constraint) { 
-                             $constraint->aspectRatio();
-                        })->save($thumbPath.'/'.$filename);*/
                     }
 
                     if($regNewMobile->save())
@@ -123,20 +144,38 @@ class SellerController extends Controller
                         $regNewProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode : "";
                         # $regNewProfile->shop_document       = $filename ? $filename : "";
                         $regNewProfile->shop_document       = "";
-
-
-                        /*if($insertedUser->mobile_verified=='Yes' && $insertedUser->email_verified=='Yes')
-                        {
-                            $regNewMobile->usertype  = 'Both';
-                        }
-                        else
-                        {
-                            $regNewMobile->usertype  = 'Seller';
-                        }*/
                     }             
 
                     if($regNewMobile->save() && $regNewProfile->save() )
                     {                 
+                        
+                        $checkMobile = User::where('phone_number',$request->phone_number)->first();
+                        if( count($checkMobile) > 0)
+                        {
+                            if($checkMobile->status == 1)
+                            {
+                                $seller_mobile_verify_code = rand (1000 , 9999);
+                                $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
+
+                                $checkMobile->email                        = trim($request->email);
+                                $checkMobile->phone_number                 = trim($request->phone_number);
+                                $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
+                                $checkMobile->save();
+
+                                $this->resultapi('1','Verification Code Send To Your Mobile Number.',$seller_mobile_verify_code); 
+                   
+                            }
+                            else if($checkMobile->status == 0)
+                            {
+                                
+                                 $this->resultapi('2','You Have to Wait Until Admin Will Approve.',false);
+                            }
+                            else
+                            {
+                                $this->resultapi('0','Some Problem In Verification.',false);           
+                            }
+                        }
+
                         /* Seller register Notification for Admin By Email */
                         //$adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
                         //$adminEmail  =  $adminDetails->email;
@@ -155,18 +194,13 @@ class SellerController extends Controller
                             $message->to($mail_data['toEmail']);
                             $message->from($mail_data['fromEmail']);
                             $message->subject($mail_data['subject']);
-                        });                    
-                        
-                        $this->resultapi('1','Registered Sucessfully and Verification Code Send To Your Mobile Number.',$insertedUser->email_verify_code);                    
+                        });
                     }
                     else
                     {
                         $this->resultapi('0','Some Problem with Seller Registration Process.', false);
                     }
-                }
-                else
-                {
-                    $this->resultapi('0','This Mobile Number is already Taken.', false);
+         
                 }
             }
         }
@@ -184,7 +218,7 @@ class SellerController extends Controller
                 $validator = Validator::make($request->all(), [                
                     'uid'               => 'required|numeric',
                     'seller_name'       => 'required',
-                    'shop_mobile'       => 'required',               
+                    'phone_number'      => 'required:min:8',               
                     'shop_name'         => 'required',
                     'shop_address'      => 'required',
                     'shop_city'         => 'required|numeric',
@@ -201,10 +235,10 @@ class SellerController extends Controller
                 }
                 else
                 {   
-                    $updateProfileSeller                = User::where('id',$request->uid)->first();
-                    $updateProfileSeller->phone_number  = trim($request->shop_mobile);                
-                    $updateProfileSeller->name          = trim($request->name);
-                    $updateProfileSeller->usertype      = 'Seller'; 
+                    $updateProfileSeller                          = User::where('id',$request->uid)->first();
+                    $updateProfileSeller->phone_number            = trim($request->phone_number);                
+                    $updateProfileSeller->name                    = trim($request->name);
+                    $updateProfileSeller->is_seller_updated       = 1; 
 
                     $filename = "";
                     if($request->image_upload === "YES")
@@ -215,6 +249,7 @@ class SellerController extends Controller
 
                         $timestamp = time().  uniqid(); 
                         $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                        File::makeDirectory(public_path().'asset/', 0777, true, true);
                         $file->move($thumbPath,$filename);
 
                         /*$img = Image::make($path.$filename);
@@ -226,11 +261,8 @@ class SellerController extends Controller
                     $updateSellerProfile = UserProfiles::where('user_id', '=', $request->uid)->first();
                     $updateSellerProfile->seller_name         = $request->seller_name;
                     $updateSellerProfile->shop_name           = $request->shop_name;
-                    $updateSellerProfile->shop_mobile         = $request->shop_mobile;
+                    $updateSellerProfile->shop_mobile         = $request->phone_number;
                     $updateSellerProfile->shop_address        = $request->shop_address;
-                    $updateProfileSeller->email_verified      = $updateProfileSeller->email_verified;
-                    $updateProfileSeller->status              = $updateProfileSeller->status;                                       
-                    
                     $updateSellerProfile->seller_name         = $request->seller_name;
                     $updateSellerProfile->shop_city           = $request->shop_city;
                     $updateSellerProfile->shop_start_time     = $request->shop_start_time;
@@ -249,7 +281,7 @@ class SellerController extends Controller
                     }
                     else
                     {
-                        $this->resultapi('0','Some Problem with Seller Registration Process.', false);
+                        $this->resultapi('0','Some Problem with Profile Update.', false);
                     }
                 }
             }
@@ -264,7 +296,41 @@ class SellerController extends Controller
         }  
     }
 
-    public function getSendEmailVerifyCodeAgain(Request $request) {
+    public function getSendMobileVerifyCodeAgain(Request $request) {
+                   
+        $validator = Validator::make($request->all(), [                
+            'phone_number'  => 'required:min:8',
+        ]);
+        
+        if ($validator->fails()) 
+        {
+            $this->resultapi('0', $validator->errors()->all(), 0);
+        }
+        else
+        {
+            $checkUserExist = User::where('phone_number',$request->phone_number)->first();
+
+            if(count($checkUserExist) > 0)
+            {
+                
+                $mobile_verify_code = rand ( 1000 , 9999 );
+                // sms gateway 
+                $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+
+                $checkUserExist->seller_mobile_verified      = 'No';
+                $checkUserExist->seller_mobile_verify_code   = $mobile_verify_code;
+                $checkUserExist->save();
+                                         
+                $this->resultapi('1','Re Verification Code Send To Your Mobile Number.', $mobile_verify_code);
+            }
+            else
+            {
+                $this->resultapi('0','Mobile Number Not Exist.', false);
+            }
+        }
+    }
+
+    /*public function getSellerApprovedByAdmin(Request $request) {
                    
         $validator = Validator::make($request->all(), [                
             'phone_number'  => 'required',
@@ -276,27 +342,24 @@ class SellerController extends Controller
         }
         else
         {
-            $emailVerification = User::where('phone_number',$request->phone_number)->first();
-
-            if(count($emailVerification) > 0)
-            {
-                $digits = 4;
-                $email_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
-                // sms gateway 
-                $sendSms = User::sendSms(trim($request->phone_number), trim($email_verify_code));
-
-                $emailVerification->email_verified       = 'No';
-                $emailVerification->email_verify_code    = $email_verify_code;
-                $emailVerification->save();
-                                         
-                $this->resultapi('1','Re Verification Code Send To Your Mobile Number.', $email_verify_code);
+            $checkUserExist = User::where('phone_number',$request->phone_number)->first();         
+            if(count($checkUserExist) > 0)
+            {   
+                if($checkUserExist->status == 1)
+                {
+                    $this->resultapi('2','Seller Approved By Admin.', " Approved By Admin");
+                }
+                else
+                {
+                    $this->resultapi('0','Seller Not Approved.', "Not Approved By Admin");
+                }
             }
             else
             {
-                $this->resultapi('0','Phone Number Not Exist.', false);
+                $this->resultapi('0','Mobile Number Not Exist.', false);
             }
         }
-    }
+    }*/
 
     public function getMobileVerify(Request $request) {
         
@@ -313,18 +376,36 @@ class SellerController extends Controller
             }
             else
             {
-                $emailCodeVerification = User::where('phone_number',$request->phone_number)->where('email_verify_code',$request->verification_code)->first();               
+                $mobileVerification = User::where('phone_number',$request->phone_number)->where('seller_mobile_verify_code',$request->verification_code)->first();               
 
-                if(count($emailCodeVerification) > 0 )
+                if(count($mobileVerification) > 0 )
                 {
-                    $emailCodeVerification->email_verified = "Yes";
-                    if($emailCodeVerification->mobile_verified == "Yes")
+                    $mobileVerification->seller_mobile_verified = "Yes";
+                    //$mobileVerification->seller_mobile_verify_code = "";
+                    $mobileVerification->save();
+                   
+                    if($mobileVerification->status == 1)
                     {
-                        $emailCodeVerification->usertype = 'Both';
-                    }
-                    $emailCodeVerification->save();
+                        if(Auth::attempt(array('phone_number' => trim($request->phone_number), 'password' => '123456','seller_mobile_verified' => 'Yes', 'status' => '1', 'seller_mobile_verify_code' => $request->verification_code)))
+                        {
+                            $user = Auth::user();
+                            $user['tokenId'] = $this->jwtAuth->fromUser($user);
+                            $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                     
+                            $mapUrl ='https://www.google.com/maps?q=';
+                            $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
 
-                    $this->resultapi('1','Mobile Verified Sucessfully.', true);
+                            $this->resultapi('1','Verified Sucessfully.', $user);
+                        } 
+                        else
+                        {
+                            $user = array();
+                            $this->resultapi('0','Invalid Verification Details.', $user);
+                        }
+                    }
+                    else
+                    {
+                        $this->resultapi('2','Mobile Verified Sucessfully, You Have To Wait Untill Admin Will Approve.', 'Not Approved By Admin.');
+                    }
                 } 
                 else
                 {
@@ -337,275 +418,250 @@ class SellerController extends Controller
         {
             $this->resultapi('0','Request Details Not Matched.', 0);
         }
-    }
-
-    public function getSellerLogin(Request $request) {
-       
-        $validator = Validator::make($request->all(), [                
-            'email'       => 'required|email',
-            'password'    => 'required|max:8|min:4',               
-        ]);
-        
-        if ($validator->fails()) 
-        {
-            $this->resultapi('0', $validator->errors()->all(), 0);
-        }
-        else
-        {            
-            $userDetails = User::where('email',$request->email)->select('email_verified','email_verify_code','phone_number')->first();
-
-            if(count($userDetails) > 0)
-            {
-                if($userDetails->email_verified == "Yes")
-                {
-                    /*if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password),'email_verified' => 'Yes', 'status' => '1')))*/
-
-                    if(Auth::attempt(array('email' => trim($request->email), 'password' => trim($request->password),'email_verified' => 'Yes', 'status' => '1')))
-                    {
-                        $user = Auth::user();
-                        $user['tokenId'] = $this->jwtAuth->fromUser($user);
-                        $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                     
-                        $mapUrl ='https://www.google.com/maps?q=';
-                        $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
-
-                        $this->resultapi('1','Logged In Sucessfully.', $user);
-                    } 
-                    else
-                    {
-                        $user = array();
-                        $this->resultapi('0','Invalid Login Details.', $user);
-                    }
-                }
-                else
-                {
-                    $this->resultapi('0','Your Mobile Number is not Verified.', $userDetails);
-                }
-            }
-            else
-            {
-                $user = array();
-                $this->resultapi('0','Email Address Not Exist.', $user);
-            }
-        }
-    }
+    }    
 
     public function getSellerDetails(Request $request)
-    {   
-        if(Auth::check())
-        {     
-            if($request->uid)
-            {
-                $myProfileDetails = User::getSellerDetails($request->uid);
+    {     
+        if($request->uid)
+        {
+            $myProfileDetails = User::getSellerDetails($request->uid);
 
-                if(count($myProfileDetails))
-                {
-                    $this->resultapi('1','Profile Details Found.', $myProfileDetails);
-                }
-                else
-                {
-                    $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
-                }
-            } 
+            if(count($myProfileDetails))
+            {
+                $this->resultapi('1','Profile Details Found.', $myProfileDetails);
+            }
             else
             {
-                $myProfileDetails = array();
-                $this->resultapi('0','User Id Not Found.', $myProfileDetails);
+                $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
             }
-        }
+        } 
         else
         {
             $myProfileDetails = array();
-            $this->resultapi('0','Authentication Failed.', $myProfileDetails);
-        }   
+            $this->resultapi('0','User Id Not Found.', $myProfileDetails);
+        }
     }
 
     public function getAllBrodRequests(Request $request)
-    {   
-        if(Auth::check())
+    { 
+        if($request->uid && $request->per_page)
         {
-            if($request->uid)
-            {
-                $allResponse = BrodRequest::getAllBrodRequest($request->uid);
+            $allResponse = BrodRequest::getAllBrodRequest($request->uid, $request->per_page);
 
-                if(count($allResponse))
-                {
-                    $this->resultapi('1','Brodcast Request Found.', $allResponse);
-                }
-                else
-                {
-                    $this->resultapi('0','No Brodcast Request Found.', $allResponse);
-                } 
+            if(count($allResponse))
+            {
+                $this->resultapi('1','Brodcast Request Found.', $allResponse);
             }
             else
             {
-                $allResponse = array();
-                $this->resultapi('0','User Id Not Found.', $allResponse);
-            }
+                $this->resultapi('0','No Brodcast Request Found.', $allResponse);
+            } 
         }
         else
         {
             $allResponse = array();
-            $this->resultapi('0','Authentication Failed.', $allResponse);
+            $this->resultapi('0','User Id Not Found.', $allResponse);
+        }
+    }
+
+    public function getSendResponse(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'price'           => 'required|max:6',
+            'customer_id'     => 'required|numeric',
+            'seller_id'       => 'required|numeric',
+            'request_id'      => 'required|numeric',
+        ]);
+
+        $respDetail = BrodResponse::where('seller_id',$request->seller_id)->where('request_id',$request->request_id)->first();
+
+        if(count($respDetail) > 0)
+        {
+            if($request->price_updated == "YES")
+            {
+                if( $respDetail->is_prod_confirm_by_buyer == 0)
+                {
+                    $respDetail->price              = $request->price;
+                    $respDetail->price_updated      = 1;
+                    $respDetail->removed_by_user    = 0;
+                    $respDetail->read_status        = 0;
+                    $respDetail->save();
+
+                    $this->resultapi(1,'Price Updated Sucessfully.', true);
+                }
+                else
+                {
+                    $this->resultapi(0,'You Cannot Change Price After Product Confirmation', false);
+                }
+            }
+            else
+            {
+                $this->resultapi(0,'Price Not Updated.', true);
+            }
+        }
+        else
+        {
+            $sellerReplied = BrodRequest::find($request->request_id);            
+            if(count($sellerReplied) > 0)
+            {   
+                $newResponse = new BrodResponse;
+                $newResponse->customer_id           = $request->customer_id;
+                $newResponse->seller_id             = $request->seller_id;
+                $newResponse->request_id            = $request->request_id;
+                $newResponse->price                 = $request->price;
+                $newResponse->price_updated         = 0;
+                $newResponse->save();
+                
+                $sellerReplied->is_seller_replied = 1;
+                $sellerReplied->status = 2;
+                $sellerReplied->save();
+
+                $this->resultapi(1,'Your Product Response Send Sucessfully.', true);
+            }
+            else
+            {
+                $this->resultapi(0,'Request Details Not Found.', true);
+            }     
         }      
     }
 
     public function getUpdateResponseBySeller(Request $request)
-    {   
-        if(Auth::check())
+    {  
+        if($request->res_id && $request->price)
         {
-            if($request->res_id && $request->price)
+            $validator = Validator::make($request->all(), [                
+                'res_id'   => 'required|numeric',
+                'price'    => 'required|max:6',               
+            ]);
+        
+            if ($validator->fails()) 
             {
-                $validator = Validator::make($request->all(), [                
-                    'res_id'   => 'required|numeric',
-                    'price'    => 'required|max:6',               
-                ]);
-            
-                if ($validator->fails()) 
-                {
-                    $this->resultapi('0', $validator->errors()->all(), 0);
-                }
-                else
-                {
-                    $respDetail = BrodResponse::find($request->res_id);
-
-                    if(count($respDetail) > 0)
-                    {   
-                        if($respDetail->is_prod_confirm_by_buyer == 1)
-                        {
-                            $this->resultapi('0','Product Already Confirmed by Customer.', true);
-                        }
-                        elseif($respDetail->removed_by_user == 1)
-                        {
-                            $this->resultapi('0','Customer Rejected Your Proposal.', true);
-                        }
-                        else
-                        {                           
-                            $respDetail->price          = $request->price;
-                            $respDetail->price_updated  = 1;
-                            $respDetail->save();
-
-                            $reqDetail = BrodRequest::find($respDetail->request_id);
-                            $reqDetail->is_seller_replied = 1;
-                            $reqDetail->save();
-
-                            $this->resultapi('1','Response Details Updated Sucessfully.', true);
-                        }
-                    }
-                    else
-                    {
-                        $this->resultapi('0','Response Details Not Exist.', $allResponse);
-                    }
-                }
+                $this->resultapi('0', $validator->errors()->all(), 0);
             }
             else
             {
-                $allResponse = array();
-                $this->resultapi('0','Details Not Found.', $allResponse);
+                $respDetail = BrodResponse::find($request->res_id);
+
+                if(count($respDetail) > 0)
+                {   
+                    if($respDetail->is_prod_confirm_by_buyer == 1)
+                    {
+                        $this->resultapi('0','Product Already Confirmed by Customer.', true);
+                    }
+                    else if($respDetail->removed_by_user == 1)
+                    {
+                        $this->resultapi('0','Customer Rejected Your Proposal.', true);
+                    }
+                    else
+                    {                           
+                        $respDetail->price          = $request->price;
+                        $respDetail->price_updated  = 1;
+                        $respDetail->save();
+
+                        $reqDetail = BrodRequest::find($respDetail->request_id);
+                        $reqDetail->is_seller_replied = 1;
+                        $reqDetail->save();
+
+                        $this->resultapi('1','Response Details Updated Sucessfully.', true);
+                    }
+                }
+                else
+                {
+                    $allResponse = array();
+                    $this->resultapi('0','Response Details Not Exist.', $allResponse);
+                }
             }
         }
         else
         {
             $allResponse = array();
-            $this->resultapi('0','Authentication Failed.', $allResponse);
-        }      
-    }
-
-    public function getProductConfirmedBySeller(Request $request)
-    {            
-        if(Auth::check())
-        {
-            if($request->res_id) 
-            {
-                $prodConfirmation = BrodResponse::productConfirmedBySeller($request->res_id);
-                
-                if($prodConfirmation === 1)
-                {
-                    $this->resultapi('1','Product Confirmed By Seller.', true);
-                }
-                else
-                {
-                    $this->resultapi('0','Invalid Response Id.', false);
-                }            
-            }
-            else
-            {
-                $this->resultapi('0','Seller Response Id Not Found.', false);
-            }
-        }
-        else
-        {           
-            $this->resultapi('0','Authentication Failed.', false);
+            $this->resultapi('0','Details Not Found.', $allResponse);
         }          
     }
 
-    public function getChangePasswordSeller(Request $request)
-    {        
-        if(Auth::check())
+    public function getProductConfirmedBySeller(Request $request)
+    {  
+        if($request->res_id) 
         {
-            if($request->email && $request->password && $request->uid)
+            $prodConfirmation = BrodResponse::productConfirmedBySeller($request->res_id);
+            
+            if($prodConfirmation === 1)
             {
-                $validator = Validator::make($request->all(), [                
-                    'email'       => 'required',
-                    'password'    => 'required',
-                    'uid'         => 'required|numeric',               
-                ]);
-                
-                if ($validator->fails()) 
-                {
-                    $this->resultapi('0', $validator->errors()->all(), 0);
-                }
-                else
-                {
-                    $changePassword = User::updatePasswordSeller($request->email, $request->password, $request->uid);
-                    
-                    if($changePassword === 1)
-                    {
-                        $this->resultapi('1','Password Updated Sucesfully.', true);
-                    }
-                    else
-                    {
-                        $this->resultapi('0','Some Problem In Change Password.', false);
-                    }
-                }
+                $this->resultapi('1','Product Confirmed Sucessfully.', true);
+            }
+            else if($prodConfirmation === 2)
+            {
+                $this->resultapi('0','Buyer Not confirmed, Wait For Buyer Confirmation.', false);
+            }
+            else if($prodConfirmation === 3)
+            {
+                $this->resultapi('0','You have Already Confirmed This Request.', false);
             }
             else
             {
-                $this->resultapi('0','User Details Not Found.', false);
+                $this->resultapi('0','Invalid Response Id.', false);
+            }            
+        }
+        else
+        {
+            $this->resultapi('0','Invalid Response Id.', false);
+        }      
+    }
+
+    public function getChangePasswordSeller(Request $request)
+    {  
+        if($request->email && $request->password && $request->uid)
+        {
+            $validator = Validator::make($request->all(), [                
+                'email'       => 'required',
+                'password'    => 'required',
+                'uid'         => 'required|numeric',               
+            ]);
+            
+            if ($validator->fails()) 
+            {
+                $this->resultapi('0', $validator->errors()->all(), 0);
+            }
+            else
+            {
+                $changePassword = User::updatePasswordSeller($request->email, $request->password, $request->uid);
+                
+                if($changePassword === 1)
+                {
+                    $this->resultapi('1','Password Updated Sucesfully.', true);
+                }
+                else
+                {
+                    $this->resultapi('0','Some Problem In Change Password.', false);
+                }
             }
         }
         else
         {
-            $this->resultapi('0','Authentication Failed.', false);
-        }   
+            $this->resultapi('0','User Details Not Found.', false);
+        }         
     }
 
     public function getRequestDeatils(Request $request)
-    {          
-        if(Auth::check())
+    {  
+        if($request->req_id && $request->uid )
         {
-            if($request->req_id && $request->uid )
+            $brodRequestByUser = BrodResponse::getRequestDetailsBySeller($request->req_id, $request->uid);
+            
+            if(count($brodRequestByUser))
             {
-                $brodRequestByUser = BrodResponse::getRequestDetailsBySeller($request->req_id, $request->uid);
-                
-                if(count($brodRequestByUser))
-                {
-                    $this->resultapi('1','Brodcast Request Found.', $brodRequestByUser);
-                }
-                else
-                {
-                    $this->resultapi('0','No Brodcast Request Found.', $brodRequestByUser);
-                }
+                $this->resultapi('1','Brodcast Request Found.', $brodRequestByUser);
             }
             else
             {
-                $this->resultapi('0','User Not Found.', false);
+                $this->resultapi('0','No Brodcast Request Found.', $brodRequestByUser);
             }
         }
         else
-        {            
-            $this->resultapi('0','Authentication Failed.', false);
-        }   
-    }       
+        {
+            $this->resultapi('0','User Not Found.', false);
+        }         
+    }
 
     public function resultapi($status,$message,$result = array()) {
 

@@ -95,7 +95,6 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
 
     /* Before Logged In */
     Route::post('/user/registerMobile','Api\UserController@getRegisterMobile');
-    Route::post('/user/registerMobileTest','Api\UserController@getRegisterMobileTest');
     Route::post('/user/sendCodeAgain','Api\UserController@getSendCodeAgain');
     Route::post('/user/verifyMobile','Api\UserController@getVerifyMobile');    
     Route::post('/user/updateProfile','Api\UserController@getUpdateProfile');
@@ -108,6 +107,8 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
        Route::post('/user/getVerifyCode','Api\UserController@getCurrentVerificationCode'); 
        Route::post('/brodcast/allBrodRequest','Api\BrodcastController@getAllBrodRequest');
        Route::post('/user/myProfilUpdate','Api\UserController@getUpdateProfileByUser');
+       Route::post('/seller/isSellerApproved','Api\SellerController@getSellerApprovedByAdmin');
+       Route::post('/seller/refreshtoken','Api\SellerController@refreshtoken');
     */
 
     /* After Logged In */
@@ -115,17 +116,18 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/user/myProfileDetails','Api\UserController@getMyProfileDetails');
     Route::post('/user/viewBrodreqByUser','Api\UserController@getViewRequestByUser');
     Route::post('/user/viewResponse','Api\UserController@getViewResponse');
-    Route::post('/user/removeResponse','Api\UserController@getRemoveResponse');
+    Route::post('/user/removeRequest','Api\UserController@getRemoveRequest');
     Route::post('/user/markPriceNotiRead','Api\UserController@getMarkPriceReadUpdateNoti');
     Route::post('/user/changePassword','Api\UserController@getChangePassword');
     Route::post('/user/productConfirmedByBuyer','Api\UserController@getProductConfirmedByBuyer');
+    Route::post('/user/removeResponse','Api\UserController@getRemoveResponse');
 
     /* Seller Management*/
 
     /* Before Logged In */
     Route::post('/seller/sellerRegister','Api\SellerController@getRegisterSeller');
     Route::post('/seller/sellerLogin','Api\SellerController@getSellerLogin');    
-    Route::post('/seller/sendEmailVeriCodeAgain','Api\SellerController@getSendEmailVerifyCodeAgain');
+    Route::post('/seller/sendMobileVeriCodeAgain','Api\SellerController@getSendMobileVerifyCodeAgain');
     Route::post('/seller/mobileVerify','Api\SellerController@getMobileVerify');
     Route::post('/seller/sellerChangedPassword','Api\SellerController@getChangePasswordSeller');
     
@@ -133,16 +135,13 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/seller/sellerDetails','Api\SellerController@getSellerDetails');
     Route::post('/seller/allBrodRequest','Api\SellerController@getAllBrodRequests');    
     Route::post('/seller/updateSeller','Api\SellerController@getUpdateSellerProfile');
-    Route::post('/seller/viewRequestDeatils','Api\SellerController@getRequestDeatils');  
+    /*Route::post('/seller/viewRequestDeatils','Api\SellerController@getRequestDeatils'); */ 
     Route::post('/seller/productConfirmedBySeller','Api\SellerController@getProductConfirmedBySeller');
-    Route::post('/seller/updateResponse','Api\SellerController@getUpdateResponseBySeller');
-
+    /*Route::post('/seller/updateResponse','Api\SellerController@getUpdateResponseBySeller');*/
+    Route::post('/seller/sendResponse','Api\SellerController@getSendResponse');
+   
     /* Messages / chat */
     Route::post('/chat/message','Api\MessageController@sendMessage');
-    Route::post('/chat/getAllMessages','Api\MessageController@getAllMessages');    
-
-    /* Test Details */
-    Route::post('/user/testUser','Api\UserController@testUser');
-
+    Route::post('/chat/getAllMessages','Api\MessageController@getAllMessages');
       
 });

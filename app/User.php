@@ -63,8 +63,8 @@ class User extends Authenticatable
         //echo "fsdfsd";
         $userDetails = DB::table('users')
         ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-        //->leftJoin('cities', 'user_profiles.shop_city', '=', 'cities.id')
-        ->select('users.id','users.name','users.email','user_profiles.customer_address','user_profiles.seller_name','user_profiles.shop_name','user_profiles.shop_mobile','user_profiles.shop_address','user_profiles.shop_zipcode','user_profiles.shop_location_map','user_profiles.shop_start_time','user_profiles.shop_close_time','user_profiles.shop_document','user_profiles.shop_city')
+        ->leftJoin('cities', 'user_profiles.shop_city', '=', 'cities.id')
+        ->select('cities.name as shop_city_name','users.id','users.name','users.email','user_profiles.customer_address','user_profiles.seller_name','user_profiles.shop_name','user_profiles.shop_mobile','user_profiles.shop_address','user_profiles.shop_zipcode','user_profiles.shop_location_map','user_profiles.shop_start_time','user_profiles.shop_close_time','user_profiles.shop_document','user_profiles.shop_city')
         ->where('users.id',$userId)
         ->first();
 

@@ -7,7 +7,6 @@ use Illuminate\Http\Response;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\User;
-
 use DB;
 use Illuminate\Support\Facades\Input;
 use Validator;
@@ -22,6 +21,7 @@ use App\BrodRequest;
 use App\BrodResponse;
 use File;
 use Image;
+use Auth;
 
 
 class BrodcastController extends Controller
@@ -38,7 +38,7 @@ class BrodcastController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['getBrodcastInitData','getProductsByBrandId','sendNewProductRequest']]);
+        $this->middleware('jwt.auth', ['except' => ['getBrodcastInitData', 'getProductsByBrandId','sendNewProductRequest']]);
     }
 
     /**
@@ -83,8 +83,8 @@ class BrodcastController extends Controller
         }
     }
 
-    public function sendNewProductRequest(Request $request) { 
-
+    public function sendNewProductRequest(Request $request) {
+        
         if($request->all() && count($request->all()) > 0)
         {
             $validator = Validator::make($request->all(), [
@@ -119,10 +119,11 @@ class BrodcastController extends Controller
                     {
                         $file = $request->file('brod_img');
                         $path = public_path().'asset/brodcastImg/';
-                        $thumbPath = public_path('/asset/brodcastImg/thumb');
+                        $thumbPath = public_path('asset/brodcastImg/thumb');
 
                         $timestamp = time().  uniqid(); 
                         $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                        File::makeDirectory(public_path().'asset/', 0777, true, true);
                         $file->move($path,$filename);
 
                         $img = Image::make($path.$filename);
@@ -133,105 +134,84 @@ class BrodcastController extends Controller
                         $brodRequest->req_image   = $filename;
                     }
                 }
-                else
-                {   
-                    $brodRequest->req_image   = "";
-                }
-
-                $brodRequest->save();
-
-                $this->resultapi('1','Product Request Added Sucessfully.', true);
-            }
-        } 
-        else
-        {   
-            $productsByBrandId = array();
-            $this->resultapi('0','Request Details Not Found.', true);
-        }        
-    }
-
-    public function getUpdateProductRequest(Request $request) { 
-        if(Auth::check())
-        {
-            if($request->all() && count($request->all()) > 0)
-            {
-                $validator = Validator::make($request->all(), [
-                    
-                    'brod_id'    => 'required|numeric',
-                    'brod_desc'  => 'required|max:255',
-                    'brod_bid'   => 'required|numeric',
-                    'brod_pid'   => 'required|numeric',
-                    'brod_year'  => 'required|numeric',
-                    'brod_uid'   => 'required|numeric',
-                    'brod_img'   => 'mimes:jpeg,jpg,png,gif|max:1024'               
-                ]);
                 
-                if ($validator->fails()) 
-                {
-                    $this->resultapi('0',$validator->errors()->all(), 0);
-                }
-                else
-                {
-                    $brodResponse = BrodResponse::where('request_id',$request->brod_id)->first();
-                    if($brodResponse->is_prod_confirm_by_seller == 1)
-                    {
-                        $brodRequest                       = BrodRequest::find($request->brod_id);              
-                        $brodRequest->description          = $request->brod_desc;
-                        $brodRequest->brand_id             = $request->brod_bid;
-                        $brodRequest->prod_id              = $request->brod_pid;
-                        $brodRequest->prod_year            = $request->brod_year;
-                        $brodRequest->user_id              = $request->brod_uid;
-                        //$brodRequest->req_image            = "";                
-                        //$brodRequest->is_seller_replied    = 0;
-                        $brodRequest->is_details_updated   = 1;
-                        $brodRequest->is_seller_replied    = 0;
-                        $brodRequest->status               = 0; 
-
-                        if($request->partrequest_image_upload === "YES")
-                        {
-                            if($request->hasFile('brod_img'))
-                            {
-                                $file = $request->file('brod_img');
-                                $path = public_path().'/asset/brodcastImg/';
-                                $thumbPath = public_path('/asset/brodcastImg/thumb/');
-
-                                $timestamp = time().  uniqid(); 
-                                $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                                $file->move($path,$filename);
-
-                                $img = Image::make($path.$filename);
-                                $img->resize(100, 100, function ($constraint) { 
-                                    $constraint->aspectRatio();
-                                })->save($thumbPath.'/'.$filename);
-
-                                $brodRequest->req_image   = $filename;
-                            }
-                        }
-                        else
-                        {   
-                            $brodRequest->req_image   = "";
-                        }
-
-                        $brodRequest->save();
-
-                        $this->resultapi('1','Product Request Updated Sucessfully.', true);
-                    }
-                    else
-                    {
-                        $this->resultapi('0','Product Request Confirmed By Client.', true);
-                    }
-                }
-            } 
-            else
-            {   
-                $productsByBrandId = array();
-                $this->resultapi('0','Request Details Not Found.', true);
-            }
+                $brodRequest->save();
+                $this->resultapi('1','Product Request Added Sucessfully.', true);
+            }            
         }
         else
-        {            
-            $this->resultapi('0','Authentication Failed.', 0);
+        {
+           $this->resultapi('0','Authintacation failed.', true); 
         }         
+    }
+
+    public function getUpdateProductRequest(Request $request) {
+       
+       
+        $validator = Validator::make($request->all(), [
+            
+            'brod_id'    => 'required|numeric',
+            'brod_desc'  => 'required|max:255',
+            'brod_bid'   => 'required|numeric',
+            'brod_pid'   => 'required|numeric',
+            'brod_year'  => 'required|numeric',
+            'brod_uid'   => 'required|numeric',
+            'brod_img'   => 'mimes:jpeg,jpg,png,gif|max:1024'               
+        ]);
+        
+        if ($validator->fails()) 
+        {
+            $this->resultapi('0',$validator->errors()->all(), 0);
+        }
+        else
+        {
+            $brodResponse = BrodResponse::where('request_id',$request->brod_id)->get();
+            $isSellerConfirmed = array();
+            if(count($brodResponse) > 0)
+            {
+                foreach ($brodResponse as $key => $value)
+                {
+                    $isSellerConfirmed[] = $value->is_prod_confirm_by_seller;
+                }           
+            }
+
+            if(in_array(1, $isSellerConfirmed))
+            {
+                $this->resultapi('0','Product Already Confirmed.', false); 
+            }
+            else
+            {
+                $brodRequest                       = BrodRequest::find($request->brod_id);              
+                $brodRequest->description          = $request->brod_desc;
+                $brodRequest->brand_id             = $request->brod_bid;
+                $brodRequest->prod_id              = $request->brod_pid;
+                $brodRequest->prod_year            = $request->brod_year;
+                $brodRequest->is_details_updated   = 1;
+                
+                if($request->partrequest_image_upload === "YES")
+                {
+                    if($request->hasFile('brod_img'))
+                    {
+                        $file = $request->file('brod_img');
+                        $path = public_path().'asset/brodcastImg/';
+                        $thumbPath = public_path('asset/brodcastImg/thumb');                             
+                        $timestamp = time().  uniqid(); 
+                        $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                        File::makeDirectory(public_path().'asset/', 0777, true, true);
+                        $file->move($path,$filename);
+
+                        $img = Image::make($path.$filename);
+                        $img->resize(100, 100, function ($constraint) { 
+                            $constraint->aspectRatio();
+                        })->save($thumbPath.'/'.$filename);
+
+                        $brodRequest->req_image   = $filename;
+                    }
+                }
+                $brodRequest->save();
+                $this->resultapi('1','Product Request Updated Sucessfully.', true);
+            }                
+        }                    
     }
 
     /*public function getAllBrodRequest() {

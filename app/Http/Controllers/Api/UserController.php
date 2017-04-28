@@ -39,7 +39,7 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['testUser','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser']]);
+        $this->middleware('jwt.auth', ['except' => ['testUser','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser','getRemoveResponse']]);
     }
     /**
      * Display a listing of the resource.
@@ -47,30 +47,31 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function testUser(Request $request)
+    public function getAppInitData(Request $request)
     {
-        if(Auth::attempt(array('phone_number' => $request->phone_number, 'password' => $request->password)))
-        {
-           // echo header('ssss');
-            $user = Auth::user();
-            //$user['tokenId']     = $this->jwtAuth->fromUser($user);
-            //$user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();
-            print_r($user);
+        $appInitData = array(
+            'base_url'             => url('/'),
+            'msgImgPath'           => asset('/public/asset/Message/'),
+            'msgImgPathThumb'      => asset('/public/asset/Message/thumb/'),
+            'brandImgPath'         => asset('/public/asset/brand/'),
+            'brandImgPathThumb'    => asset('/public/asset/brand/thumb/'),
+            'brodcastImgPath'      => asset('/public/asset/brodcastImg/'),
+            'brodcastImgPathThumb' => asset('/public/asset/brodcastImg/thumb/'),
+            'shopImgPath'          => asset('/public/asset/shopLicence/'),
+            'shopImgPathThumb'     => asset('/public/asset/shopLicence/thumb'),
+        );
 
-            //$this->resultapi('1','Mobile Verified SucessFully..', $user);
-        } 
-        else
-        {
-            $user = array();
-            $this->resultapi('0','Some Problem With Mobile Verification', $user);
-        }
+        $this->resultapi('0','App Init Data.', $appInitData);
     }
 
+
     public function getRegisterMobile(Request $request) {
-        if($request->phone_number)
+        /* 1 for buyer 2 for seller */ 
+        if($request->phone_number && $request->customer_type)
         {
             $validator = Validator::make($request->all(), [
                 'phone_number'  => 'required|min:8|numeric',
+                'customer_type'  => 'required|numeric',
             ]);
             
             if ($validator->fails()) 
@@ -81,22 +82,69 @@ class UserController extends Controller
             {
                 $checkMobileExist = User::where('phone_number',trim($request->phone_number))->first();
 
-                $digits = 4;
                 $phoneNumber = $request->phone_number;
-                $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                $mobile_verify_code = rand (1000 , 9999);
 
-                $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                if($request->customer_type == 2)
+                {
+                    if($checkMobileExist->status == 1)
+                    {
+                        $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                    }
+                }
+                else
+                {
+                    $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                
+                }
                
                 if(count($checkMobileExist) > 0)
                 {
-                    $checkMobileExist->phone_number         = $request->phone_number;
-                    $checkMobileExist->usertype         	= 'Buyer';
-                    $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
-                    $checkMobileExist->mobile_verified      = "No";
-                    $checkMobileExist->status               = 1;
-                    $checkMobileExist->save();
+                    if($request->customer_type == 2)
+                    {
+                        if($checkMobileExist->status == 1)
+                        {
+                            if($checkMobileExist->seller_mobile_verified == 'Yes')
+                            {
+                                $checkMobileExist->phone_number                = $request->phone_number;
+                                $checkMobileExist->seller_mobile_verify_code   = $mobile_verify_code;
+                                //$checkMobileExist->mobile_verified      = "No";
+                                //$checkMobileExist->status               = 1;
+                                $checkMobileExist->save();
 
-                    $this->resultapi('1','4 Digit Mobile Verification Code Send.', $checkMobileExist->mobile_verify_code);
+                                $this->resultapi('1','4 Digit Mobile Verification Code Send.', $mobile_verify_code);
+                            }
+                            else if($checkMobileExist->seller_mobile_verified == 'No')
+                            {
+                                $checkMobileExist->phone_number                = $request->phone_number;
+                                $checkMobileExist->seller_mobile_verify_code   = $mobile_verify_code;
+                                //$checkMobileExist->mobile_verified      = "No";
+                                //$checkMobileExist->status               = 1;
+                                $checkMobileExist->save();
+
+                                $this->resultapi('1','4 Digit Mobile Verification Code Send.', $mobile_verify_code);
+                           
+                            }
+                            else
+                            {
+                                $this->resultapi('0','Problem In User Verification.', $mobile_verify_code);
+                            }
+                       }
+                       else
+                       {
+                            $this->resultapi('2','You Have To Wait Until Admin Will Approve.', $mobile_verify_code);
+                       }
+                    }
+                    else
+                    {
+                        $checkMobileExist->phone_number         = $request->phone_number;
+                        $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
+                        $checkMobileExist->mobile_verified      = "No";
+                        $checkMobileExist->status               = 1;
+                        $checkMobileExist->save();
+                        
+                        $this->resultapi('1','4 Digit Mobile Verification Code Send.', $mobile_verify_code);
+                    }
                 }
                 else
                 {
@@ -134,78 +182,8 @@ class UserController extends Controller
         {
             $this->resultapi('0','Mobile Number Not Found.', 0);
         }
-    }
-
-    public function getAppInitData(Request $request)
-    {
-        $appInitData = array(
-            'base_url'             => url('/'),
-            'msgImgPath'           => asset('/public/asset/Message/'),
-            'msgImgPathThumb'      => asset('/public/asset/Message/thumb/'),
-            'brandImgPath'         => asset('/public/asset/brand/'),
-            'brandImgPathThumb'    => asset('/public/asset/brand/thumb/'),
-            'brodcastImgPath'      => asset('/public/asset/brodcastImg/'),
-            'brodcastImgPathThumb' => asset('/public/asset/brodcastImg/thumb/'),
-            'shopImgPath'          => asset('/public/asset/shopLicence/'),
-            'shopImgPathThumb'     => asset('/public/asset/shopLicence/thumb'),
-        );
-
-        $this->resultapi('0','App Init Data.', $appInitData);
-    }
-
-    public function getRegisterMobileTest(Request $request) {
-        if($request->phone_number)
-        {
-            $validator = Validator::make($request->all(), [
-                'phone_number'  => 'required|min:8|numeric|unique:users',
-            ]);
-            
-            if ($validator->fails()) 
-            {
-                $this->resultapi('0', $validator->errors()->all(), 0);
-            }
-            else
-            {
-                $digits = 4;
-                $phoneNumber = $request->phone_number;
-                $mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
-
-                $sendSms = User::sendSms($request->phone_number,$mobile_verify_code );
-                
-                $regNewMobile = new User;
-                $regNewMobile->phone_number         = $request->phone_number;
-                $regNewMobile->mobile_verify_code   = $mobile_verify_code;
-                $regNewMobile->mobile_verified      = "No";
-
-                if($regNewMobile->save())
-                {
-                    $userDetails = User::where('phone_number', '=', $request->phone_number)->first();
-
-                    if(count($userDetails) > 0)
-                    {
-                        $regNewProfile = new UserProfiles;
-                        $regNewProfile->user_id = $userDetails->id;
-                        $regNewProfile->save();
-
-                        $this->resultapi('1','4 Digit Mobile Verification Code Send.', $userDetails->mobile_verify_code);
-                    }
-                    else
-                    {
-                        $this->resultapi('0','User Details Not Found.', 0);
-                    }
-                }
-                else
-                {
-                    $this->resultapi('0','User Details Not Found.', 0);
-                }
-            }            
-        }
-        else
-        {
-            $this->resultapi('0','Mobile Number Not Found.', 0);
-        }
-    }
-
+    }    
+    
     public function getSendCodeAgain(Request $request) {
 
         if($request->phone_number)
@@ -223,14 +201,12 @@ class UserController extends Controller
                 $regNewMobile = User::where('phone_number',$request->phone_number)->first();
 
                 if(count($regNewMobile) > 0)
-                {                    
-                    $digits = 4;
-                	$mobile_verify_code = str_pad(rand(1, pow(10, $digits)-1), $digits, '0', STR_PAD_LEFT);
+                {  
+                	$mobile_verify_code = rand (1000 , 9999);
                     $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
 
                     $regNewMobile->phone_number         = $request->phone_number;
                     $regNewMobile->mobile_verify_code   = $mobile_verify_code;
-                    $regNewMobile->password 			= bcrypt($mobile_verify_code);
                     $regNewMobile->mobile_verified      = "No";
                     $regNewMobile->save();
 
@@ -264,16 +240,17 @@ class UserController extends Controller
             else
             {
                 $verifyMobile = User::where('phone_number', '=', $request->phone_number)->where('mobile_verify_code',$request->verification_code)->first();
-
+          
                 if($verifyMobile && count($verifyMobile) > 0)
                 {                    
-                    $verifyMobile->mobile_verified  = $request->phone_number;
-                    $verifyMobile->mobile_verified  = "Yes";
-                    $verifyMobile->password         = bcrypt($request->verification_code);
+                    $verifyMobile->mobile_verified      = $request->phone_number;
+                    $verifyMobile->name                 = 'Feeh User';
+                    $verifyMobile->mobile_verified      = "Yes";
+                    //$verifyMobile->mobile_verify_code   = "";
                     
                     if($verifyMobile->save())
                     {
-                        if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => $request->verification_code,'mobile_verified' => 'Yes')))
+                        if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => "123456",'mobile_verified' => 'Yes','mobile_verify_code' => $request->verification_code)))
                         {
                             $user = Auth::user();
                             $user['tokenId']     = $this->jwtAuth->fromUser($user);
@@ -339,16 +316,7 @@ class UserController extends Controller
                 {                    
                     $updateUser->name                = trim($request->name) ? $request->name : 'Feeh User';
                     $updateUser->mobile_verified     = $updateUser->mobile_verified;
-                    $updateUser->is_customer_updated = 1;
-
-                    # if($updateUser->mobile_verified == 'Yes' && $updateUser->email_verified == 'Yes')
-                    # {
-                    #     $updateUser->usertype  = 'Both';
-                    # }
-                    # else
-                    # {
-                    #     $updateUser->usertype  = 'Seller';
-                    # }                  
+                    $updateUser->is_customer_updated = 1;            
 
                     $updateProf                   = UserProfiles::where('user_id',$updateUser->id)->first();
                     $updateProf->customer_email   = trim($request->customer_email);
@@ -391,7 +359,7 @@ class UserController extends Controller
             }
             else
             {
-                if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => $request->password,'mobile_verified' => 'Yes')))
+                if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => '123456','mobile_verified' => 'Yes','mobile_verify_code' => $request->password)))
                 {
                     $user = Auth::user();
                     $user['tokenId']     = $this->jwtAuth->fromUser($user);
@@ -413,68 +381,61 @@ class UserController extends Controller
 
     public function getMyProfileDetails(Request $request)
     {
-        if(Auth::check())
+        if($request->uid)
         {
-            if($request->uid)
-            {
-                $myProfileDetails = User::getProfileDetails($request->uid);
+            $myProfileDetails = User::getProfileDetails($request->uid);
 
-                if(count($myProfileDetails))
-                {
-                    $this->resultapi('1','Profile Details Found.', $myProfileDetails);
-                }
-                else
-                {
-                    $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
-                }
-            } 
+            if(count($myProfileDetails))
+            {
+                $this->resultapi('1','Profile Details Found.', $myProfileDetails);
+            }
             else
             {
-                $myProfileDetails = array();
-                $this->resultapi('0','User Id Not Found.', $myProfileDetails);
+                $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
             }
-        }
+        } 
         else
         {
-           $myProfileDetails = array();
-           $this->resultapi('0','Authentication Failed.', $myProfileDetails); 
+            $myProfileDetails = array();
+            $this->resultapi('0','User Id Not Found.', $myProfileDetails);
         }
+        
     }
 
     public function getViewRequestByUser(Request $request)
     {          
-        if($request->uid && $request->status && $request->page)
+        if($request->uid && $request->status && $request->per_page)
         {
-            $brodRequestByUser = BrodRequest::getBrodRequestByUser($request->uid,$request->status,$request->page);
-            
+            $brodRequestByUser = BrodRequest::getBrodRequestByUser($request->uid,$request->status,$request->per_page);
+    
             if(count($brodRequestByUser) > 0)
             {
-                $this->resultapi('1','Brodcast Request Found.', $brodRequestByUser);
+                $this->resultapi('1','Product Request Found.', $brodRequestByUser);
             }
             else
             {
-                $this->resultapi('0','No Brodcast Request Found.', $brodRequestByUser);
+                $this->resultapi('0','No Product Request Found.', $brodRequestByUser);
             }
         }
         else
         {
-            $this->resultapi('0','User Not Found.', false);
+            $this->resultapi('0','User Details Not Found.', false);
         } 
     }
 
     public function getViewResponse(Request $request)
-    {          
-        if($request->request_id)
+    {         
+        if($request->request_id && $request->per_page)
         {
-            $allResponse = BrodResponse::getBrodResponseByReqId($request);
+            $allResponse = BrodResponse::getBrodResponseByReqId($request->request_id,$request->per_page);
             
             if(count($allResponse))
             {
-                $this->resultapi('1','Brodcast Request Found.', $allResponse);
+                $this->resultapi('1','Response Found.', $allResponse);
             }
             else
             {
-                $this->resultapi('0','No Brodcast Request Found.', $allResponse);
+                $this->resultapi('0','No Response Found.', $allResponse);
             }
         }
         else
@@ -483,29 +444,29 @@ class UserController extends Controller
         } 
     }
 
-    public function getRemoveResponse(Request $request)
-    {            
-        if($request->res_id) 
+    public function getRemoveRequest(Request $request)
+    { 
+        if($request->req_id && $request->uid) 
         {
-            $resUpdated = BrodResponse::removeResponse($request->res_id);
+            $resUpdated = BrodResponse::removeResponse($request->req_id,$request->uid);
             
-            if($resUpdated === 1)
+            if($resUpdated == 1)
             {
-                $this->resultapi('1','Response Removed Form List Sucessfully.', true);
+                $this->resultapi('1','Removed Sucessfully.', true);
             }
             else
             {
-                $this->resultapi('0','Invalid Response Id.', false);
+                $this->resultapi('0','Invalid Request Id.', false);
             }            
         }
         else
         {
-            $this->resultapi('0','Seller Response Id Not Found.', false);
-        }        
+            $this->resultapi('0','Request Id Not Found.', false);
+        }
     }
 
     public function getMarkPriceReadUpdateNoti(Request $request)
-    {            
+    {
         if($request->res_id) 
         {
             $resUpdated = BrodResponse::priceUpdateNotiRead($request->res_id);
@@ -522,7 +483,7 @@ class UserController extends Controller
         else
         {
             $this->resultapi('0','Seller Response Id Not Found.', false);
-        }        
+        }     
     }
 
     public function getProductConfirmedByBuyer(Request $request)
@@ -534,6 +495,10 @@ class UserController extends Controller
             if($prodConfirmation === 1)
             {
                 $this->resultapi('1','Product Confirmed By Buyer.', true);
+            }
+            else if($prodConfirmation === 2)
+            {
+                 $this->resultapi('0','You have Already Confirmed This Request.', false);
             }
             else
             {
@@ -578,7 +543,30 @@ class UserController extends Controller
         {
             $this->resultapi('0','User Details Not Found.', false);
         } 
-    }        
+    }
+
+    public function getRemoveResponse(Request $request)
+    {
+        if($request->res_id && $request->uid)
+        {
+            $checkResponse = BrodResponse::where('id',$request->res_id)->first();
+            if(count($checkResponse) > 0)
+            {
+                $checkResponse->removed_by_user = 1;
+                $checkResponse->save();
+
+                $this->resultapi('1','Response Removed Sucessfully.', false);
+            }
+            else
+            {
+                $this->resultapi('0','Response Details Not Found.', false);
+            }
+        }
+        else
+        {
+            $this->resultapi('0','Response Details Not Found.', false);
+        }
+    }     
 
     public function getLogout()
     {        

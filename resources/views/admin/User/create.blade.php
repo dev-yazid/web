@@ -7,11 +7,11 @@
     <div class="form-group">
         <div class="col-md-12">
             {!! Form::label('name', 'Name' , array('class' => 'required')); !!}
-            {!! Form::text('name',null,array('class'=>'form-control')) !!}
+            {!! Form::text('name',null,array('class'=>'form-control','maxlength' => 100)) !!}
         </div>        
     </div>
     
-    <div class="form-group">
+   <!--  <div class="form-group">
         <div class="col-md-6">
             {!! Form::label('password', 'Password' , array('class' => 'required')); !!}
             {!! Form::text('password',null,array('class'=>'form-control')) !!}
@@ -20,12 +20,12 @@
             {!! Form::label('Confirm Password', 'Confirm Password' , array('class' => 'required')); !!}
             {!! Form::text('confirmpassword',null,array('class'=>'form-control')) !!}
         </div>
-    </div>
+    </div> -->
     
     <div class="form-group">
         <div class="col-md-6">
             {!! Form::label('email', 'Email', array('class' => 'required')); !!}
-            {!! Form::text('email',null,array('class'=>'form-control')) !!}
+            {!! Form::text('email',null,array('class'=>'form-control','maxlength' => 100)) !!}
         </div>
         <div class="col-md-6">
             {!! Form::label('status', 'User Status' , array('class' => 'required')); !!}
@@ -42,24 +42,24 @@
         <div class="form-group"> 
             <div class="col-md-12">
                 {!! Form::label('seller_name', 'Seller Name' , array('class' => 'required')); !!}
-                {!! Form::text('seller_name',null,array('class'=>'form-control')) !!}
+                {!! Form::text('seller_name',null,array('class'=>'form-control','maxlength' => 100)) !!}
             </div>
         </div>  
         <div class="form-group"> 
             <div class="col-md-6">
                 {!! Form::label('shop_name', 'Shop Name', array('class' => 'required')); !!}
-                {!! Form::text('shop_name',null,array('class'=>'form-control')) !!}
+                {!! Form::text('shop_name',null,array('class'=>'form-control','maxlength' => 100)) !!}
             </div>
             <div class=" col-md-6">            
                 {!! Form::label('shop_mobile', 'Shop Mobile', array('class' => 'required')); !!}
-                {!! Form::text('shop_mobile',null,array('class'=>'form-control')) !!}
+                {!! Form::text('shop_mobile',null,array('class'=>'form-control','maxlength' => 12)) !!}
             </div>            
         </div>
 
         <div class="form-group">
             <div class="col-md-6">
                 {!! Form::label('shop_address', 'Shop Address', array('class' => 'required')); !!}
-                {!! Form::text('shop_address',null,array('class'=>'form-control')) !!}
+                {!! Form::text('shop_address',null,array('class'=>'form-control','maxlength' => 100)) !!}
             </div>
             <div class="col-md-3">            
                 {!! Form::label('shop_city', 'City', array('class' => 'required')); !!}
@@ -67,22 +67,26 @@
             </div>
             <div class="col-md-3">            
                 {!! Form::label('shop_zipcode', 'Zipcode'); !!}
-                {!! Form::text('shop_zipcode',null,array('class'=>'form-control')) !!}
+                {!! Form::text('shop_zipcode',null,array('class'=>'form-control','maxlength' => 5)) !!}
             </div>       
         </div>
 
         <div class="form-group">
             <div class="col-md-3">
                 {!! Form::label('shop_start_time', 'Shop Start Time', array('class' => 'required')); !!}
-                {!! Form::text('shop_start_time',null,array('class'=>'form-control')) !!}
+                {!! Form::text('shop_start_time',null,array('class'=>'form-control','maxlength' => 8)) !!}
+                 </br>
+                <i>Ex- 10:00 AM Or 12:00 PM</i>
             </div>
             <div class=" col-md-3">            
                 {!! Form::label('shop_close_time', 'Shop Close Time', array('class' => 'required')); !!}
-                {!! Form::text('shop_close_time',null,array('class'=>'form-control')) !!}
+                {!! Form::text('shop_close_time',null,array('class'=>'form-control','maxlength' => 8)) !!}
+                 </br>
+                <i>Ex- 10:00 AM Or 12:00 PM</i>
             </div>            
             <div class="col-md-6">
                 {!! Form::label('map_url', 'Google (Lat, Long)' , array('class' => 'required')); !!}
-                {!! Form::text('map_url', null, ['class' => 'form-control' ]) !!}
+                {!! Form::text('map_url', null, ['class' => 'form-control','maxlength' => 50]) !!}
             </div>
         </div>
         <div class="form-group">

@@ -77,9 +77,8 @@ class UserController extends Controller
             
             'name'              => 'required|max:100',            
             'email'             => 'required|max:100|unique:users',            
-            'password'          => 'required|min:4|same:confirmpassword',
-            'confirmpassword'   => 'required|min:4|same:password',
             'status'            => 'required',
+            'seller_name'       => 'required',
             'shop_mobile'       => 'required',
             'shop_name'         => 'required|max:100',
             'shop_address'      => 'required|max:100',
@@ -87,7 +86,6 @@ class UserController extends Controller
             'shop_start_time'   => 'required',
             'shop_close_time'   => 'required',
             'map_url'           => 'required',
-            'shop_document'     => 'mimes:jpeg,jpg,png,doc,pdf|max:1024',
             
         ]);
         
@@ -108,7 +106,7 @@ class UserController extends Controller
         $user->is_seller_updated    = 1;            
         $user->usertype             = 'Seller';
         $user->email_verify_code    = "";
-        $user->email_verified       = 'Yes';
+        $user->shop_mobile_verified = 'Yes';
 
         /******************************/
         
@@ -136,6 +134,7 @@ class UserController extends Controller
 
                 $timestamp = time().  uniqid(); 
                 $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                File::makeDirectory(public_path().'asset/', 0777, true, true);
                 $file->move($thumbPath,$filename);
                 //file->move($path,$filename);
 
@@ -170,10 +169,13 @@ class UserController extends Controller
     public function show($id) {
 
         $user = DB::table('users')
-        ->join('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-        ->select('users.*','users.id as userId','user_profiles.*')
+        ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
+        ->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')
+        //->leftJoin('cities', 'user_profiles.shop_city', '=', 'cities.id')
+        //->select('users.name','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','user_profiles.customer_email','user_profiles.customer_city')
+        ->select('users.*','users.name as fullname','users.id as userId','user_profiles.*','cities.*')
         ->where('users.id',$id)
-        ->first();
+        ->first();        
         
         if(empty($user))
         {
@@ -182,23 +184,24 @@ class UserController extends Controller
         }
         else
         {
-            if($user->is_customer_updated || $user->is_seller_updated)
+            
+            if($user->customer_city)
             {
-                $user = DB::table('users')
-                ->join('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-                ->select('users.*','users.id as userId','user_profiles.*')
-                ->where('users.id',$id)
-                ->first();
-
-                if($user->usertype == "Customer" || $user->usertype == "Both" )
-                {
-                    $user->customercity = DB::table('cities')->where('id',$user->customer_city)->select('name')->first();
-                }               
-
-               if($user->usertype == "Seller" || $user->usertype == "Both" )
-                {
-                    $user->shopcity = DB::table('cities')->where('id',$user->shop_city)->select('name')->first();
-                }
+                $cusromerCity = DB::table('cities')->where('id',$user->customer_city)->select('name')->first();
+                $user->cust_city_name = $cusromerCity->name;
+            }
+            else
+            {
+                $user->cust_city_name = "Not Available";
+            }
+            if($user->shop_city)
+            {
+                $shopCity = DB::table('cities')->where('id',$user->shop_city)->select('name')->first();
+                $user->shop_city_name = $shopCity->name;
+            }
+            else
+            {
+                $user->cust_city_name = "Not Available";
             }
         }       
         
@@ -381,9 +384,10 @@ class UserController extends Controller
 
 
     public function statusChange(Request $request){
+
         if($request->id)
         {
-            $id = $request->id;       
+            echo $id = $request->id;       
             $user = User::find($id);
            
             if(count($user) >0 )
@@ -397,7 +401,7 @@ class UserController extends Controller
             }
             else
             {
-                $msg = "User Id Not Found.";
+                $msg = "User Details Not Found.";
                 Session::flash('error_msg', $msg);                
             }
         }

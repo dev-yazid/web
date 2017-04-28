@@ -17,7 +17,7 @@ $(document).ready(function() {
             },
             shop_mobile: {
                 required    : true,
-                maxlength   : 8,
+                maxlength   : 12,
                 minlength   : 8,
                 digits      : true
             },
@@ -29,7 +29,7 @@ $(document).ready(function() {
             shop_address    : {
                 required    : true,
                 minlength   : 3,
-                maxlength   : 120,
+                maxlength   : 100,
             },
             shop_city   : "required",
             shop_zipcode:  {
@@ -38,12 +38,12 @@ $(document).ready(function() {
             shop_start_time : {
                 required    : true,
                 minlength   : 3,
-                maxlength   : 60,
+                maxlength   : 8,
             },
             shop_close_time : {
                 required    : true,
                 minlength   : 3,
-                maxlength   : 10,
+                maxlength   : 8,
             },
             shop_document   : {
                 required    : true,

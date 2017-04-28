@@ -17,7 +17,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Full Name</label>
         <div class="col-lg-9">
-            <p><?php echo $user->name ?></p>
+            <p><?php echo $user->fullname ?></p>
         </div>
     </div>
 
@@ -33,15 +33,6 @@
             </p>
         </div>
     </div>
-
-    <div class="clear"></div>
-    <div class="form-group">
-        <label class="col-lg-3 control-label">User Type</label>
-        <div class="col-lg-9">
-            <p><?php echo $user->usertype ?></p>
-        </div>
-    </div>   
-
     <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-3 control-label">Is Customer Updated</label>
@@ -58,6 +49,7 @@
         </div>
     </div>
 
+    <?php if($user->is_seller_updated == 1) { ?>
     <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-3 control-label">Is Seller Updated</label>
@@ -70,127 +62,92 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Is Mobile Verified</label>
         <div class="col-lg-9">
-            <p><?php echo $user->email_verified == 1 ? "Yes" : "No" ?></p>
-        </div>
-    </div>  
-
-    <div class="clear"></div>
-    <div class="form-group">
-        <label class="col-lg-3 control-label">Registered On</label>
-        <div class="col-lg-9">
-            <p><?php echo $user->created_at; ?></p>
+            <p><?php echo $user->seller_mobile_verified == 1 ? "Yes" : "No" ?></p>
         </div>
     </div>
 
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-3 control-label">Updated On</label>
+        <label class="col-lg-3 control-label">Seller Name</label>
         <div class="col-lg-9">
-            <p><?php echo $user->updated_at; ?></p>
+            <p><?php echo $user->seller_name == 1; ?></p>
         </div>
     </div>
 
-    <?php if (($user->usertype == 'Seller' || $user->usertype == 'Both' ) && $user->is_seller_updated == 1) { ?>
-        <div class="form-group"> 
-            <h4 class="col-lg-12 control-label">Shop Details</h4>
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop Name</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->shop_name == 1; ?></p>
         </div>
+    </div>
 
-         <div class="form-group">
-            <label class="col-lg-3 control-label">Seller Name</label>
-            <div class="col-lg-9">
-                <p><?php echo $user->seller_name; ?></p>
-            </div>
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop City</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->shop_address; ?></p>
         </div>
-        <div class="clear"></div>
-        <div class="form-group">
-            <label class="col-lg-3 control-label">Shop Name</label>
-            <div class="col-lg-9">
-                <p><?php echo $user->shop_name; ?></p>
-            </div>
+    </div>
+
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop City</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->shop_city_name; ?></p>
         </div>
-        <div class="clear"></div>
-
-        <div class="form-group">
-            <label class="col-lg-3 control-label">Mobile</label>
-            <div class="col-lg-9">
-                <p><?php echo $user->shop_mobile; ?></p>
-            </div>
+    </div>
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop Zipcode</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->shop_zipcode; ?></p>
         </div>
-        <div class="clear"></div>
+    </div>
 
-        <div class="form-group">
-            <label class="col-lg-3 control-label">Shop Address</label>
-            <div class="col-lg-9">
-                <p>
-                    <?php echo $user->shop_address; ?> |
-                    <?php echo $user->shopcity->name; ?> |
-                    <?php echo $user->shop_zipcode; ?> |
-                    <?php echo "Soudi Arabia"; ?>
-                </p>
-            </div>
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop Mobile</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->shop_mobile; ?></p>
         </div>
-        <div class="clear"></div>
+    </div>
 
-        <div class="form-group">
-            <label class="col-lg-3 control-label">Shop Timings</label>
-            <div class="col-lg-9">
-                <p><?php echo $user->shop_start_time; ?> to <?php echo $user->shop_close_time; ?></p>
-            </div>
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop Start Time</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->shop_start_time; ?></p>
         </div>
-        <div class="clear"></div>
+    </div>
 
-        <div class="form-group">
-            <label class="col-lg-3 control-label">Shop Licence</label>
-            <div class="col-lg-9">
-                <p>
-                    <a href="{{ asset('public/asset/shopLicence/thumb/'.$user->shop_document) }}" target="_blank">
-                        <?php // echo $user->shop_document; 
-                        echo 'View Licence'; ?>
-                    </a>
-                </p>
-            </div>
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop Close Time</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->shop_close_time; ?></p>
         </div>
-        
-        <div class="clear"></div>
-        <div class="form-group">
-            <label class="col-lg-3 control-label">Shop Location</label>
-            <div class="col-lg-9">
-                <p><a href="https://www.google.com/maps?q={{trim($user->shop_location_map)}}" target="_blank">
-                    <?php echo 'View Location'; ?></a>
-                </p>
-            </div>
+    </div>
+
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop Location</label>
+        <div class="col-lg-9">
+            <p><a href="https://www.google.com/maps?q={{trim($user->shop_location_map)}}" target="_blank">
+                <?php echo 'View Location'; ?></a>
+            </p>
         </div>
-<?php } ?>
+    </div>
 
-    <?php if (($user->usertype == 'Customer' || $user->usertype == 'Both') && $user->is_customer_updated == 1) { ?>
-
-        <div class="form-group"> 
-            <h4 class="col-lg-12 control-label">Customer Address</h4>
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Seller Status</label>
+        <div class="col-lg-9">
+            <p><?php echo $user->status == 1 ? "Active" : "InActive"; ?></p>
         </div>
+    </div> 
 
-        <div class="form-group">
-            <label class="col-lg-3 control-label">Customer Mobile</label>
-            <div class="col-lg-9">
-                <p><?php echo $user->phone_number; ?></p>
-            </div>
-        </div>
-        <div class="clear"></div>
-        <div class="form-group">
-            <label class="col-lg-3 control-label">Customer Address</label>
-            <div class="col-lg-9">
-                <p>
-                    <?php echo $user->customer_address; ?> |
-                    <?php echo $user->customercity->name; ?> |
-                    <?php echo $user->customer_zipcode; ?> |
-                    <?php echo "Soudi Arabia"; ?>
-
-                </p>
-            </div>
-        </div>
-<?php } ?>
-
- <div class="clear"></div>
-
+    <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop Licence</label>
         <div class="col-lg-9">
@@ -207,21 +164,13 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">User Status</label>
         <div class="col-lg-9">
-            <p><?php echo $user->status == 1 ? "Active" : "InActive"; ?></p>
-        </div>
-    </div>    
-    <div class="clear"></div>
-
-    <div class="form-group">
-        <label class="col-lg-3 control-label">User Status</label>
-        <div class="col-lg-9">
             <div class="col-lg-3">       
                 {{ Form::open(array('url' => 'admin/user/statusChange','class'=>"form-horizontal")) }}
                 <div class="form-group">
                    
                         {!! Form::select('status', array('1' => 'Active', '0' => 'InActive'), $user->status, array('class' => 'form-control')) !!}
                     </div> 
-                    <?php echo Form::hidden('id', $user->id); ?>
+                    <?php echo Form::hidden('id', $user->userId); ?>
                 </div>      
             </div>
 
@@ -232,5 +181,6 @@
             
         </div>
     </div>
+    <?php } ?>
 </div>
 @endsection
