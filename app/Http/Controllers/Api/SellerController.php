@@ -496,7 +496,7 @@ class SellerController extends Controller
             }
             else
             {
-                $this->resultapi(0,'Price Not Updated.', true);
+                $this->resultapi(0,'يرجى تغيير السعر أولا.', true);
             }
         }
         else
