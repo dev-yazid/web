@@ -65,17 +65,20 @@ class BrodRequest extends Model
 		->orderBy('brod_requests.id','desc')
 		->paginate($per_page);
 
+		//print_r($allBrodRequest);
+
 		$bserUrlImg = "";
 		if(count($allBrodRequest) > 0)
 		{
 			$bserUrlImg = asset('/public/asset/brodcastImg/thumb');			
 			foreach ($allBrodRequest as $key => $value) {
+
 				$allBrodRequest[$key]->brand_img_path = $bserUrlImg;
 
 				$brodRespDetails = DB::table('brod_responses')
 		        ->where('id',$value->req_id)
+		        ->where('seller_id',$uid) 
 		        ->select('price','removed_by_user','is_prod_confirm_by_buyer','is_prod_confirm_by_seller')
-		        ->where('seller_id',$uid)      
 		        ->first();
 
 		        if(count($brodRespDetails) > 0)
