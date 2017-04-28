@@ -5,7 +5,7 @@
 
     <div class="form-group">
         <div class=" col-md-6">
-              <h4>Presonal Details</h4>
+              <h4>Presonal Details</h4> 
         </div>
     </div>
     

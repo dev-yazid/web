@@ -10,7 +10,7 @@ use App\Cities;
 use App\BrodResponse;
 use App\BrodRequest;
 use App\Transaction;
-
+ 
 class BrodResponse extends Model
 {
    	public static function getBrodResponseByReqId($requestId , $per_page)

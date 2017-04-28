@@ -22,7 +22,7 @@ use App\BrodResponse;
 use File;
 use Image;
 use Auth;
-
+ 
 
 class BrodcastController extends Controller
 {
@@ -44,7 +44,7 @@ class BrodcastController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response 
      */
     
     public function getBrodcastInitData() { 

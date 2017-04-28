@@ -25,7 +25,7 @@ use Mail;
 use Form;
 use File;
 use Image;
-use Session;
+use Session; 
 
 class SellerController extends Controller
 {

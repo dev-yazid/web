@@ -28,7 +28,7 @@ use Twilio\Rest\Client;
 
 class UserController extends Controller
 {
-    private $req;
+    private $req; 
     private $user;
     private $jwtAuth;
     function __construct(Request $request, User $user, ResponseFactory $responseFactory, JWTAuth $jwtAuth)

@@ -27,7 +27,7 @@ use App\Message;
 use Auth;
 use Mail;
 use Form;
-use File;
+use File; 
 use Image;
 
 class MessageController extends Controller

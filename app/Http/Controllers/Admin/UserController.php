@@ -23,13 +23,13 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use App\EmailTemplates;
-use App\Api\Payment;
+use App\Api\Payment; 
 
 class UserController extends Controller
 {
     
     public function __construct() {
-       $this->middleware('auth');
+       $this->middleware('auth'); 
     }
     /**
      * Display a listing of the resource.

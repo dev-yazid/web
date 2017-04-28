@@ -26,7 +26,7 @@ class TransactionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index() 
     {
         return view('admin/Transaction/index', ['title_for_layout' => 'Transaction Details']);
     }

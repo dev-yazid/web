@@ -6,7 +6,7 @@ use Mail;
 
 Class EmailTemplates extends Model
 {
-    protected $table='email_templates';
+    protected $table='email_templates'; 
 
     public static function SendEmail($mailData) {
 

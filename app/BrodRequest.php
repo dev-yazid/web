@@ -15,7 +15,7 @@ class BrodRequest extends Model
 		->leftJoin('brands', 'brod_requests.brand_id', '=', 'brands.id')
 		->leftJoin('products', 'brod_requests.prod_id', '=', 'products.id')
 		->where('brod_requests.user_id',$uid)
-		->where('brod_requests.status',$status)
+		->where('brod_requests.status',$status) 
 		->where('removed_by_user',0)
 		->select('brod_requests.id','brod_requests.description','brod_requests.created_at','brod_requests.req_image','brod_requests.status','brands.brand','brod_requests.brand_id','brod_requests.prod_year','brod_requests.prod_id','products.pname')
 		->orderBy('brod_requests.id','desc')

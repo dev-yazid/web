@@ -25,7 +25,7 @@ class BrandController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response 
      */
     public function index(){  
         return view('admin/Brand/index', ['title_for_layout' => 'Brand']);

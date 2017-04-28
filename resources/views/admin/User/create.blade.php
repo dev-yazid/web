@@ -10,7 +10,7 @@
             {!! Form::text('name',null,array('class'=>'form-control','maxlength' => 100)) !!}
         </div>        
     </div>
-    
+     
    <!--  <div class="form-group">
         <div class="col-md-6">
             {!! Form::label('password', 'Password' , array('class' => 'required')); !!}

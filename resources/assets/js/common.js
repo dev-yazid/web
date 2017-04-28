@@ -10,7 +10,7 @@ $(document).ready(function() {
             confirmpassword : {
                 required    : true,
                 minlength   : 6,
-                equalTo     : "#password"
+                equalTo     : "#password" 
             },
             seller_name: {
                 required    : true,

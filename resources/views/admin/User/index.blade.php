@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content') 
 <table id="users_index" class="table table-striped m-b-none">
-    <thead>
+    <thead> 
         <tr>
             <th width="10%">Id</th>
             <th width="20%">User Name</th> 

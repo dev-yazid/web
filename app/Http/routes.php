@@ -21,7 +21,7 @@ Route::get('/', function()
 {
     return View::make('index');
 });
-
+ 
 /**
  * Admin routes
  */

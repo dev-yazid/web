@@ -33,7 +33,7 @@ class RequestController extends Controller
     }
     
     /**
-     * Fetch data tobe used in datatable
+     * Fetch data tobe used in datatable 
     */
     public function getData() {
         

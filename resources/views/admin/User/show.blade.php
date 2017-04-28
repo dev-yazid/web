@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('content')
+@section('content') 
 <div class="panel-body viewPage">
     <div class="form-group"> 
         <h4 class="col-lg-12 control-label">User Details</h4>

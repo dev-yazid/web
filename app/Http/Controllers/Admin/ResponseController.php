@@ -27,7 +27,7 @@ class ResponseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index() 
     {
         return view('admin/Response/index', ['title_for_layout' => 'Broadcast Response']);
     }

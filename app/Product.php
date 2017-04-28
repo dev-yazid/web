@@ -18,4 +18,4 @@ class Product extends Model
 		
 		return $productsByBrandId;
 	}
-}
+} 

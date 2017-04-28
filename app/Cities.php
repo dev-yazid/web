@@ -17,3 +17,4 @@ class Cities extends Model
 		return $allCities;
 	}
 }
+ 

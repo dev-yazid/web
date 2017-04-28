@@ -7,7 +7,7 @@ use DB;
 use App\BrodResponse;
 use Twilio\Rest\Client;
 
-
+ 
 class User extends Authenticatable
 {    
     public static function getProfileDetails($userId)

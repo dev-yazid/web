@@ -12,5 +12,5 @@ class Message extends Model
         $chatNoti = DB::table('messages')->count();
 
        return $chatNoti;
-    }
+    } 
 }

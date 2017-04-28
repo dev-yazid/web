@@ -29,7 +29,7 @@ class StateController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index() 
     {
         return view('admin/State/index', ['title_for_layout' => 'States']);
     }

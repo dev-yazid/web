@@ -15,5 +15,5 @@ class Brand extends Model
 		->get();
 
 		return $allBrands;
-	}
+	} 
 }
