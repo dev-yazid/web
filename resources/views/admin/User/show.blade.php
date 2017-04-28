@@ -70,7 +70,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Seller Name</label>
         <div class="col-lg-9">
-            <p><?php echo $user->seller_name == 1; ?></p>
+            <p><?php echo $user->seller_name; ?></p>
         </div>
     </div>
 
@@ -78,7 +78,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop Name</label>
         <div class="col-lg-9">
-            <p><?php echo $user->shop_name == 1; ?></p>
+            <p><?php echo $user->shop_name; ?></p>
         </div>
     </div>
 
@@ -138,12 +138,12 @@
             </p>
         </div>
     </div>
-
+    
     <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-3 control-label">Seller Status</label>
         <div class="col-lg-9">
-            <p><?php echo $user->status == 1 ? "Active" : "InActive"; ?></p>
+            <p><?php echo $user->userstatus == 1 ? "Active" : "InActive"; ?></p>
         </div>
     </div> 
 

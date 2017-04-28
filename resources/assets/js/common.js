@@ -15,7 +15,7 @@ $(document).ready(function() {
             seller_name: {
                 required    : true,
             },
-            shop_mobile: {
+            phone_number: {
                 required    : true,
                 maxlength   : 12,
                 minlength   : 8,

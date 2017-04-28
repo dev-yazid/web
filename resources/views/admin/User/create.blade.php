@@ -4,12 +4,12 @@
 
     {!! Form::open(array('url'=>'/admin/user','files'=>true,'class'=>'form-horizontal','method'=>'POST','id'=>'user')) !!}        
 
-    <div class="form-group">
+    <!-- <div class="form-group">
         <div class="col-md-12">
             {!! Form::label('name', 'Name' , array('class' => 'required')); !!}
             {!! Form::text('name',null,array('class'=>'form-control','maxlength' => 100)) !!}
         </div>        
-    </div>
+    </div> -->
      
    <!--  <div class="form-group">
         <div class="col-md-6">
@@ -21,8 +21,19 @@
             {!! Form::text('confirmpassword',null,array('class'=>'form-control')) !!}
         </div>
     </div> -->
+    <div class="form-group">
+        <div class="col-md-6">
+                {!! Form::label('seller_name', 'Seller Name' , array('class' => 'required')); !!}
+                {!! Form::text('seller_name',null,array('class'=>'form-control','maxlength' => 100)) !!}
+            </div>
+        <div class=" col-md-6">            
+            {!! Form::label('phone_number', 'Mobile No', array('class' => 'required')); !!}
+            {!! Form::text('phone_number',null,array('class'=>'form-control','maxlength' => 12)) !!}
+        </div>
+    </div> 
     
     <div class="form-group">
+
         <div class="col-md-6">
             {!! Form::label('email', 'Email', array('class' => 'required')); !!}
             {!! Form::text('email',null,array('class'=>'form-control','maxlength' => 100)) !!}
@@ -38,22 +49,12 @@
             <div class="col-md-6">
                 <h4>Shop Details</h4>
             </div>
-        </div>
+        </div>         
         <div class="form-group"> 
             <div class="col-md-12">
-                {!! Form::label('seller_name', 'Seller Name' , array('class' => 'required')); !!}
-                {!! Form::text('seller_name',null,array('class'=>'form-control','maxlength' => 100)) !!}
-            </div>
-        </div>  
-        <div class="form-group"> 
-            <div class="col-md-6">
                 {!! Form::label('shop_name', 'Shop Name', array('class' => 'required')); !!}
                 {!! Form::text('shop_name',null,array('class'=>'form-control','maxlength' => 100)) !!}
-            </div>
-            <div class=" col-md-6">            
-                {!! Form::label('shop_mobile', 'Shop Mobile', array('class' => 'required')); !!}
-                {!! Form::text('shop_mobile',null,array('class'=>'form-control','maxlength' => 12)) !!}
-            </div>            
+            </div>    
         </div>
 
         <div class="form-group">

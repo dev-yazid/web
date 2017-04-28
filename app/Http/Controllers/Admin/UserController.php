@@ -75,11 +75,11 @@ class UserController extends Controller
      
         $validator = Validator::make($request->all(), [
             
-            'name'              => 'required|max:100',            
+            //'name'              => 'required|max:100',            
             'email'             => 'required|max:100|unique:users',            
             'status'            => 'required',
             'seller_name'       => 'required',
-            'shop_mobile'       => 'required',
+            'phone_number'       => 'required|min:8|max:12|unique:users',
             'shop_name'         => 'required|max:100',
             'shop_address'      => 'required|max:100',
             'shop_city'         => 'required|max:100',
@@ -97,16 +97,16 @@ class UserController extends Controller
         }
         
         $user = new User;
-        $user->name                 = $request->name;     
-        $user->email                = $request->email;        
-        $user->password             = bcrypt($request->password);
-        $user->status               = $request->status;
-        $user->phone_number         = $request->shop_mobile;
-        $user->is_customer_updated  = 0;
-        $user->is_seller_updated    = 1;            
-        $user->usertype             = 'Seller';
-        $user->email_verify_code    = "";
-        $user->shop_mobile_verified = 'Yes';
+       // $user->name                 = $request->name;     
+        $user->email                  = $request->email;        
+       // $user->password             = bcrypt($request->password);
+        $user->status                 = $request->status;
+        $user->phone_number           = $request->phone_number;
+        $user->is_customer_updated    = 0;
+        $user->is_seller_updated      = 1;            
+        //$user->usertype             = 'Seller';
+        //$user->email_verify_code    = rand (1000 , 9999);;
+        $user->seller_mobile_verified = 'No';
 
         /******************************/
         
@@ -117,10 +117,10 @@ class UserController extends Controller
             $userProfile->user_id           = $lastUserinsertedId;
             $userProfile->seller_name       = $request->seller_name;
             $userProfile->shop_name         = $request->shop_name;
-            $userProfile->shop_mobile       = $request->shop_mobile;
+            $userProfile->shop_mobile       = $request->phone_number;
             $userProfile->shop_address      = $request->shop_address;           
             $userProfile->shop_city         = $request->shop_city;
-           // $userProfile->shop_zipcode      = $request->shop_zipcode;
+            $userProfile->shop_zipcode      = $request->shop_zipcode ? $request->shop_zipcode : "";
             $userProfile->shop_start_time   = $request->shop_start_time ? $request->shop_start_time : "";
             $userProfile->shop_close_time   = $request->shop_close_time ? $request->shop_close_time : "";
             $userProfile->shop_location_map = $request->map_url;
@@ -136,6 +136,8 @@ class UserController extends Controller
                 $filename = $timestamp.'_'.trim($file->getClientOriginalName());
                 File::makeDirectory(public_path().'asset/', 0777, true, true);
                 $file->move($thumbPath,$filename);
+
+                $userProfile->shop_document     = $filename; 
                 //file->move($path,$filename);
 
                 /*$img = Image::make($path.$filename);
@@ -144,7 +146,7 @@ class UserController extends Controller
                 })->save($thumbPath.'/'.$filename);*/
             }
 
-            $userProfile->shop_document     = $filename;            
+                       
             $userProfile->save();
           
             $msg = "Seller Registered Successfully.";
@@ -173,7 +175,7 @@ class UserController extends Controller
         ->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')
         //->leftJoin('cities', 'user_profiles.shop_city', '=', 'cities.id')
         //->select('users.name','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','user_profiles.customer_email','user_profiles.customer_city')
-        ->select('users.*','users.name as fullname','users.id as userId','user_profiles.*','cities.*')
+        ->select('users.*','users.name as fullname','users.status as userstatus','users.id as userId','user_profiles.*','cities.*')
         ->where('users.id',$id)
         ->first();        
         
