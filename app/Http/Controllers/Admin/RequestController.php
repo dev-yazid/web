@@ -40,7 +40,8 @@ class RequestController extends Controller
         $brodRequests = BrodRequest::query()
         ->join('products', 'brod_requests.prod_id', '=', 'products.id')
         ->join('brands', 'brod_requests.brand_id', '=', 'brands.id')
-        ->join('users', 'brod_requests.user_id', '=', 'users.id')
+        //->join('users', 'brod_requests.user_id', '=', 'users.id')
+        ->select('brands.brand','products.pname','brod_requests.*','brod_requests.id as id')
         ->get();
 
         return Datatables::of( $brodRequests )->make(true);

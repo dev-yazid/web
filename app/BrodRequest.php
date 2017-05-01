@@ -65,8 +65,6 @@ class BrodRequest extends Model
 		->orderBy('brod_requests.id','desc')
 		->paginate($per_page);
 
-		//print_r($allBrodRequest);
-
 		$bserUrlImg = "";
 		if(count($allBrodRequest) > 0)
 		{

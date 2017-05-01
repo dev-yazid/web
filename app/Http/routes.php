@@ -136,12 +136,16 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/seller/allBrodRequest','Api\SellerController@getAllBrodRequests');    
     Route::post('/seller/updateSeller','Api\SellerController@getUpdateSellerProfile');
     /*Route::post('/seller/viewRequestDeatils','Api\SellerController@getRequestDeatils'); */ 
-    Route::post('/seller/productConfirmedBySeller','Api\SellerController@getProductConfirmedBySeller');
+    /*Route::post('/seller/productConfirmedBySeller','Api\SellerController@getProductConfirmedBySeller');*/
     /*Route::post('/seller/updateResponse','Api\SellerController@getUpdateResponseBySeller');*/
     Route::post('/seller/sendResponse','Api\SellerController@getSendResponse');
    
-    /* Messages / chat */
+    /* Messages chat */
     Route::post('/chat/message','Api\MessageController@sendMessage');
     Route::post('/chat/getAllMessages','Api\MessageController@getAllMessages');
+
+    /* Cronjob */
+    Route::post('/cronjob/vcodeExpires','Api\MessageController@vcodeExpires');
+    Route::post('/cronjob/notificationAdmin','Api\MessageController@notificationAdmin');
       
 });

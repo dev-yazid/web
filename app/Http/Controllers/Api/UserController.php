@@ -64,6 +64,21 @@ class UserController extends Controller
         $this->resultapi('0','App Init Data.', $appInitData);
     }
 
+    public function getBuyerRegisterInit(Request $request) {
+
+        $buyerRegInit = Cities::getAllCities();
+
+        if(count($buyerRegInit))
+        {
+            $this->resultapi('1','Cities Found.', $buyerRegInit);
+        }
+        else
+        {
+            $this->resultapi('0','No Cities Found.', $buyerRegInit);
+        }
+    }
+
+
 
     public function getRegisterMobile(Request $request) {
         /* 1 for buyer 2 for seller */ 
@@ -87,15 +102,25 @@ class UserController extends Controller
 
                 if($request->customer_type == 2)
                 {
-                    if($checkMobileExist->status == 1)
+                    if(count($checkMobileExist) > 0)
+                    {   
+                        if($checkMobileExist->status == 1)
+                        {
+                            $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                        }                        
+                        else
+                        {
+                            $this->resultapi('0','Mobile Number Not Exist.', 0);
+                        }
+                    }
+                    else
                     {
-                        $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                        $this->resultapi('0','Mobile Number Not Exist.', 0);
                     }
                 }
                 else
                 {
-                    $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
-                
+                    $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));                
                 }
                
                 if(count($checkMobileExist) > 0)
@@ -149,6 +174,7 @@ class UserController extends Controller
                 else
                 {
                     $regNewMobile = new User;
+                    $checkMobileExist->name             = "Feeh User";
                     $regNewMobile->phone_number         = $request->phone_number;
                     $regNewMobile->mobile_verify_code   = $mobile_verify_code;
                     $regNewMobile->status               = 1;
@@ -280,21 +306,7 @@ class UserController extends Controller
             $this->resultapi('0','Mobile Number Not Found.', 0);
         }
     }
-
-    public function getBuyerRegisterInit(Request $request) {
-
-        $buyerRegInit = Cities::getAllCities();
-
-        if(count($buyerRegInit))
-        {
-            $this->resultapi('1','Cities Found.', $buyerRegInit);
-        }
-        else
-        {
-            $this->resultapi('0','No Cities Found.', $buyerRegInit);
-        }
-    }
-
+    
     public function getUpdateProfile(Request $request) {
 
         if($request->all())

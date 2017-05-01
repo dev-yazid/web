@@ -195,7 +195,7 @@ if($controller=='brand') {
 </li>                     
 
 
-<?php
+<?php /*
 $class='';
 if($controller=='language') {
  $class='class="active"';
@@ -227,7 +227,7 @@ if($controller=='language') {
 </li>
 </ul>
 </li>
-
+ */ ?>
 
 <?php
 $class='';

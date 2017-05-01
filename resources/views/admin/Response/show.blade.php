@@ -38,16 +38,10 @@
     <div class="form-group">
         <label class="col-lg-2 control-label">Product Name</label>
         <div class="col-lg-10">
-            <p><?php echo $brodRequests->pname.' [ '.$brodRequests->year.' ]'; ?></p>
+            <p><?php echo $brodRequests->pname;?></p>
         </div>
     </div>
-    <div class="clear"></div>
-    <div class="form-group">
-        <label class="col-lg-2 control-label">Request Image</label>
-        <div class="col-lg-10">
-            <p><?php echo $brodRequests->req_image; ?></p>
-        </div>
-    </div>
+   
     <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-2 control-label">Status</label>
@@ -55,11 +49,11 @@
             <p>
                 <?php 
                 $respStatus = $brodRequests->status; 
-                if($respStatus == 0)
+                if($respStatus == 1)
                 {
                     echo "New Request";
                 }
-                else if($respStatus == 1)
+                else if($respStatus == 2)
                 {
                     echo "In Processing";
                 }
@@ -70,7 +64,17 @@
                 ?>
             </p>
         </div>
-    </div>    
+    </div>
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">Request Image</label>
+        <div class="col-lg-10">
+            <a target="_blank" href="<?php echo asset('public/asset/brodcastImg/thumb/'.$brodRequests->req_image) ?>"> 
+                <img class="margin padding col-mg-2" alt="<?php echo $brodRequests->req_image; ?>" src="<?php echo asset('public/asset/brodcastImg/thumb/'.$brodRequests->req_image) ?>" height="100" width="100">
+            </a>
+        </div>
+    </div>
+
     <div class="clear"></div>
     <div class="form-group">
         <div class=" col-md-12">
@@ -87,7 +91,7 @@
     </div>
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-2 control-label">Seller NAme</label>
+        <label class="col-lg-2 control-label">Seller Name</label>
         <div class="col-lg-10">
             <p><?php echo $brodResponse->name; ?></p>
         </div>
@@ -101,11 +105,11 @@
                 $respStatus = $brodResponse->status; 
                 if($respStatus == 1)
                 {
-                    echo "Compleate";
+                    echo "Processing";
                 }
                 else if($respStatus == 0)
                 {
-                    echo "In Processing";
+                    echo "Compleate";
                 }
                 else
                 {
@@ -129,13 +133,13 @@
             <p><?php echo $brodResponse->email; ?></p>
         </div>
     </div>
-    <div class="clear"></div>
+    <!-- <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-2 control-label">Response Price</label>
+        <label class="col-lg-2 control-label">Price Updated</label>
         <div class="col-lg-10">
             <p><?php echo $brodResponse->price_updated ? "Yes" : "No"; ?></p>
         </div>
-    </div>
+    </div> -->
     <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-2 control-label">Seller Mobile</label>

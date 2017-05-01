@@ -102,6 +102,7 @@ class BrodResponse extends Model
             {
                 $prodConfirmation->is_prod_confirm_by_buyer = 1;
             	$prodConfirmation->price_updated = 0;
+                $prodConfirmation->status   =  2;
             	$prodConfirmation->read_status   = 1;
             	
                 if($prodConfirmation->save())
@@ -131,7 +132,7 @@ class BrodResponse extends Model
     }
 
     /* seller Section */
-    public static function productConfirmedBySeller($res_id)
+    /*public static function productConfirmedBySeller($res_id)
     {
     	$resUpdated = 0;
     	
@@ -170,5 +171,5 @@ class BrodResponse extends Model
         }
 
         return $resUpdated;
-    }    
+    }    */
 }

@@ -8,8 +8,8 @@
             <th width="10%">cust Id</th> 
             <th width="10%">seller Id</th>
             <th width="10%">Req Id</th>
-            <th width="15%">Customer Confirmation</th>
-            <th width="15%">Seller Confirmation</th>
+            <th width="15%">Is Confirmed</th>
+           <!--  <th width="15%">Seller Confirmation</th> -->
             <th width="15%">Created At</th>           
             <th width="10%">Actions</th>
         </tr>
@@ -33,28 +33,28 @@
             { data: 'seller_id', name: 'seller_id' },
             { data: 'request_id', name: 'request_id' },
             { data: 'cust_confirmation', name: 'cust_confirmation' },
-            { data: 'seller_confirmation', name: 'seller_confirmation' },
+            /*{ data: 'seller_confirmation', name: 'seller_confirmation' },*/
             { data: 'created_at', name: 'created_at' },
             { data: 'updated_at', name: 'updated_at' }
             ],
             aoColumnDefs: [
             {
                 bSortable : false,
-                aTargets : [ 7 ]
+                aTargets : [ 6 ]
             },
             ],
             fnCreatedRow: function(nRow, aData, iDataIndex) {
-               /* var status;
-                if(aData.status == 1)
+                var cust_confirmation;
+                if(aData.cust_confirmation == 1)
                 {
-                    status = "Active";
+                    cust_confirmation = "Yes";
                 }
                 else
                 {
-                    status = "InActive";
+                    cust_confirmation = "No";
                 }
-                $('td:eq(3)', nRow).html(status); */
-                $('td:eq(7)', nRow).html('<a href="<?php echo url("/admin/transaction") ?>/'+aData.id+'"><i class="fa fa-eye icon-muted fa-fw icon-space"></i></a>');
+                $('td:eq(4)', nRow).html(cust_confirmation); 
+                $('td:eq(6)', nRow).html('<a target="_blank" href="<?php echo url("/admin/request") ?>/'+aData.id+'"><i class="fa fa-eye icon-muted fa-fw icon-space"></i></a>');
             },
             fnRowCallback: function(nRow, aData, iDisplayIndex) {
                 nRow.setAttribute('id',"row_"+aData.id);
