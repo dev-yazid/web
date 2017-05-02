@@ -15,7 +15,6 @@ use App\ActivityLog;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use App\UserProfiles;
-use App\Api\UserProfile;
 use Illuminate\Support\Facades\Validator;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Facades\Input;
@@ -23,7 +22,6 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use App\EmailTemplates;
-use App\Api\Payment; 
 
 class UserController extends Controller
 {
@@ -95,18 +93,21 @@ class UserController extends Controller
             ->withInput()
             ->withErrors($validator);
         }
+
+        $seller_mobile_verify_code = rand (1000 , 9999);
         
         $user = new User;
-       // $user->name                 = $request->name;     
-        $user->email                  = $request->email;        
-       // $user->password             = bcrypt($request->password);
-        $user->status                 = $request->status;
-        $user->phone_number           = $request->phone_number;
-        $user->is_customer_updated    = 0;
-        $user->is_seller_updated      = 1;            
-        //$user->usertype             = 'Seller';
-        //$user->email_verify_code    = rand (1000 , 9999);;
-        $user->seller_mobile_verified = 'No';
+        $user->email                        = $request->email;        
+        $user->status                       = $request->status;
+        $user->phone_number                 = $request->phone_number;
+        $user->is_customer_updated          = 0;
+        $user->is_seller_updated            = 1;
+        $user->name                         = $request->seller_name;
+        $user->email                        = $request->email;
+        $user->seller_mobile_verified       = 'No';
+        $user->seller_mobile_verify_code    = $seller_mobile_verify_code;
+
+        $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
 
         /******************************/
         
@@ -117,6 +118,7 @@ class UserController extends Controller
             $userProfile->user_id           = $lastUserinsertedId;
             $userProfile->seller_name       = $request->seller_name;
             $userProfile->shop_name         = $request->shop_name;
+            $userProfile->shop_email        = $request->email;
             $userProfile->shop_mobile       = $request->phone_number;
             $userProfile->shop_address      = $request->shop_address;           
             $userProfile->shop_city         = $request->shop_city;
@@ -138,15 +140,8 @@ class UserController extends Controller
                 $file->move($thumbPath,$filename);
 
                 $userProfile->shop_document     = $filename; 
-                //file->move($path,$filename);
-
-                /*$img = Image::make($path.$filename);
-                $img->resize(100, 100, function ($constraint) { 
-                    $constraint->aspectRatio();
-                })->save($thumbPath.'/'.$filename);*/
             }
 
-                       
             $userProfile->save();
           
             $msg = "Seller Registered Successfully.";
@@ -392,10 +387,12 @@ class UserController extends Controller
             echo $id = $request->id;       
             $user = User::find($id);
            
-            if(count($user) >0 )
+            if(count($user) > 0 )
             {                
                 $user->status =trim($request->status);
                 $user->save();
+
+                User::sendSmsAdmin(trim($user->phone_number));
                                
                 $msg = "User Status Changed Successfully";
                 Session::flash('success_msg', $msg);

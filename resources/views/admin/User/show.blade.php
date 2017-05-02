@@ -84,7 +84,7 @@
 
     <div class="clear"></div>
     <div class="form-group">
-        <label class="col-lg-3 control-label">Shop City</label>
+        <label class="col-lg-3 control-label">Shop Address</label>
         <div class="col-lg-9">
             <p><?php echo $user->shop_address; ?></p>
         </div>
@@ -159,7 +159,7 @@
             </p>
         </div>
     </div>
-
+    <?php } ?>
     <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-3 control-label">User Status</label>
@@ -167,7 +167,6 @@
             <div class="col-lg-3">       
                 {{ Form::open(array('url' => 'admin/user/statusChange','class'=>"form-horizontal")) }}
                 <div class="form-group">
-                   
                         {!! Form::select('status', array('1' => 'Active', '0' => 'InActive'), $user->status, array('class' => 'form-control')) !!}
                     </div> 
                     <?php echo Form::hidden('id', $user->userId); ?>
@@ -176,11 +175,8 @@
 
             {!! Form::submit('Save',array('class'=>'btn btn-primary')); !!}
             <a class="btn btn-default" href="{{ url('/admin/user')}}">Cancel</a>
-
             {!! Form::close() !!}
-            
         </div>
     </div>
-    <?php } ?>
 </div>
 @endsection

@@ -51,6 +51,7 @@ class MessageController extends Controller
      */
 
     public function sendMessage(Request $request) {
+        $messages = LanguageTag::DisplayMessages();
         $validator = Validator::make($request->all(), [                
             'sender_id'       => 'required|numeric',
             'reeciver_id'     => 'required|numeric',
@@ -103,17 +104,17 @@ class MessageController extends Controller
 
             if($regNewMobile->save())
             {
-                $this->resultapi('1','Message Send Sucessfully', $currentMessage);
+                $this->resultapi('1',$messages['Msg1'], $currentMessage);
             }
             else
             {   
-                $this->resultapi('0','Some Problem with Email Send.', $currentMessage);
+                $this->resultapi('0',$messages['Msg2'], $currentMessage);
             }                   
         }        
     }
 
     public function getAllMessages(Request $request) {
-        
+        $messages = LanguageTag::DisplayMessages();
         $validator = Validator::make($request->all(), [
             'uid'             => 'required|numeric',
             'req_id'          => 'required|numeric',
@@ -146,7 +147,7 @@ class MessageController extends Controller
                     $msgStatus->save();
                 }
             }
-            $this->resultapi('1','Message Send Sucessfully', $allMessages);   
+            $this->resultapi('1',$messages['Msg3'], $allMessages);   
         }
             
     }
@@ -189,8 +190,8 @@ class MessageController extends Controller
 
             if(count($reqIdArray) > 0)
             {
-                echo $brod_ids = implode(" ",$reqIdArray);
-                die;           
+                $brod_ids = implode(" ",$reqIdArray);
+                           
                 /* List Of ids thos have to get any response by any seller to admin */
                 //$adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
                 //$adminEmail  =  $adminDetails->email;

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use DB;
 use App\BrodResponse;
 use App\BrodRequest;
+use Twilio\Rest\Client;
 
 class BrodRequest extends Model
 {
@@ -125,5 +126,24 @@ class BrodRequest extends Model
             $resUpdated = 1;
         }
         return $resUpdated;
+    }
+
+    public static function sendProductConfirmation($mobile)
+    {      
+        $smsSend = 0;
+        $sid    = 'AC4ab5b2e4a9da816dc45e5af158dc770d';
+        $token  = 'c2bed0cfbdee0f4dad5db438219b995e';
+        $client = new Client($sid, $token);
+        
+        if($client->messages->create('+91'.$mobile,array('from' => '+18588159100','body' => 'Your Product Response Confirmed By Buyer.'))){
+   
+            $smsSend = 1;
+        }
+        else
+        {
+            $smsSend = 0;
+        }
+
+        return $smsSend;        
     }
 }

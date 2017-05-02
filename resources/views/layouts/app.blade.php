@@ -58,6 +58,8 @@
   {{Html::script("/resources/assets/js/slimscroll/jquery.slimscroll.min.js")}}
   {{Html::script("/resources/assets/js/app.plugin.js")}}
 
+ 
+
   @yield('scripts')
 </body>
 </html>

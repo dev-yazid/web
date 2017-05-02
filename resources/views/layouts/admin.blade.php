@@ -11,13 +11,14 @@
     {{Html::style("/resources/assets/css/animate.css")}}
     {{Html::style("/resources/assets/css/font-awesome.min.css")}}
     {{Html::style("/resources/assets/css/font.css")}}
-    {{Html::style("/resources/assets//js/datatables/datatables.css")}}
+    {{Html::style("/resources/assets/js/datatables/datatables.css")}}
     {{Html::style("/resources/assets/css/app.css")}} 
     {{Html::script("/resources/assets/js/jquery.min.js")}}
     {{Html::script("/resources/assets/js/jquery.validate.js")}}
     {{Html::script("/resources/assets/js/datatables/jquery.dataTables.min.js")}}
     {{Html::script("/resources/assets/js/datatables/jquery.dataTables.columnFilter.js")}}
-    {{Html::script("/resources/assets/js/additional-methods.min.js")}}    
+    {{Html::script("/resources/assets/js/time_picker/js/bootstrap-timepicker.js")}}
+
     <!--[if lt IE 9]>
     {{Html::script("/resources/assets/js/ie/html5shiv.js")}}
     {{Html::script("/resources/assets/js/ie/respond.min.js")}}

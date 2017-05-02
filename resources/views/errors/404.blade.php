@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>#404 Error | JobBookers</title>
+    <title>#404 Error | Feeh</title>
     <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,400i,500,500i,600,600i,700,700i,800,800i" rel="stylesheet">
     <link media="all" type="text/css" rel="stylesheet" href="<?php echo url('/'); ?>/resources/assets/css/animate.css">
 </head>
@@ -10,7 +10,7 @@
     <?php $baseUrl = url('/'); ?>
         <div class="page-logo">
             <a href="<?php echo $baseUrl; ?>" class="navbar-brand block">
-                <img src= "<?php echo $baseUrl; ?>/public/app/build/images/logo.png" class="m-r-sm" alt="JobBookers">
+              <!--   <img src= "<?php echo $baseUrl; ?>/public/app/build/images/logo.png" class="m-r-sm" alt="Feeh"> -->
             </a>
         </div>   
         <div class="container animated fadeInUp">            
@@ -25,18 +25,19 @@
                         <li>If you typed the URL directly, please make sure the spelling is correct.</li>
                         <li>If you clicked on a link to get here, the link is outdated.</li>
                     </ul>
+                    <?php /* 
                     <ul class="disc links">
                         <li>
                             <a href="<?php echo $baseUrl ?>">Home Page</a> |
                             <a href="<?php echo $baseUrl ?>/#/login">Login</a> |
                             <a href="<?php echo $baseUrl ?>/#/register">Register</a>
                         </li>
-                    </ul>
+                    </ul> */ ?>
                 </div>                           
             </section>
         </div>
         <div class="page-footer">
-            <p>Copyright &copy; <?php echo  date('Y'); ?> JobBookers.ch. All rights reserved.</p>
+            <p>Copyright &copy; <?php echo  date('Y'); ?> Feeh All rights reserved.</p>
         </div> 
     </section>
 

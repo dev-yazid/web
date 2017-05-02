@@ -3,7 +3,6 @@
 <div class="panel-body">
 
     {!! Form::open(array('url'=>'/admin/user','files'=>true,'class'=>'form-horizontal','method'=>'POST','id'=>'user')) !!}        
-
     <!-- <div class="form-group">
         <div class="col-md-12">
             {!! Form::label('name', 'Name' , array('class' => 'required')); !!}

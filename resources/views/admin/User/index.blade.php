@@ -4,10 +4,10 @@
     <thead> 
         <tr>
             <th width="10%">Id</th>
-            <th width="20%">User Name</th> 
+            <th width="20%">Name</th> 
             <th width="25%">Email</th>
             <th width="15%">User Type</th>
-            <th width="10%">Verified</th>
+            <!-- <th width="10%">Verified</th> -->
             <th width="10%">Status</th>
             <th width="10%">Actions</th> 
         </tr>
@@ -29,25 +29,43 @@
             { data: 'name', name: 'name'},           
             { data: 'email', name: 'email' },
             { data: 'usertype', name: 'usertype' },
-            { data: 'email_verified', name: 'email_verified' },
+            /*{ data: 'email_verified', name: 'email_verified' },*/
             { data: 'status', name: 'status' }, 
             { data: 'id', name: 'id' },
             ],
             aoColumnDefs: [
             {               
                 bSortable : false,
-                aTargets : [ 6 ]
+                aTargets : [ 5 ]
             },
             ],
             fnCreatedRow: function(nRow, aData, iDataIndex) {
+
+                if(aData.mobile_verified == "Yes" && aData.seller_mobile_verified == "Yes"){
+                    user_type = "Both";
+                }
+                else if(aData.mobile_verified == "Yes" && aData.seller_mobile_verified == "No")
+                {
+                   user_type = "Buyer";
+                }
+                else if(aData.mobile_verified == "No" && aData.seller_mobile_verified == "Yes")
+                {
+                   user_type = "Seller";
+                }
+                else
+                {
+                    user_type = "Not Verified";
+                }
+
                 var status;               
                 if(aData.status == 1){
                     status = "Active";
                 }else{
                     status = "InActive";
-                }   
-                $('td:eq(5)', nRow).html(status);
-                $('td:eq(6)', nRow).html('<a href="<?php echo url("/admin/user") ?>/'+aData.id+'"><i class="fa fa-eye icon-muted fa-fw icon-space"></i></a>');         
+                }
+                $('td:eq(3)', nRow).html(user_type);  
+                $('td:eq(4)', nRow).html(status);
+                $('td:eq(5)', nRow).html('<a href="<?php echo url("/admin/user") ?>/'+aData.id+'"><i class="fa fa-eye icon-muted fa-fw icon-space"></i></a>');         
             },
             fnRowCallback: function(nRow, aData, iDisplayIndex) {
                 nRow.setAttribute('id',"row_"+aData.id); 

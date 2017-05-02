@@ -92,7 +92,8 @@ class BrodResponse extends Model
 
     public static function productConfirmedByBuyer($res_id)
     {
-    	$resUpdated = 0;
+
+        $resUpdated = 0;
     	
         $prodConfirmation = BrodResponse::find($res_id);
 
@@ -100,14 +101,15 @@ class BrodResponse extends Model
         {	
         	if($prodConfirmation->is_prod_confirm_by_buyer == 0)
             {
-                $prodConfirmation->is_prod_confirm_by_buyer = 1;
             	$prodConfirmation->price_updated = 0;
-                $prodConfirmation->status   =  2;
+                $prodConfirmation->status  =  2;
             	$prodConfirmation->read_status   = 1;
+                $prodConfirmation->is_prod_confirm_by_buyer = 1;
             	
                 if($prodConfirmation->save())
                 {
                     $reqDetails = BrodRequest::find($prodConfirmation->request_id);
+                   
                     $reqDetails->status = 3; 
                     $reqDetails->save();
 
@@ -118,8 +120,17 @@ class BrodResponse extends Model
                     $transaction->cust_confirmation     = 1;
                     $transaction->seller_confirmation   = 0;
                     $transaction->save();
-
-                    $resUpdated = 1;
+                    
+                    $userMobile =  DB::table('users')->where('id',$prodConfirmation->seller_id)->first();
+                    if(count($userMobile) > 0)
+                    {   
+                        BrodRequest::sendProductConfirmation(trim($userMobile->phone_number));
+                        $resUpdated = 1;
+                    }
+                    else
+                    {
+                        $resUpdated = 2;
+                    }
                 }
             }
             else

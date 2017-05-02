@@ -39,7 +39,7 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['testUser','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser','getRemoveResponse']]);
+        $this->middleware('jwt.auth', ['except' => ['getProductConfirmedByBuyer','getViewResponse','getUpdateProfile','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser','getRemoveResponse']]);
     }
     /**
      * Display a listing of the resource.
@@ -108,10 +108,10 @@ class UserController extends Controller
                         {
                             $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
                         }                        
-                        else
+                        /*else
                         {
                             $this->resultapi('0','Mobile Number Not Exist.', 0);
-                        }
+                        }*/
                     }
                     else
                     {
@@ -165,7 +165,7 @@ class UserController extends Controller
                         $checkMobileExist->phone_number         = $request->phone_number;
                         $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
                         $checkMobileExist->mobile_verified      = "No";
-                        $checkMobileExist->status               = 1;
+                        //$checkMobileExist->status               = 1;
                         $checkMobileExist->save();
                         
                         $this->resultapi('1','4 Digit Mobile Verification Code Send.', $mobile_verify_code);
@@ -174,10 +174,10 @@ class UserController extends Controller
                 else
                 {
                     $regNewMobile = new User;
-                    $checkMobileExist->name             = "Feeh User";
+                    $regNewMobile->name                 = "Feeh User";
                     $regNewMobile->phone_number         = $request->phone_number;
                     $regNewMobile->mobile_verify_code   = $mobile_verify_code;
-                    $regNewMobile->status               = 1;
+                    //$regNewMobile->status               = 1;
                     $regNewMobile->mobile_verified      = "No";
 
                     if($regNewMobile->save())
