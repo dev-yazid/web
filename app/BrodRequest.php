@@ -52,7 +52,7 @@ class BrodRequest extends Model
 	}
 
 	/* seller and customer both */
-	public static function getAllBrodRequest($uid,$per_page)
+	public static function getAllBrodRequest($uid,$per_page,$status)
 	{	
 		$allBrodRequest = DB::table('brod_requests')
 		->leftJoin('brands', 'brod_requests.brand_id', '=', 'brands.id')
@@ -61,8 +61,8 @@ class BrodRequest extends Model
 		->leftJoin('user_profiles', 'brod_requests.user_id', '=', 'user_profiles.user_id')
 		->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')		
 		->select('brod_requests.id as req_id','cities.name as city_name','brod_requests.prod_year','brands.brand','brod_requests.req_image','brod_requests.is_details_updated','brod_requests.created_at','brod_requests.description','brod_requests.status','brands.id as brandid','brands.image','users.id as customer_id','users.name','products.pname','users.id as customer_id','users.name','products.id as productid','user_profiles.shop_city')
-		//->where('brod_requests.id',$res_id)
-		->where('brod_requests.removed_by_user',0)		
+		->where('brod_requests.removed_by_user',0)
+		->where('brod_requests.status',$status)	
 		->orderBy('brod_requests.id','desc')
 		->paginate($per_page);
 

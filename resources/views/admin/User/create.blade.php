@@ -87,6 +87,8 @@
             <div class="col-md-6">
                 {!! Form::label('map_url', 'Google (Lat, Long)' , array('class' => 'required')); !!}
                 {!! Form::text('map_url', null, ['class' => 'form-control','maxlength' => 50]) !!}
+                </br>
+                <i>For Example 23.027759,72.557603 <a href="http://www.latlong.net/" target="_blank">http://www.latlong.net</a> </i>
             </div>
         </div>
         <div class="form-group">

@@ -50,8 +50,6 @@ class SellerController extends Controller
      */
     
     public function getRegisterSeller(Request $request) {
-
-       
         $validator = Validator::make($request->all(), [                
             'seller_name'       => 'required',
             'email'             => 'required|unique:users|email',
@@ -83,6 +81,7 @@ class SellerController extends Controller
                     //$checkMobile->email                      = trim($request->email);
                     //$checkMobile->name                       = trim($request->seller_name);
                     //$checkMobile->phone_number               = trim($request->phone_number);
+                    $checkMobile->is_seller_updated            = 1;
                     $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
                     $checkMobile->save();
 
@@ -96,6 +95,8 @@ class SellerController extends Controller
                     {
                         $checkMobile->email                        = trim($request->email);
                         $checkMobile->phone_number                 = trim($request->phone_number);
+                        $checkMobile->is_seller_updated            = 1;
+
                         //$checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
                        
 
@@ -147,6 +148,7 @@ class SellerController extends Controller
                 $regNewMobile->email              = trim($request->email);
                 $regNewMobile->phone_number       = trim($request->phone_number);
                 $regNewMobile->email_verified     = "No";
+                $regNewMobile->is_seller_updated  = 1;
                                  
                 /* for Shop Licence Image Upload */
                 /*$bserUrlImg = asset('public/asset/shopLicence/thumb/');
@@ -212,8 +214,15 @@ class SellerController extends Controller
                         }
                         else if($checkMobile->status == 0)
                         {
-                            
-                             $this->resultapi('2','You Have to Wait Until Admin Will Approve.',false);
+                            /*if($checkMobile->is_seller_updated == 1)
+                            {
+                                $this->resultapi('2','You Have to Wait Until Admin Will Approve.',false);
+                            }
+                            else
+                            {
+                                $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false); 
+                            } */
+                            $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false);
                         }
                         else
                         {
@@ -480,9 +489,9 @@ class SellerController extends Controller
 
     public function getAllBrodRequests(Request $request)
     { 
-        if($request->uid && $request->per_page)
+        if($request->uid && $request->per_page && $request->status)
         {
-            $allResponse = BrodRequest::getAllBrodRequest($request->uid, $request->per_page);
+            $allResponse = BrodRequest::getAllBrodRequest($request->uid, $request->per_page, $request->status);
 
             if(count($allResponse))
             {
@@ -513,8 +522,8 @@ class SellerController extends Controller
 
         if(count($respDetail) > 0)
         {
-            if($request->price_updated == "YES")
-            {
+            /*if($request->price_updated == 1)
+            {*/
                 if( $respDetail->is_prod_confirm_by_buyer == 0)
                 {
                     $respDetail->price              = $request->price;
@@ -529,11 +538,11 @@ class SellerController extends Controller
                 {
                     $this->resultapi(0,'You Cannot Change Price After Product Confirmation', false);
                 }
-            }
+            /*}
             else
             {
                 $this->resultapi(0,'يرجى تغيير السعر أولا.', true);
-            }
+            }*/
         }
         else
         {

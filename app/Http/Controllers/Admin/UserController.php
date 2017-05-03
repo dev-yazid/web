@@ -38,9 +38,17 @@ class UserController extends Controller
         return view('admin/User/index', ['title_for_layout' => 'List Users']);
     }
     
-    public function getData() {        
+    public function getData() { 
+
+        $userDetails = User::query()
+        ->join('user_profiles', 'user_profiles.user_id', '=', 'users.id')
+        ->select('users.*','user_profiles.*','users.id as id')
+        ->where("users.usertype",'!=',"Super Admin")
+        ->get();
+
+        return Datatables::of($userDetails)->make(true);       
        
-        return Datatables::of(User::query()->where("usertype",'!=',"Super Admin"))->make(true);
+        //return Datatables::of(User::query()->where("usertype",'!=',"Super Admin"))->make(true);
     }
 
 
@@ -69,7 +77,7 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-        public function store(Request $request) {
+    public function store(Request $request) {
      
         $validator = Validator::make($request->all(), [
             
@@ -100,55 +108,53 @@ class UserController extends Controller
         $user->email                        = $request->email;        
         $user->status                       = $request->status;
         $user->phone_number                 = $request->phone_number;
-        $user->is_customer_updated          = 0;
+        //$user->is_customer_updated          = 0;
         $user->is_seller_updated            = 1;
-        $user->name                         = $request->seller_name;
+        //$user->name                         = $request->seller_name;
         $user->email                        = $request->email;
+        $user->email_verified               = 'Yes';
         $user->seller_mobile_verified       = 'No';
         $user->seller_mobile_verify_code    = $seller_mobile_verify_code;
-
-        $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
-
+        $user->save();
         /******************************/
-        
-        if($user->save())
+    
+        $lastUserinsertedId = $user->id;
+        $userProfile = new UserProfiles;
+        $userProfile->user_id           = $lastUserinsertedId;
+        $userProfile->seller_name       = $request->seller_name;
+        $userProfile->shop_name         = $request->shop_name;
+        //$userProfile->shop_email        = $request->email;
+        $userProfile->shop_mobile       = $request->phone_number;
+        $userProfile->shop_address      = $request->shop_address;           
+        $userProfile->shop_city         = $request->shop_city;
+        $userProfile->shop_zipcode      = $request->shop_zipcode ? $request->shop_zipcode : "";
+        $userProfile->shop_start_time   = $request->shop_start_time ? $request->shop_start_time : "";
+        $userProfile->shop_close_time   = $request->shop_close_time ? $request->shop_close_time : "";
+        $userProfile->shop_location_map = $request->map_url;
+
+        $bserUrlImg = asset('/public/asset/shopLicence/thumb/');
+        if($request->hasFile('shop_document'))
+        {           
+            $file = $request->file('shop_document');
+            $path = public_path().'/asset/shopLicence/';
+            $thumbPath = public_path('/asset/shopLicence/thumb/');
+
+            $timestamp = time().  uniqid(); 
+            $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+            File::makeDirectory(public_path().'asset/', 0777, true, true);
+            $file->move($thumbPath,$filename);
+
+            $userProfile->shop_document     = $filename; 
+        }
+        if($userProfile->save() && $user->save())
         {
-            $lastUserinsertedId = $user->id;
-            $userProfile = new UserProfiles;
-            $userProfile->user_id           = $lastUserinsertedId;
-            $userProfile->seller_name       = $request->seller_name;
-            $userProfile->shop_name         = $request->shop_name;
-            $userProfile->shop_email        = $request->email;
-            $userProfile->shop_mobile       = $request->phone_number;
-            $userProfile->shop_address      = $request->shop_address;           
-            $userProfile->shop_city         = $request->shop_city;
-            $userProfile->shop_zipcode      = $request->shop_zipcode ? $request->shop_zipcode : "";
-            $userProfile->shop_start_time   = $request->shop_start_time ? $request->shop_start_time : "";
-            $userProfile->shop_close_time   = $request->shop_close_time ? $request->shop_close_time : "";
-            $userProfile->shop_location_map = $request->map_url;
-
-            $bserUrlImg = asset('/public/asset/shopLicence/thumb/');
-            if($request->hasFile('shop_document'))
-            {           
-                $file = $request->file('shop_document');
-                $path = public_path().'/asset/shopLicence/';
-                $thumbPath = public_path('/asset/shopLicence/thumb/');
-
-                $timestamp = time().  uniqid(); 
-                $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                File::makeDirectory(public_path().'asset/', 0777, true, true);
-                $file->move($thumbPath,$filename);
-
-                $userProfile->shop_document     = $filename; 
-            }
-
-            $userProfile->save();
-          
+            $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
+      
             $msg = "Seller Registered Successfully.";
-            $log = ActivityLog::createlog(Auth::Id(),"New Seller Created",$msg,Auth::Id());       
+            $log = ActivityLog::createlog(Auth::Id(),"New Seller Added Sucessfully.",$msg,Auth::Id());       
             
-            Session::flash('success_msg', $msg);           
-            return redirect('/admin/user');            
+            Session::flash('success_msg', $msg);
+            return redirect('/admin/user');
         } 
         else
         {
@@ -170,13 +176,13 @@ class UserController extends Controller
         ->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')
         //->leftJoin('cities', 'user_profiles.shop_city', '=', 'cities.id')
         //->select('users.name','users.phone_number','users.password','user_profiles.customer_address','user_profiles.customer_zipcode','user_profiles.customer_email','user_profiles.customer_city')
-        ->select('users.*','users.name as fullname','users.status as userstatus','users.id as userId','user_profiles.*','cities.*')
+        ->select('users.*','users.id as userId','user_profiles.*','cities.name','users.name as fullname')
         ->where('users.id',$id)
         ->first();        
         
         if(empty($user))
         {
-            Session::flash('error_msg', 'User not found.');
+            Session::flash('error_msg', 'User Not Exist.');
             return redirect('/admin/user');
         }
         else
@@ -389,14 +395,23 @@ class UserController extends Controller
            
             if(count($user) > 0 )
             {                
-                $user->status =trim($request->status);
-                $user->save();
+                if($user->status != $request->status )
+                {
+                    $user->status = trim($request->status);
+                    $user->save();
 
-                User::sendSmsAdmin(trim($user->phone_number));
-                               
-                $msg = "User Status Changed Successfully";
-                Session::flash('success_msg', $msg);
-                $log = ActivityLog::createlog(Auth::Id(),"Admin User",$msg,Auth::Id());                
+                    User::sendSmsAdmin(trim($user->phone_number));
+                                   
+                    $msg = "User Status Changed Successfully";
+                    Session::flash('success_msg', $msg);
+                    $log = ActivityLog::createlog(Auth::Id(),"Admin User",$msg,Auth::Id());
+                }
+                else
+                {
+                    $msg = "User Status Already In Selected Status.";
+                    Session::flash('error_msg', $msg);
+                    $log = ActivityLog::createlog(Auth::Id(),"Admin User",$msg,Auth::Id());
+                }              
             }
             else
             {

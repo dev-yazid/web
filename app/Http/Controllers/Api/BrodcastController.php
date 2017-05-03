@@ -109,8 +109,8 @@ class BrodcastController extends Controller
                 if($request->hasFile('brod_img'))
                 {
                     $file = $request->file('brod_img');
-                    $path = public_path().'asset/brodcastImg/';
-                    $thumbPath = public_path('asset/brodcastImg/thumb');
+                    $path = public_path().'/asset/brodcastImg/';
+                    $thumbPath = public_path('/asset/brodcastImg/thumb');
 
                     $timestamp = time().  uniqid(); 
                     $filename = $timestamp.'_'.trim($file->getClientOriginalName());

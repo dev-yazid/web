@@ -157,7 +157,15 @@ class UserController extends Controller
                        }
                        else
                        {
-                            $this->resultapi('2','You Have To Wait Until Admin Will Approve.', $mobile_verify_code);
+                            if($checkMobileExist->is_seller_updated == 1)
+                            {
+                                 $this->resultapi('2','You Have To Wait Until Admin Will Approve.', $mobile_verify_code);
+                            }
+                            else
+                            {
+                                $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false); 
+                            } 
+                           
                        }
                     }
                     else
