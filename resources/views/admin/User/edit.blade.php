@@ -10,15 +10,15 @@
     </div>
     
     <div class="form-group">
-        <div class=" col-md-6">
-            {!! Form::label('firstname', 'First Name', array('class' => 'required')); !!}
-            {!! Form::text('firstname',null,array('class'=>'form-control')) !!}
+        <div class="col-md-12">
+            {!! Form::label('name', 'Name', array('class' => 'required')); !!}
+            {!! Form::text('name',null,array('class'=>'form-control')) !!}
         </div>
 
-        <div class="col-md-6">
+       <!--  <div class="col-md-6">
             {!! Form::label('lastname', 'Last Name' , array('class' => 'required')); !!}
             {!! Form::text('lastname',null,array('class'=>'form-control')) !!}
-        </div>           
+        </div>       -->     
     </div>
     
     <div class="form-group">

@@ -255,8 +255,7 @@ class UserController extends Controller
         if($user->usertype == "Super Admin")
         {             
             $validator = Validator::make($request->all(), [
-                'firstname'         => 'required|max:100',
-                'lastname'          => 'required|max:100',
+                'name'              => 'required|max:100',
                 'email'             => 'required|email|max:100',
                 'phone_number'      => 'required|max:15',                
             ]);
@@ -269,8 +268,7 @@ class UserController extends Controller
             }
             else
             {
-                $user->firstname    = $request->firstname;
-                $user->lastname     = $request->lastname;
+                $user->name         = $request->name;
                 $user->phone_number = $request->phone_number;
                 $user->email        = $request->email;
 

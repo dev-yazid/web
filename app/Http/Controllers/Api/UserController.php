@@ -39,13 +39,77 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['getProductConfirmedByBuyer','getViewResponse','getUpdateProfile','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser','getRemoveResponse']]);
+        $this->middleware('jwt.auth', ['except' => ['checkTwillio','getProductConfirmedByBuyer','getViewResponse','getUpdateProfile','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser','getRemoveResponse']]);
     }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+    
+    public function checkTwillio(Request $request)
+    {
+          
+        $smsSend = 0;
+        $sid    = 'AC4ab5b2e4a9da816dc45e5af158dc770d';
+        $token  = 'c2bed0cfbdee0f4dad5db438219b995e';
+        $client = new Client($sid, $token);
+
+        $number = $client->lookups
+        ->phoneNumbers('+91'.$request->mobile)
+        ->fetch(
+            array("type" => "carrier")
+        );
+       // echo $number->carrier["status"]
+       if($number)
+       {
+        echo "Yes";
+       }
+       else
+       {
+        echo "No";
+       }
+        print_r($number);
+        die;
+        
+        if($client->messages->create('+91'.$request->mobile,array('from' => '+18588159100','body' => 'Testing'))){
+   
+            $smsSend = 1;
+        }
+        else
+        {
+            $smsSend = 0;
+        }
+
+        return $smsSend;        
+    
+    }
+    
+    public function checkAuth(Request $request)
+    {
+       if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => "123456")))
+        {
+            $validator = Validator::make($request->all(), [
+                'phone_number'  => 'required|min:8|numeric',
+            ]);
+
+            if ($validator->fails()) 
+            {
+                 $this->resultapi('0', $validator->errors()->all(), 0);
+            }
+            else
+            {
+                $user = Auth::user();
+                $tokenId = $this->jwtAuth->fromUser($user);
+                $this->resultapi('1','Authantaced Sucessfully', $tokenId);
+            }
+        } 
+        else
+        {
+            $tokenId = "";
+            $this->resultapi('0','Authentication Failed.', $tokenId);
+        }
+    }
 
     public function getAppInitData(Request $request)
     {

@@ -121,6 +121,7 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     Route::post('/user/changePassword','Api\UserController@getChangePassword');
     Route::post('/user/productConfirmedByBuyer','Api\UserController@getProductConfirmedByBuyer');
     Route::post('/user/removeResponse','Api\UserController@getRemoveResponse');
+    Route::post('/user/checkAuth','Api\UserController@checkAuth');
 
     /* Seller Management*/
 
@@ -147,5 +148,8 @@ Route::group(['prefix' => 'api','middleware' => ['api','web'], 'before' => 'auth
     /* Cronjob */
     Route::post('/cronjob/vcodeExpires','Api\MessageController@vcodeExpires');
     Route::post('/cronjob/notificationAdmin','Api\MessageController@notificationAdmin');
+    Route::post('/user/checkmobile','Api\UserController@checkTwillio');
+
+    
       
 });

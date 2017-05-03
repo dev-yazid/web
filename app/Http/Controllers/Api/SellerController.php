@@ -41,7 +41,7 @@ class SellerController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['getSendResponse','getSellerDetails','getUpdateSellerProfile','getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
+        $this->middleware('jwt.auth', ['except' => ['getAllBrodRequests','getSendResponse','getSellerDetails','getUpdateSellerProfile','getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
     }
     /**
      * Display a listing of the resource.
@@ -52,7 +52,7 @@ class SellerController extends Controller
     public function getRegisterSeller(Request $request) {
         $validator = Validator::make($request->all(), [                
             'seller_name'       => 'required',
-            'email'             => 'required|unique:users|email',
+            'email'             => 'required|email',
             'phone_number'      => 'required|min:8',               
             'shop_name'         => 'required',
             'shop_address'      => 'required',
@@ -222,7 +222,7 @@ class SellerController extends Controller
                             {
                                 $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false); 
                             } */
-                            $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false);
+                            $this->resultapi('2','Profile Registered Sucessfully, You Have Wait for Admin Approval.',false);
                         }
                         else
                         {
@@ -231,15 +231,13 @@ class SellerController extends Controller
                     }
 
                     /* Seller register Notification for Admin By Email */
-                    //$adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
-                    //$adminEmail  =  $adminDetails->email;
-                    $adminEmail  =  'amitg@techuz.com';
-                    $subject     =  'New Seller Register';
+                    $adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
+                    $subject     =  'New Seller Registration Notification';
                     $content     =  "Hello, <br/><br/>A New User Registered With Name : ".$request->seller_name.", Email : ".$request->email.", and User Id : ".$insertedUser->id;
 
                     $mail_data = array(
                         'content'   => $content,
-                        'toEmail'   => trim($adminEmail),
+                        'toEmail'   => $adminDetails->email,
                         'subject'   => $subject,
                         'fromEmail' => trim($request->email)
                     );

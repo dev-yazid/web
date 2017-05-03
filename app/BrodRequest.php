@@ -46,12 +46,10 @@ class BrodRequest extends Model
 		{
 			$response = array();
 		}
-		
-		
+
 		return $response;
 	}
 
-	/* seller and customer both */
 	public static function getAllBrodRequest($uid,$per_page,$status)
 	{	
 		$allBrodRequest = DB::table('brod_requests')
@@ -62,7 +60,8 @@ class BrodRequest extends Model
 		->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')		
 		->select('brod_requests.id as req_id','cities.name as city_name','brod_requests.prod_year','brands.brand','brod_requests.req_image','brod_requests.is_details_updated','brod_requests.created_at','brod_requests.description','brod_requests.status','brands.id as brandid','brands.image','users.id as customer_id','users.name','products.pname','users.id as customer_id','users.name','products.id as productid','user_profiles.shop_city')
 		->where('brod_requests.removed_by_user',0)
-		->where('brod_requests.status',$status)	
+		->where('brod_requests.status',$status)
+		->where('brod_requests.user_id','!=',$uid)	
 		->orderBy('brod_requests.id','desc')
 		->paginate($per_page);
 
@@ -75,7 +74,7 @@ class BrodRequest extends Model
 				$allBrodRequest[$key]->brand_img_path = $bserUrlImg;
 
 				$brodRespDetails = DB::table('brod_responses')
-		        ->where('id',$value->req_id)
+		        ->where('request_id',$value->req_id)
 		        ->where('seller_id',$uid) 
 		        ->select('price','removed_by_user','is_prod_confirm_by_buyer','is_prod_confirm_by_seller')
 		        ->first();
@@ -106,8 +105,6 @@ class BrodRequest extends Model
             	'hasMorePages' => $allBrodRequest->hasMorePages()
          	]
        	];
-
-		//print_r($allBrodRequest);
 
 		return $response;
 	}

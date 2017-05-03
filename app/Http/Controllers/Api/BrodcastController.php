@@ -114,7 +114,7 @@ class BrodcastController extends Controller
 
                     $timestamp = time().  uniqid(); 
                     $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                    File::makeDirectory(public_path().'asset/', 0777, true, true);
+                    File::makeDirectory(public_path().'/asset/', 0777, true, true);
                     $file->move($path,$filename);
 
                     $img = Image::make($path.$filename);
@@ -164,11 +164,11 @@ class BrodcastController extends Controller
                     if($request->hasFile('brod_img'))
                     {
                         $file = $request->file('brod_img');
-                        $path = public_path().'asset/brodcastImg/';
-                        $thumbPath = public_path('asset/brodcastImg/thumb');                             
+                        $path = public_path().'/asset/brodcastImg/';
+                        $thumbPath = public_path('/asset/brodcastImg/thumb');                             
                         $timestamp = time().  uniqid(); 
                         $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                        File::makeDirectory(public_path().'asset/', 0777, true, true);
+                        File::makeDirectory(public_path().'/asset/', 0777, true, true);
                         $file->move($path,$filename);
 
                         $img = Image::make($path.$filename);

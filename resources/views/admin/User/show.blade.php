@@ -72,7 +72,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Customer Zipcode</label>
         <div class="col-lg-9">
-            <p><?php echo $user->customer_zipcode ? $user->customer_city : "Not Available"; ?></p>
+            <p><?php echo $user->customer_zipcode ? $user->customer_zipcode : "Not Available"; ?></p>
         </div>
     </div>    
 
@@ -138,7 +138,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop Zipcode</label>
         <div class="col-lg-9">
-            <p><?php echo $user->shop_zipcode; ?></p>
+            <p><?php echo $user->shop_zipcode == 0 ? "Not Available" : $user->shop_zipcode ?></p>
         </div>
     </div>
 

@@ -42,7 +42,7 @@ class MessageController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['']]);
+        $this->middleware('jwt.auth', ['except' => ['notificationAdmin']]);
     }
     /**
      * Display a listing of the resource.
@@ -190,27 +190,34 @@ class MessageController extends Controller
 
             if(count($reqIdArray) > 0)
             {
-                $brod_ids = implode(" ",$reqIdArray);
+                $brod_ids = implode(",",$reqIdArray);
                            
                 /* List Of ids thos have to get any response by any seller to admin */
-                //$adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
-                //$adminEmail  =  $adminDetails->email;
-                $adminEmail  =  'amitg@techuz.com';
-                $subject     =  'Brodcast Request Having No Request Notification';
-                $content     =  "Hello, List of Brodcast Ids Have Not Responsed By Any Seller ".$brod_ids;
+                $adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
+                if(count($brod_ids) > 0)
+                { 
+                    $subject     =  'Brodcast Request :: No Response Notification';
+                    $content     =  "Hello, <br/><br/>Brodcast Ids Having Not Responsed By Any Seller ".$brod_ids;
 
-                $mail_data = array(
-                    'content'   => $content,
-                    'toEmail'   => trim($adminEmail),
-                    'subject'   => $subject,
-                    'fromEmail' => trim($request->email)
-                );
+                    $mail_data = array(
+                        'content'   => $content,
+                        'toEmail'   => $adminDetails->email,
+                        'subject'   => $subject,
+                        'fromEmail' => 'admin@feeh.com'
+                    );
 
-                $send = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data) {
-                    $message->to($mail_data['toEmail']);
-                    $message->from($mail_data['fromEmail']);
-                    $message->subject($mail_data['subject']);
-                });
+                    $send = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data) {
+                        $message->to($mail_data['toEmail']);
+                        $message->from($mail_data['fromEmail']);
+                        $message->subject($mail_data['subject']);
+                    });
+
+                    $this->resultapi('1','Main Send Sucefffully.', $brod_ids);
+                }
+                else
+                {
+                    $this->resultapi('1','No Request Found.', $brod_ids);
+                }
             }
             else
             {
