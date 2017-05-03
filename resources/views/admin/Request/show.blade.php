@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 @section('content')
 <div class="panel-body viewPage">
+    <?php  // echo "<pre>"; print_r($brodRequests); ?>
     <div class="form-group">
         <label class="col-lg-2 control-label">Id</label>
         <div class="col-lg-10">
@@ -36,12 +37,19 @@
         </div>
     </div>
     <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">Year</label>
+        <div class="col-lg-10">
+            <p><?php echo $brodRequests->prod_year; ?></p>
+        </div>
+    </div>
+    <div class="clear"></div>
     
     <div class="form-group">
     <label class="col-lg-2 control-label">Status</label>
         <div class="col-lg-10">
             <p>
-                <?php $status = $brodRequests->status; 
+                <?php $status = $brodRequests->brod_req_status; 
 
                 if($status == 1)
                 {
@@ -99,7 +107,7 @@
                         {
                             echo "In Progress";
                         }
-                        else if($status == 2)
+                        else if($status == 3)
                         {
                             echo "Decline";
                         }

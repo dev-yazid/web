@@ -79,6 +79,7 @@ class RequestController extends Controller
         ->join('products', 'brod_requests.prod_id', '=', 'products.id')
         ->leftJoin('brands', 'brod_requests.brand_id', '=', 'brands.id')
         ->leftJoin('users', 'brod_requests.user_id', '=', 'users.id')
+        ->select('products.pname','brod_requests.*','brands.brand','users.*','brod_requests.status as brod_req_status')
         ->first();
 
         $brodResponse = BrodResponse::query()

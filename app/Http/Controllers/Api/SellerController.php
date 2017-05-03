@@ -41,7 +41,7 @@ class SellerController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['getSellerDetails','getUpdateSellerProfile','getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
+        $this->middleware('jwt.auth', ['except' => ['getSendResponse','getSellerDetails','getUpdateSellerProfile','getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
     }
     /**
      * Display a listing of the resource.
@@ -522,8 +522,8 @@ class SellerController extends Controller
 
         if(count($respDetail) > 0)
         {
-            /*if($request->price_updated == 1)
-            {*/
+            if($request->price_updated == "YES")
+            {
                 if( $respDetail->is_prod_confirm_by_buyer == 0)
                 {
                     $respDetail->price              = $request->price;
@@ -538,11 +538,11 @@ class SellerController extends Controller
                 {
                     $this->resultapi(0,'You Cannot Change Price After Product Confirmation', false);
                 }
-            /*}
+            }
             else
             {
                 $this->resultapi(0,'يرجى تغيير السعر أولا.', true);
-            }*/
+            }
         }
         else
         {
