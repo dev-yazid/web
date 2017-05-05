@@ -13,7 +13,12 @@ $(document).ready(function() {
                 equalTo     : "#password" 
             },
             seller_name: {
+                required    : false,
+                maxlength   : 100,
+            },
+            shop_name: {
                 required    : true,
+                maxlength   : 100,
             },
             phone_number: {
                 required    : true,
@@ -22,31 +27,30 @@ $(document).ready(function() {
                 digits      : true
             },
             email: {
-                required    : true,
+                required    : false,
                 email       : true,
-            },
-            shop_name       : "required",
+            },           
             shop_address    : {
-                required    : true,
+                required    : false,
                 minlength   : 3,
                 maxlength   : 100,
             },
-            shop_city   : "required",
             shop_zipcode:  {
                 required    : false,
+                maxlength   : 5,
             },            
             shop_start_time : {
-                required    : true,
+                required    : false,
                 minlength   : 3,
                 maxlength   : 8,
             },
             shop_close_time : {
-                required    : true,
+                required    : false,
                 minlength   : 3,
                 maxlength   : 8,
             },
             shop_document   : {
-                required    : true,
+                required    : false,
             },
         },
     });

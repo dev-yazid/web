@@ -22,7 +22,7 @@
     </div> -->
     <div class="form-group">
         <div class="col-md-6">
-                {!! Form::label('seller_name', 'Seller Name' , array('class' => 'required')); !!}
+                {!! Form::label('seller_name', 'Seller Name' , array()); !!}
                 {!! Form::text('seller_name',null,array('class'=>'form-control','maxlength' => 100)) !!}
             </div>
         <div class=" col-md-6">            
@@ -34,7 +34,7 @@
     <div class="form-group">
 
         <div class="col-md-6">
-            {!! Form::label('email', 'Email', array('class' => 'required')); !!}
+            {!! Form::label('email', 'Email', array()); !!}
             {!! Form::text('email',null,array('class'=>'form-control','maxlength' => 100)) !!}
         </div>
         <div class="col-md-6">
@@ -58,7 +58,7 @@
 
         <div class="form-group">
             <div class="col-md-6">
-                {!! Form::label('shop_address', 'Shop Address', array('class' => 'required')); !!}
+                {!! Form::label('shop_address', 'Shop Address', array()); !!}
                 {!! Form::text('shop_address',null,array('class'=>'form-control','maxlength' => 100)) !!}
             </div>
             <div class="col-md-3">            
@@ -73,19 +73,19 @@
 
         <div class="form-group">
             <div class="col-md-3">
-                {!! Form::label('shop_start_time', 'Shop Start Time', array('class' => 'required')); !!}
+                {!! Form::label('shop_start_time', 'Shop Start Time', array()); !!}
                 {!! Form::text('shop_start_time',null,array('class'=>'form-control','maxlength' => 8)) !!}
                  </br>
                 <i>Ex- 10:00 AM Or 12:00 PM</i>
             </div>
             <div class=" col-md-3">            
-                {!! Form::label('shop_close_time', 'Shop Close Time', array('class' => 'required')); !!}
+                {!! Form::label('shop_close_time', 'Shop Close Time', array()); !!}
                 {!! Form::text('shop_close_time',null,array('class'=>'form-control','maxlength' => 8)) !!}
                  </br>
                 <i>Ex- 10:00 AM Or 12:00 PM</i>
             </div>            
             <div class="col-md-6">
-                {!! Form::label('map_url', 'Google (Lat, Long)' , array('class' => 'required')); !!}
+                {!! Form::label('map_url', 'Google (Lat, Long)' , array()); !!}
                 {!! Form::text('map_url', null, ['class' => 'form-control','maxlength' => 50]) !!}
                 </br>
                 <i>For Example 23.027759,72.557603 <a href="http://www.latlong.net/" target="_blank">http://www.latlong.net</a> </i>
@@ -93,7 +93,7 @@
         </div>
         <div class="form-group">
             <div class="col-md-12">
-                {!! Form::label('shop_document', 'Shop Document / Licence', array('class' => 'required')); !!}
+                {!! Form::label('shop_document', 'Shop Document / Licence', array()); !!}
                 {!! Form::file('shop_document',null,array('class'=>'form-control')) !!}
                 </br>
                 <i> ( doc, pdf, png, jpg, jpeg and Max 1 MB Only )</i>

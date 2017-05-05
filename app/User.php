@@ -70,8 +70,16 @@ class User extends Authenticatable
 
         if(count($userDetails) > 0)
         {
-            $mapUrl ='https://www.google.com/maps?q=';
-            $userDetails->map_location = $mapUrl.$userDetails->shop_location_map;           
+            if($userDetails->shop_location_map == "")
+            {
+                $mapUrl ="";
+                $userDetails->map_location = "";
+            }
+            else
+            {
+                $mapUrl ='https://www.google.com/maps?q=';
+                $userDetails->map_location = $mapUrl.$userDetails->shop_location_map;
+            }          
         }
         
        return $userDetails;

@@ -3014,12 +3014,12 @@
         "version_normalized": "0.9.5.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/padraic/mockery.git",
+            "url": "https://github.com/mockery/mockery.git",
             "reference": "4db079511a283e5aba1b3c2fb19037c645e70fc2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/padraic/mockery/zipball/4db079511a283e5aba1b3c2fb19037c645e70fc2",
+            "url": "https://api.github.com/repos/mockery/mockery/zipball/4db079511a283e5aba1b3c2fb19037c645e70fc2",
             "reference": "4db079511a283e5aba1b3c2fb19037c645e70fc2",
             "shasum": ""
         },
@@ -4087,17 +4087,17 @@
     },
     {
         "name": "twilio/sdk",
-        "version": "5.7.2",
-        "version_normalized": "5.7.2.0",
+        "version": "5.8.0-alpha1",
+        "version_normalized": "5.8.0.0-alpha1",
         "source": {
             "type": "git",
             "url": "https://github.com/twilio/twilio-php.git",
-            "reference": "1083ab0be7c8501a5fbc5e8774952c14533ccf93"
+            "reference": "860db9bafd3be6e65d37418370836f52529da045"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twilio/twilio-php/zipball/1083ab0be7c8501a5fbc5e8774952c14533ccf93",
-            "reference": "1083ab0be7c8501a5fbc5e8774952c14533ccf93",
+            "url": "https://api.github.com/repos/twilio/twilio-php/zipball/860db9bafd3be6e65d37418370836f52529da045",
+            "reference": "860db9bafd3be6e65d37418370836f52529da045",
             "shasum": ""
         },
         "require": {
@@ -4107,7 +4107,7 @@
             "apigen/apigen": "^4.1",
             "phpunit/phpunit": "4.5.*"
         },
-        "time": "2017-04-04 22:15:09",
+        "time": "2017-04-27 11:02:42",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

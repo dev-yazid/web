@@ -1,24 +1,47 @@
 twilio-php Changelog
 ====================
+[2017-04-27] Version 5.8.0-alpha1
+---------------------------------
+- Add support for Twilio Chat v2
+- Add `recordingChannels`, `recordingStatusCallback`, `recordingStatusCallbackMethod`, `sipAuthUsername`, `sipAuthPassword`, `region`, `conferenceRecordingStatusCallback`, `conferenceRecordingStatusCallbackMethod` optional parameters to conference participant resource.
+- Add support for setting `DEBUG_HTTP_TRAFFIC=true` environment varibale to dump request and response information. Thanks @kevinburke, PR #394.
+- Add deprecation warning to `ConversationsGrant`, it is being replaced by `VideoGrant`.
+- Alpha Changes:
+    - Add `smartEncoding` parameter to messaging Service.
+    - Make `endpoint ` parameter optional for notify service bindings (backwards incompatible).
+    - Add `segments` property to notify service notifications.
+    - Add `logEnabled` property to notify services.
+    - New Notify resources: Segment, SegmentMembership, UserBinding, User
+    - Add ability to delete Wireless RatePlans
+    - Add `groupingSid` parameter to Video Recordings.
+    - Remove `startTime` property from Video Rooms (backwards incompatible).
+    - Replace `startTimeBefore/After` filtering with `dateCreatedBefore/After` on Video Rooms (backwards incompatible).
 
-[2017-04-04] Version 5.7.2
+[2017-04-12] Version 5.7.3-alpha1
 --------------------------
-- Add `validityPeriod` parameter to Message creation
+- Add TaskRouterGrant.
+- Update VideoGrant.
+    - Add `room` as preferred grant granularity.
+    - Deprecate setting `configurationProfileSid` on grant.
+
+[2017-04-04] Version 5.7.2-alpha1
+---------------------------------
+ - Add `validityPeriod` paramater to Message creation
+
+[2017-04-01] Version 5.7.1-alpha2
+---------------------------------
+ - Add Twilio Programmable Fax
 
 [2017-03-22] Version 5.7.1
 --------------------------
-- Add Answering Machine Detection to Call creation
-- Add `WRAPPING` entry to Status for Task
+ - Add Answering Machine Detection to Call creation
+ - Add `WRAPPING` entry to Status for Task
+ - Add Recordings to `video.twilio.com`
+ - Add `messaging.twilio.com`
+ - **Twilio Chat**
+   - Add `limits` map to Service
+   - Add `limitsChannelMembers` and `limitsUserChannels` field to ServiceUpdater
 
-- **Twilio Chat**
-  - Add `limits` map to Service
-  - Add `limitsChannelMembers` and `limitsUserChannels` field to ServiceUpdater
-
-[2017-03-13] Version 5.7.0
---------------------------
-Breaking Changes, refer to [Upgrade Guide][upgrade]
-
- - Restore ability to transfer IncomingPhoneNumbers between accounts.
 
 [2017-03-03] Version 5.6.0
 -------------------------
@@ -31,6 +54,13 @@ Breaking Changes, refer to [Upgrade Guide][upgrade]
  - Chat:
     - Add `order` as filter when listing Messages.
     - Messages `.read()`, `.stream()`, `.page()` now accept options array as first parameter (backwards incompatible).
+ - Alpha Changes:
+    - IncomingPhoneNumber's AssignedAddon and AssignedAddonExtension Resource
+    - Support `video.twilio.com` preview product.
+    - Rename Wireless Device resource to Sim
+        - Replace `simIdentifier` property with `iccid` and `eId` properties.
+    - Rename `alias` parameter to `uniqueName` on Wireless RatePlan
+    - Add `acceptTermsOfService` required param to Marketplace InstalledAddOn creation.
 
 
 [2017-02-01] Version 5.5.0
@@ -118,7 +148,7 @@ Thanks to @johnpaulmedina for this suggestion.
 
   - Remove required parameter `friendlyName` on IP Messaging/Chat Role update.
   - Alphabetize domain mounts
-  - Better exceptions when an error is encountered loading a page of records,
+  - Better exceptions when an error is encountered loading a page of records,  
     the exception class has been corrected from `DeserializeException` to
     `RestException`.
 

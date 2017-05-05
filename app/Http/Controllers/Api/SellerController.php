@@ -41,7 +41,7 @@ class SellerController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['getAllBrodRequests','getSendResponse','getSellerDetails','getUpdateSellerProfile','getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
+        $this->middleware('jwt.auth', ['except' => ['getSendResponse','getSellerDetails','getUpdateSellerProfile','getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
     }
     /**
      * Display a listing of the resource.
@@ -50,17 +50,14 @@ class SellerController extends Controller
      */
     
     public function getRegisterSeller(Request $request) {
-        $validator = Validator::make($request->all(), [                
-            'seller_name'       => 'required',
-            'email'             => 'required|email',
+
+        $validator = Validator::make($request->all(), [
+
+            'email'             => 'email|max:100',
             'phone_number'      => 'required|min:8',               
             'shop_name'         => 'required',
-            'shop_address'      => 'required',
             'file'              => 'mimes:jpeg,jpg,png,pdf,doc|max:1024',
             'shop_city'         => 'required',
-            'shop_start_time'   => 'required',
-            'shop_close_time'   => 'required',
-            'shop_location_map' => 'required',              
         ]);
         
         if ($validator->fails()) 
@@ -74,7 +71,6 @@ class SellerController extends Controller
             {
                 if($checkMobile->status == 1)
                 {
-                    //die("Amit");
                     $seller_mobile_verify_code = rand (1000 , 9999);
                     $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
 
@@ -96,11 +92,10 @@ class SellerController extends Controller
                         $checkMobile->email                        = trim($request->email);
                         $checkMobile->phone_number                 = trim($request->phone_number);
                         $checkMobile->is_seller_updated            = 1;
-
                         //$checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
                        
 
-                        $userProfile->seller_name         = trim($request->seller_name);
+                        $userProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
                         $userProfile->shop_name           = $request->shop_name;
                         $userProfile->shop_mobile         = $request->phone_number;
                         $userProfile->shop_address        = $request->shop_address;                    
@@ -149,25 +144,12 @@ class SellerController extends Controller
                 $regNewMobile->phone_number       = trim($request->phone_number);
                 $regNewMobile->email_verified     = "No";
                 $regNewMobile->is_seller_updated  = 1;
-                                 
-                /* for Shop Licence Image Upload */
-                /*$bserUrlImg = asset('public/asset/shopLicence/thumb/');
-                if($request->hasFile('file'))
-                {           
-                    $file = $request->file('file');
-                    $path = public_path().'/asset/shopLicence/';
-                    $thumbPath = public_path('asset/shopLicence/thumb/');
-
-                    $timestamp = time().  uniqid(); 
-                    $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                    $file->move($thumbPath,$filename);
-                }*/
 
                 if($regNewMobile->save())
                 {
-                    $insertedUser = User::where('email',trim($request->email))->first();
+                    $insertedUser = User::where('phone_number',trim($request->phone_number))->first();
                     $regNewProfile = new UserProfiles;
-                    $regNewProfile->seller_name         = trim($request->seller_name);
+                    $regNewProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
                     $regNewProfile->user_id             = $insertedUser->id;
                     $regNewProfile->shop_name           = $request->shop_name;
                     $regNewProfile->shop_mobile         = $request->shop_mobile;
@@ -176,7 +158,7 @@ class SellerController extends Controller
                     $regNewProfile->shop_start_time     = $request->shop_start_time;
                     $regNewProfile->shop_close_time     = $request->shop_close_time;
                     $regNewProfile->shop_location_map   = $request->shop_location_map;
-                    $regNewProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode : "";
+                    $regNewProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode:"";
                     # $regNewProfile->shop_document       = $filename ? $filename : "";
                     //$regNewProfile->shop_document       = "";
                     if($request->image_upload === "YES")
@@ -233,13 +215,13 @@ class SellerController extends Controller
                     /* Seller register Notification for Admin By Email */
                     $adminDetails = User::where('usertype','Super Admin')->where('role','Super Admin')->first();
                     $subject     =  'New Seller Registration Notification';
-                    $content     =  "Hello, <br/><br/>A New User Registered With Name : ".$request->seller_name.", Email : ".$request->email.", and User Id : ".$insertedUser->id;
+                    $content     =  "Hello, <br/><br/>A New User Registered With Mobile : ".$request->phone_number.", Having User Id : ".$insertedUser->id;
 
                     $mail_data = array(
                         'content'   => $content,
                         'toEmail'   => $adminDetails->email,
                         'subject'   => $subject,
-                        'fromEmail' => trim($request->email)
+                        'fromEmail' => trim('amitg@techuz.com')
                     );
 
                     $send = Mail::send('emails.mail-template', $mail_data, function($message) use ($mail_data) {
@@ -258,20 +240,14 @@ class SellerController extends Controller
     }
 
     public function getUpdateSellerProfile(Request $request) {
+
         if($request->all())
         {
             $validator = Validator::make($request->all(), [                
                 'uid'               => 'required|numeric',
-                'seller_name'       => 'required',
                 'phone_number'      => 'required:min:8',               
                 'shop_name'         => 'required',
-                'email'             => 'required|email',
-                'shop_address'      => 'required',
-                'shop_city'         => 'required|numeric',
-                'shop_start_time'   => 'required',
-                'shop_close_time'   => 'required',
-                'shop_location_map' => 'required',
-                'shop_zipcode'      => 'required|numeric',
+                'email'             => 'email',
                 'file'              => 'mimes:jpeg,jpg,png,pdf,doc|max:1024',               
             ]);
             
@@ -434,10 +410,18 @@ class SellerController extends Controller
                             $user = Auth::user();
                             $user['tokenId'] = $this->jwtAuth->fromUser($user);
                             $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                     
-                            $mapUrl ='https://www.google.com/maps?q=';
-                            $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
+                            
+                            if($user['map_location'] == "")
+                            {
+                                $user['map_location'] = "";
+                                $mapUrl = "";
+                            }else{
 
-                            $this->resultapi('1','Verified Sucessfully.', $user);
+                                $mapUrl ='https://www.google.com/maps?q=';
+                                $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
+                            }
+
+                            $this->resultapi('1','Mobile Verified Sucessfully.', $user);
                         } 
                         else
                         {
@@ -475,7 +459,7 @@ class SellerController extends Controller
             }
             else
             {
-                $this->resultapi('0','No Profile Details Found.', $myProfileDetails);
+                $this->resultapi('0','Profile Details Not Found.', $myProfileDetails);
             }
         } 
         else

@@ -46,6 +46,8 @@ use Twilio\Version;
  * @property string emergencyAddressSid
  */
 class IncomingPhoneNumberInstance extends InstanceResource {
+    protected $_assignedAddOns = null;
+
     /**
      * Initialize the IncomingPhoneNumberInstance
      * 
@@ -143,6 +145,15 @@ class IncomingPhoneNumberInstance extends InstanceResource {
      */
     public function delete() {
         return $this->proxy()->delete();
+    }
+
+    /**
+     * Access the assignedAddOns
+     * 
+     * @return \Twilio\Rest\Api\V2010\Account\IncomingPhoneNumber\AssignedAddOnList 
+     */
+    protected function getAssignedAddOns() {
+        return $this->proxy()->assignedAddOns;
     }
 
     /**

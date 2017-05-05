@@ -39,7 +39,7 @@ class UserController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
         
-        $this->middleware('jwt.auth', ['except' => ['checkTwillio','getProductConfirmedByBuyer','getViewResponse','getUpdateProfile','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser','getRemoveResponse']]);
+        $this->middleware('jwt.auth', ['except' => ['checkAuth','getProductConfirmedByBuyer','getViewResponse','getUpdateProfile','getMyProfileDetails','getAppInitData','getChangePassword','getVerifyMobile','getRegisterMobile','getRegisterMobileTest','getSendCodeAgain','getBuyerRegisterInit','getUserLogin','getViewRequestByUser','getRemoveResponse']]);
     }
     /**
      * Display a listing of the resource.
@@ -48,38 +48,20 @@ class UserController extends Controller
      */
     
     public function checkTwillio(Request $request)
-    {
-          
+    {     
         $smsSend = 0;
         $sid    = 'AC4ab5b2e4a9da816dc45e5af158dc770d';
         $token  = 'c2bed0cfbdee0f4dad5db438219b995e';
         $client = new Client($sid, $token);
 
         $number = $client->lookups
-        ->phoneNumbers('+91'.$request->mobile)
+        ->phoneNumbers("+918306062028")
         ->fetch(
             array("type" => "carrier")
         );
-       // echo $number->carrier["status"]
-       if($number)
-       {
-        echo "Yes";
-       }
-       else
-       {
-        echo "No";
-       }
-        print_r($number);
-        die;
-        
-        if($client->messages->create('+91'.$request->mobile,array('from' => '+18588159100','body' => 'Testing'))){
-   
-            $smsSend = 1;
-        }
-        else
-        {
-            $smsSend = 0;
-        }
+
+        $client->messages->create('+91'.$request->phone_number,array('from' => '+18588159100','body' => 'Testing'));
+        //print_r($a);
 
         return $smsSend;        
     
@@ -95,7 +77,7 @@ class UserController extends Controller
 
             if ($validator->fails()) 
             {
-                 $this->resultapi('0', $validator->errors()->all(), 0);
+                $this->resultapi('0', $validator->errors()->all(), 0);
             }
             else
             {
@@ -103,7 +85,7 @@ class UserController extends Controller
                 $tokenId = $this->jwtAuth->fromUser($user);
                 $this->resultapi('1','Authantaced Sucessfully', $tokenId);
             }
-        } 
+        }
         else
         {
             $tokenId = "";
@@ -122,7 +104,7 @@ class UserController extends Controller
             'brodcastImgPath'      => asset('/public/asset/brodcastImg/'),
             'brodcastImgPathThumb' => asset('/public/asset/brodcastImg/thumb/'),
             'shopImgPath'          => asset('/public/asset/shopLicence/'),
-            'shopImgPathThumb'     => asset('/public/asset/shopLicence/thumb'),
+            'shopImgPathThumb'     => asset('/public/asset/shopLicence/thumb/'),
         );
 
         $this->resultapi('0','App Init Data.', $appInitData);
@@ -197,21 +179,22 @@ class UserController extends Controller
                             {
                                 $checkMobileExist->phone_number                = $request->phone_number;
                                 $checkMobileExist->seller_mobile_verify_code   = $mobile_verify_code;
-                                //$checkMobileExist->mobile_verified      = "No";
+                                //$checkMobileExist->is_customer_updated         = 1;
                                 //$checkMobileExist->status               = 1;
                                 $checkMobileExist->save();
 
-                                $this->resultapi('1','4 Digit Mobile Verification Code Send.', $mobile_verify_code);
+                                $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
                             }
                             else if($checkMobileExist->seller_mobile_verified == 'No')
                             {
                                 $checkMobileExist->phone_number                = $request->phone_number;
                                 $checkMobileExist->seller_mobile_verify_code   = $mobile_verify_code;
+                                //$checkMobileExist->is_customer_updated         = 1;
                                 //$checkMobileExist->mobile_verified      = "No";
                                 //$checkMobileExist->status               = 1;
                                 $checkMobileExist->save();
 
-                                $this->resultapi('1','4 Digit Mobile Verification Code Send.', $mobile_verify_code);
+                                $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
                            
                             }
                             else
@@ -228,8 +211,7 @@ class UserController extends Controller
                             else
                             {
                                 $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false); 
-                            } 
-                           
+                            }
                        }
                     }
                     else
@@ -237,10 +219,11 @@ class UserController extends Controller
                         $checkMobileExist->phone_number         = $request->phone_number;
                         $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
                         $checkMobileExist->mobile_verified      = "No";
+                        $checkMobileExist->is_customer_updated  = 1;
                         //$checkMobileExist->status               = 1;
                         $checkMobileExist->save();
                         
-                        $this->resultapi('1','4 Digit Mobile Verification Code Send.', $mobile_verify_code);
+                        $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
                     }
                 }
                 else
@@ -249,6 +232,7 @@ class UserController extends Controller
                     $regNewMobile->name                 = "Feeh User";
                     $regNewMobile->phone_number         = $request->phone_number;
                     $regNewMobile->mobile_verify_code   = $mobile_verify_code;
+                    //$regNewMobile->is_customer_updated  = 1;
                     //$regNewMobile->status               = 1;
                     $regNewMobile->mobile_verified      = "No";
 
@@ -262,7 +246,7 @@ class UserController extends Controller
                             $regNewProfile->user_id = $userDetails->id;
                             $regNewProfile->save();
 
-                            $this->resultapi('1','4 Digit Mobile Verification Code Send.', $userDetails->mobile_verify_code);
+                            $this->resultapi('1','Mobile Verification Code Send.', $userDetails->mobile_verify_code);
                         }
                         else
                         {
@@ -419,7 +403,7 @@ class UserController extends Controller
                 }
                 else
                 {
-                    $this->resultapi('0','Customer Related to This Mobile Number Not.', false);
+                    $this->resultapi('0','Customer Related to This Mobile Number Not Found.', false);
                 }
             }
         }
@@ -536,7 +520,7 @@ class UserController extends Controller
             
             if($resUpdated == 1)
             {
-                $this->resultapi('1','Removed Sucessfully.', true);
+                $this->resultapi('1','Request Removed Sucessfully.', true);
             }
             else
             {
@@ -591,7 +575,7 @@ class UserController extends Controller
         }
         else
         {
-            $this->resultapi('0','Buyer Response Id Not Found.', false);
+            $this->resultapi('0','Response Id Not Found.', false);
         }        
     }
 

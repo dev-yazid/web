@@ -1,11 +1,10 @@
 @extends('layouts.admin')
 @section('content') 
 <div class="panel-body viewPage">
+    <?php if($user->is_customer_updated ==1) {?>
     <div class="form-group"> 
         <h4 class="col-lg-12 control-label">Customer Details</h4>
     </div>
-
-    <?php // echo "<pre>"; print_r($user);?>
 
     <div class="clear"></div>
     <div class="form-group">
@@ -19,7 +18,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Customer Name</label>
         <div class="col-lg-9">
-            <p><?php echo $user->fullname ?></p>
+            <p><?php echo $user->fullname ? $user->fullname : "Not Available"; ?></p>
         </div>
     </div>
 
@@ -83,7 +82,9 @@
             <p><?php echo $user->mobile_verified == 1 ? "Yes" : "No" ?></p>
         </div>
     </div>
+    <?php } ?>
 
+    <?php if($user->is_seller_updated == 1) { ?>
     <div class="form-group"> 
         <h4 class="col-lg-12 control-label">Seller Details</h4>
     </div>
@@ -115,7 +116,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop Name</label>
         <div class="col-lg-9">
-            <p><?php echo $user->shop_name; ?></p>
+            <p><?php echo $user->shop_name ? $user->shop_name : "Not Available" ?></p>
         </div>
     </div>
 
@@ -123,7 +124,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop Address</label>
         <div class="col-lg-9">
-            <p><?php echo $user->shop_address; ?></p>
+            <p><?php echo $user->shop_address ? $user->shop_address : "Not Available"; ?></p>
         </div>
     </div>
 
@@ -131,7 +132,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop City</label>
         <div class="col-lg-9">
-            <p><?php echo $user->shop_city_name; ?></p>
+            <p><?php echo $user->shop_city_name ? $user->shop_city_name : "Not Available"; ?></p>
         </div>
     </div>
     <div class="clear"></div>
@@ -154,7 +155,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop Start Time</label>
         <div class="col-lg-9">
-            <p><?php echo $user->shop_start_time; ?></p>
+            <p><?php echo $user->shop_start_time ? $user->shop_start_time : "Not Available"; ?></p>
         </div>
     </div>
 
@@ -162,7 +163,7 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop Close Time</label>
         <div class="col-lg-9">
-            <p><?php echo $user->shop_close_time; ?></p>
+            <p><?php echo $user->shop_close_time ? $user->shop_close_time : "Not Available"; ?></p>
         </div>
     </div>
 
@@ -170,12 +171,36 @@
     <div class="form-group">
         <label class="col-lg-3 control-label">Shop Location</label>
         <div class="col-lg-9">
-            <p><a href="https://www.google.com/maps?q={{trim($user->shop_location_map)}}" target="_blank">
+            <p>
+                <?php if($user->shop_location_map) {?>
+                <a href="https://www.google.com/maps?q={{trim($user->shop_location_map)}}" target="_blank">
                 <?php echo 'View Location'; ?></a>
+                <?php } else { ?>
+                Not Available
+                <?php } ?>
             </p>
         </div>
     </div>
     <?php //echo $user->status; ?>
+    
+
+    <div class="clear"></div>
+    <div class="form-group">
+        <label class="col-lg-3 control-label">Shop Licence</label>
+        <div class="col-lg-9">
+            <p>
+                <?php if($user->shop_document) { ?>
+                <a href="{{ asset('public/asset/shopLicence/thumb/'.$user->shop_document) }}" target="_blank">
+                    <?php //echo $user->shop_document; 
+                    echo 'View Licence'; ?>
+                </a>
+                <?php } else { ?>
+                  Not Available
+                <?php } ?>
+            </p>
+        </div>
+    </div>
+
     <div class="clear"></div>
     <div class="form-group">
         <label class="col-lg-3 control-label">Seller Status</label>
@@ -185,30 +210,17 @@
     </div> 
 
     <div class="clear"></div>
-    <div class="form-group">
-        <label class="col-lg-3 control-label">Shop Licence</label>
-        <div class="col-lg-9">
-            <p>
-                <a href="{{ asset('public/asset/shopLicence/thumb/'.$user->shop_document) }}" target="_blank">
-                    <?php //echo $user->shop_document; 
-                    echo 'View Licence'; ?>
-                </a>
-            </p>
-        </div>
-    </div>
-
-    <div class="clear"></div>
-    <?php if($user->is_seller_updated == 1) { ?>
+    
     
     <div class="form-group">
         <label class="col-lg-3 control-label">User Status</label>
         <div class="col-lg-9">
             <div class="col-lg-3">       
-                {{ Form::open(array('url' => 'admin/user/statusChange','class'=>"form-horizontal")) }}
-                <div class="form-group">
-                    {!! Form::select('status', array('1' => 'Active', '0' => 'InActive'),"$user->status", array('class' => 'form-control')) !!}
-                </div> 
-                <?php echo Form::hidden('id', $user->userId); ?>     
+            {{ Form::open(array('url' => 'admin/user/statusChange','class'=>"form-horizontal")) }}
+            <div class="form-group">
+                {!! Form::select('status', array('1' => 'Active', '0' => 'InActive'),"$user->status", array('class' => 'form-control')) !!}
+            </div> 
+            <?php echo Form::hidden('id', $user->userId); ?>     
             </div>
             <div class="clear"></div>
             {!! Form::submit('Save',array('class'=>'btn btn-primary')); !!}

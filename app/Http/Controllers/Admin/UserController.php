@@ -82,17 +82,10 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             
             //'name'              => 'required|max:100',            
-            'email'             => 'required|max:100|unique:users',            
-            'status'            => 'required',
-            'seller_name'       => 'required',
-            'phone_number'       => 'required|min:8|max:12|unique:users',
+            'email'             => 'email|max:100',            
+            'phone_number'      => 'required|min:8|max:12|unique:users',
             'shop_name'         => 'required|max:100',
-            'shop_address'      => 'required|max:100',
             'shop_city'         => 'required|max:100',
-            'shop_start_time'   => 'required',
-            'shop_close_time'   => 'required',
-            'map_url'           => 'required',
-            
         ]);
         
         if ($validator->fails()) {
@@ -112,7 +105,7 @@ class UserController extends Controller
         $user->is_seller_updated            = 1;
         //$user->name                         = $request->seller_name;
         $user->email                        = $request->email;
-        $user->email_verified               = 'Yes';
+        $user->email_verified               = 'No';
         $user->seller_mobile_verified       = 'No';
         $user->seller_mobile_verify_code    = $seller_mobile_verify_code;
         $user->save();
@@ -121,15 +114,15 @@ class UserController extends Controller
         $lastUserinsertedId = $user->id;
         $userProfile = new UserProfiles;
         $userProfile->user_id           = $lastUserinsertedId;
-        $userProfile->seller_name       = $request->seller_name;
+        $userProfile->seller_name       = $request->seller_name ? $request->seller_name : "Feeh User";
         $userProfile->shop_name         = $request->shop_name;
         //$userProfile->shop_email        = $request->email;
         $userProfile->shop_mobile       = $request->phone_number;
         $userProfile->shop_address      = $request->shop_address;           
         $userProfile->shop_city         = $request->shop_city;
-        $userProfile->shop_zipcode      = $request->shop_zipcode ? $request->shop_zipcode : "";
-        $userProfile->shop_start_time   = $request->shop_start_time ? $request->shop_start_time : "";
-        $userProfile->shop_close_time   = $request->shop_close_time ? $request->shop_close_time : "";
+        $userProfile->shop_zipcode      = $request->shop_zipcode;
+        $userProfile->shop_start_time   = $request->shop_start_time;
+        $userProfile->shop_close_time   = $request->shop_close_time;
         $userProfile->shop_location_map = $request->map_url;
 
         $bserUrlImg = asset('/public/asset/shopLicence/thumb/');

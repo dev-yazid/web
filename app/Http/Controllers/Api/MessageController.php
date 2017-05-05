@@ -42,7 +42,7 @@ class MessageController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['notificationAdmin']]);
+        $this->middleware('jwt.auth', ['except' => ['vcodeExpires','notificationAdmin']]);
     }
     /**
      * Display a listing of the resource.
@@ -232,7 +232,36 @@ class MessageController extends Controller
 
     public function vcodeExpires(Request $request) {
 
-        die('vcodeExpires not compleated yet.');
+        $users = User::all();
+        if(count($users) > 0)
+        {
+            foreach ($users as $key => $value)
+            {   
+                $date1Timestamp = strtotime($value->updated_at);
+                $date2Timestamp = strtotime(date('Y-m-d'));
+
+                $difference = $date2Timestamp - $date1Timestamp;
+                $days = floor($difference / (60*60*24) );
+
+                if($days > 1)
+                {
+                    $userDetails = User::find($value->id);
+                    $userDetails->mobile_verify_code = 0;
+                    $userDetails->save();
+              
+                    $this->resultapi('1','Code Expired Sucessfully.', true);
+                }
+                else
+                {
+                    $this->resultapi('0','Not Expired.', false);
+                }
+            }
+        }
+        else
+        {
+            $this->resultapi('0','No Users Found.', false);
+        }
+
     }   
     
     public function resultapi($status,$message,$result = array()) {
