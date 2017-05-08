@@ -92,11 +92,8 @@ class BrodResponse extends Model
 
     public static function productConfirmedByBuyer($res_id)
     {
-
         $resUpdated = 0;
     	
-        $prodConfirmation = BrodResponse::find($res_id);
-
         if(count($prodConfirmation) > 0)
         {	
         	if($prodConfirmation->is_prod_confirm_by_buyer == 0)
@@ -137,6 +134,10 @@ class BrodResponse extends Model
             {
                 $resUpdated = 2;
             }
+        }
+        else
+        {
+            $resUpdated = 0;
         }
 
         return $resUpdated;
