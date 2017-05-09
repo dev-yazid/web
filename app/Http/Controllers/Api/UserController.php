@@ -73,18 +73,52 @@ class UserController extends Controller
      if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => "123456")))
      {
         $validator = Validator::make($request->all(), [
-            'phone_number'  => 'required|min:8|numeric',
-            ]);
+            'phone_number'      => 'required|min:8|numeric',
+            'usertype'          => 'required|numeric',
+            'verification_code' => 'required|numeric'
+        ]);
 
         if ($validator->fails()) 
         {
             $this->resultapi('0', $validator->errors()->all(), 0);
         }
         else
-        {
-            $user = Auth::user();
-            $tokenId = $this->jwtAuth->fromUser($user);
-            $this->resultapi('1','Authantaced Sucessfully', $tokenId);
+        { 
+            /* 1 is for buyer and 2 is for seller */
+            if($request->usertype == 1)
+            {
+                if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => "123456",'mobile_verified' => 'Yes','mobile_verify_code' => $request->verification_code)))
+                {
+                    $user        = Auth::user();
+                    $tokenId     = $this->jwtAuth->fromUser($user);
+                    
+                    $this->resultapi('1','Buyer Authantaced Sucessfully.', $tokenId);
+                } 
+                else
+                {
+                    $user = array();
+                    $this->resultapi('0','Some Problem With Mobile Verification.', $user);
+                }
+            }
+            else if($request->usertype == 2)
+            {
+                if(Auth::attempt(array( 'phone_number' => $request->phone_number,'password' => "123456",'seller_mobile_verified' => 'Yes','seller_mobile_verify_code' => $request->verification_code)))
+                {
+                    $user        = Auth::user();
+                    $tokenId     = $this->jwtAuth->fromUser($user);
+                    $this->resultapi('1','Seller Authantaced Sucessfully.', $tokenId);
+                } 
+                else
+                {
+                    $user = array();
+                    $this->resultapi('0','Some Problem With Verification.', $user);
+                }
+            }
+            else
+            {
+                $user = array();
+                $this->resultapi('0','Some Problem With Authantication.', $user); 
+            }
         }
     }
     else

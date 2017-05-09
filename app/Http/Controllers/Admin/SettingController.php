@@ -102,7 +102,6 @@ class SettingController extends Controller
     public function edit($id)
     {
         $setting = Setting::find($id);
-        $setting->status = $id;
         if(empty($setting)) {
             Session::flash('error_msg', 'Page not found.');
             return redirect('/admin/user');
