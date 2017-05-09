@@ -137,8 +137,14 @@ class SellerController extends Controller
                 }
                 else
                 {
+                    /*$seller_mobile_verify_code = rand (1000 , 9999);
+                    $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
+                   
+                    $checkMobile->is_seller_updated            = 1;
+                    $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
+                    $checkMobile->save();*/
 
-                    $this->resultapi('2','You Have Wait for Admin Approval.',false);
+                    $this->resultapi('2','You Have To Wait for Admin Approval.',$seller_mobile_verify_code);
                 }
             }
             else
@@ -402,8 +408,7 @@ class SellerController extends Controller
             }
             else
             {
-                $mobileVerification = User::where('phone_number',$request->phone_number)->where('seller_mobile_verify_code',$request->verification_code)->first();               
-
+                $mobileVerification = User::where('phone_number',$request->phone_number)->where('seller_mobile_verify_code',$request->verification_code)->first();
                 if(count($mobileVerification) > 0 )
                 {
                     $mobileVerification->seller_mobile_verified = "Yes";
@@ -433,7 +438,7 @@ class SellerController extends Controller
                         else
                         {
                             $user = array();
-                            $this->resultapi('0','Invalid Verification Details.', $user);
+                            $this->resultapi('0','Wrong Mobile Number Or Verification Code.', $user);
                         }
                     }
                     else
@@ -444,7 +449,7 @@ class SellerController extends Controller
                 else
                 {
                     $user = array();
-                    $this->resultapi('0','Mobile Number Not Exist.', false);
+                    $this->resultapi('0','Wrong Mobile Number Or Verification Code.', false);
                 }
             }
         }
