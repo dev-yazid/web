@@ -62,7 +62,7 @@ class SettingController extends Controller
             'content'       => 'required',
             'postedby'      => 'required|max:100',
             'status'        => 'required',
-            ]);
+        ]);
 
         if ($validator->fails()) {
             return redirect('/admin/transaction/create')

@@ -70,6 +70,7 @@ class SellerController extends Controller
             $checkMobile = User::where('phone_number',$request->phone_number)->first();
             if( count($checkMobile) > 0)
             {
+                /*$checkMobile = User::where('phone_number',$request->phone_number)->first();
                 if($checkMobile->status == 1)
                 {
                     $seller_mobile_verify_code = rand (1000 , 9999);
@@ -129,7 +130,8 @@ class SellerController extends Controller
                 else
                 {
                     $this->resultapi('0','Some Problem In Verification.',false);           
-                }
+                }*/
+                $this->resultapi('0','Mobile Number Already Exist.',false);  
             }
             else
             {
