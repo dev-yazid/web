@@ -4,7 +4,7 @@
             <i class="fa fa-bars"></i>
         </a>
         <a href="javascript:void(0);" class="navbar-brand" data-toggle="fullscreen">
-            {{ HTML::image('/public/app/build/images/logo.png', 'JobBookers', array('class' => 'm-r-sm')) }}
+            {{ HTML::image('/public/app/build/images/logo.png', 'Feeh', array('class' => 'm-r-sm')) }}
         </a>
        <!--  <a class="btn btn-link visible-xs" data-toggle="dropdown" data-target=".nav-user">
             <i class="fa fa-cog"></i>

@@ -25,7 +25,8 @@ use Mail;
 use Form;
 use File;
 use Image;
-use Session; 
+use Session;
+use App\Setting;
 
 class SellerController extends Controller
 {
@@ -73,10 +74,7 @@ class SellerController extends Controller
                 {
                     $seller_mobile_verify_code = rand (1000 , 9999);
                     $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
-
-                    //$checkMobile->email                      = trim($request->email);
-                    //$checkMobile->name                       = trim($request->seller_name);
-                    //$checkMobile->phone_number               = trim($request->phone_number);
+                   
                     $checkMobile->is_seller_updated            = 1;
                     $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
                     $checkMobile->save();
@@ -89,12 +87,9 @@ class SellerController extends Controller
                     $userProfile = UserProfiles::where('user_id',$checkMobile->id)->first();
                     if(count($userProfile) > 0)
                     {
-                        $checkMobile->email                        = trim($request->email);
-                        $checkMobile->phone_number                 = trim($request->phone_number);
-                        $checkMobile->is_seller_updated            = 1;
-                        //$checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
-                       
-
+                        $checkMobile->email               = trim($request->email);
+                        $checkMobile->phone_number        = trim($request->phone_number);
+                        $checkMobile->is_seller_updated   = 1;                        
                         $userProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
                         $userProfile->shop_name           = $request->shop_name;
                         $userProfile->shop_mobile         = $request->phone_number;
@@ -118,7 +113,7 @@ class SellerController extends Controller
                                 File::makeDirectory(public_path().'asset/', 0777, true, true);
                                 $file->move($thumbPath,$filename);
 
-                                $userProfile->shop_document       = $filename ;
+                                $userProfile->shop_document  = $filename ;
                             }
                         }
                         $checkMobile->save();
@@ -128,7 +123,7 @@ class SellerController extends Controller
                     }
                     else
                     {
-                         $this->resultapi('0','Some Problem In Registration.',false); 
+                         $this->resultapi('0','Mobile Number Already Exist.',false); 
                     }
                 }
                 else
@@ -139,11 +134,22 @@ class SellerController extends Controller
             else
             {
                 $filename = "";
+               
                 $regNewMobile = new User;                
                 $regNewMobile->email              = trim($request->email);
                 $regNewMobile->phone_number       = trim($request->phone_number);
                 $regNewMobile->email_verified     = "No";
                 $regNewMobile->is_seller_updated  = 1;
+
+                $sellerActivationStatus = Setting::find(1);
+                if(count($sellerActivationStatus) > 0)
+                {
+                    $regNewMobile->status         = $sellerActivationStatus->status;
+                }
+                else
+                {
+                    $regNewMobile->status         = 0;
+                }
 
                 if($regNewMobile->save())
                 {
@@ -159,8 +165,7 @@ class SellerController extends Controller
                     $regNewProfile->shop_close_time     = $request->shop_close_time;
                     $regNewProfile->shop_location_map   = $request->shop_location_map;
                     $regNewProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode:"";
-                    # $regNewProfile->shop_document       = $filename ? $filename : "";
-                    //$regNewProfile->shop_document       = "";
+
                     if($request->image_upload === "YES")
                     {           
                         $file = $request->file('file');
@@ -196,14 +201,6 @@ class SellerController extends Controller
                         }
                         else if($checkMobile->status == 0)
                         {
-                            /*if($checkMobile->is_seller_updated == 1)
-                            {
-                                $this->resultapi('2','You Have to Wait Until Admin Will Approve.',false);
-                            }
-                            else
-                            {
-                                $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false); 
-                            } */
                             $this->resultapi('2','Profile Registered Sucessfully, You Have Wait for Admin Approval.',false);
                         }
                         else
@@ -400,7 +397,6 @@ class SellerController extends Controller
                 if(count($mobileVerification) > 0 )
                 {
                     $mobileVerification->seller_mobile_verified = "Yes";
-                    //$mobileVerification->seller_mobile_verify_code = "";
                     $mobileVerification->save();
                    
                     if($mobileVerification->status == 1)
@@ -415,8 +411,9 @@ class SellerController extends Controller
                             {
                                 $user['map_location'] = "";
                                 $mapUrl = "";
-                            }else{
-
+                            }
+                            else
+                            {
                                 $mapUrl ='https://www.google.com/maps?q=';
                                 $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
                             }

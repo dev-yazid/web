@@ -71,7 +71,10 @@ Route::group(array('prefix' => 'admin', 'middlewareGroups' => 'web', 'before' =>
     Route::resource('city', 'Admin\CityController');
     
     Route::get('/banner/getData', 'Admin\BannerController@getData');
-    Route::resource('banner','Admin\BannerController'); 
+    Route::resource('banner','Admin\BannerController');
+
+    Route::get('/setting/getData', 'Admin\SettingController@getData');
+    Route::resource('setting','Admin\SettingController'); 
  
 });
 

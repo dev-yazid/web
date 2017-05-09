@@ -82,7 +82,7 @@
                                 <header class="panel-heading">
                                     <strong><?php echo $title_for_layout;?></strong>
 
-                                    <?php if($controller_name != "dashboard" && $controller_name !='request' && $controller_name !='create' && $controller_name !='transaction' && $controller_name !='response') { ?>
+                                    <?php if($controller_name != "dashboard" && $controller_name !='request' && $controller_name !='create' && $controller_name !='setting' && $controller_name !='transaction' && $controller_name !='response') { ?>
                                             <a class="btn btn-xs btn-dark pull-right" href="{{ url('/admin/'.$controller_name.'/create') }}">
                                                 <i class="fa fa-plus"></i><?php echo $controller_name ?>
                                             </a>
