@@ -144,7 +144,7 @@ class SellerController extends Controller
                     $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
                     $checkMobile->save();*/
 
-                    $this->resultapi('2','You Have To Wait for Admin Approval.',$seller_mobile_verify_code);
+                    $this->resultapi('2','You Have To Wait for Admin Approval.',false);
                 }
             }
             else
@@ -421,8 +421,8 @@ class SellerController extends Controller
                             $user = Auth::user();
                             $user['tokenId'] = $this->jwtAuth->fromUser($user);
                             $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                     
-                            
-                            if($user['map_location'] == "")
+              
+                            if($user['profDetails'][0]['shop_location_map'] == "")
                             {
                                 $user['map_location'] = "";
                                 $mapUrl = "";
@@ -449,7 +449,7 @@ class SellerController extends Controller
                 else
                 {
                     $user = array();
-                    $this->resultapi('0','Wrong Mobile Number Or Verification Code.', false); 
+                    $this->resultapi('0','Wrong Mobile Number Or Verification Code.', false);
                 }
             }
         }
