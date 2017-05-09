@@ -449,7 +449,7 @@ class SellerController extends Controller
                 else
                 {
                     $user = array();
-                    $this->resultapi('0','Wrong Mobile Number Or Verification Code.', false);
+                    $this->resultapi('0','Wrong Mobile Number Or Verification Code.', false); 
                 }
             }
         }
