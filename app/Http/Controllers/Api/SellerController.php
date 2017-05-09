@@ -131,7 +131,15 @@ class SellerController extends Controller
                 {
                     $this->resultapi('0','Some Problem In Verification.',false);           
                 }*/
-                $this->resultapi('0','Mobile Number Already Exist.',false);  
+                if($checkMobile->status == 1)
+                {
+                    $this->resultapi('0','Mobile Number Already Exist.',false);
+                }
+                else
+                {
+
+                    $this->resultapi('2','You Have Wait for Admin Approval.',false);
+                }
             }
             else
             {
