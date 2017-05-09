@@ -54,7 +54,7 @@ class BrodRequest extends Model
 	{	
 		$allBrodRequest = DB::table('brod_requests')
 		->leftJoin('brands', 'brod_requests.brand_id', '=', 'brands.id')
-		->leftJoin('products', 'brod_requests.brand_id', '=', 'products.id')
+		->leftJoin('products', 'brod_requests.prod_id', '=', 'products.id')
 		->leftJoin('users', 'brod_requests.user_id', '=', 'users.id')
 		->leftJoin('user_profiles', 'brod_requests.user_id', '=', 'user_profiles.user_id')
 		->leftJoin('cities', 'user_profiles.customer_city', '=', 'cities.id')		

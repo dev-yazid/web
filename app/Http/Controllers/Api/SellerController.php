@@ -42,7 +42,7 @@ class SellerController extends Controller
         $this->req = $request;
         $this->res = $responseFactory;
 
-        $this->middleware('jwt.auth', ['except' => ['getSendResponse','getSellerDetails','getUpdateSellerProfile','getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
+        $this->middleware('jwt.auth', ['except' => ['getAllBrodRequests','getSendResponse','getSellerDetails','getUpdateSellerProfile','getSellerApprovedByAdmin','getSellerLogin','getMobileVerify','getSendMobileVerifyCodeAgain','getRegisterSeller']]);
     }
     /**
      * Display a listing of the resource.
