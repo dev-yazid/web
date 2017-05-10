@@ -137,14 +137,64 @@ class SellerController extends Controller
                 }
                 else
                 {
-                    /*$seller_mobile_verify_code = rand (1000 , 9999);
-                    $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
-                   
-                    $checkMobile->is_seller_updated            = 1;
+                $seller_mobile_verify_code = rand (1000 , 9999);
+                $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
+               
+                $userProfile = UserProfiles::where('user_id',$checkMobile->id)->first();
+                if(count($userProfile) > 0 )
+                { 
+                    $checkMobile->email               = trim($request->email);
+                    $checkMobile->phone_number        = trim($request->phone_number);
+                    $checkMobile->is_seller_updated   = 1;
                     $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
-                    $checkMobile->save();*/
 
-                    $this->resultapi('2','You Have To Wait for Admin Approval.',false);
+                    $sellerActivationStatus = Setting::find(1);
+                    if(count($sellerActivationStatus) > 0)
+                    {
+                        $checkMobile->status           = $sellerActivationStatus->status;
+                    }
+                    else
+                    {
+                        $checkMobile->status           = 0;
+                    }
+
+                    $userProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
+                    $userProfile->shop_name           = $request->shop_name;
+                    $userProfile->shop_mobile         = $request->phone_number;
+                    $userProfile->shop_address        = $request->shop_address;                    
+                    $userProfile->shop_city           = $request->shop_city;
+                    $userProfile->shop_start_time     = $request->shop_start_time;
+                    $userProfile->shop_close_time     = $request->shop_close_time;
+                    $userProfile->shop_location_map   = $request->shop_location_map;
+                    $userProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode : "";
+                    
+                    if($request->image_upload === "YES")
+                    {           
+                        if($request->hasFile('file'))
+                        {
+                            $file = $request->file('file');
+                            $path = public_path().'/asset/shopLicence/';
+                            $thumbPath = public_path('/asset/shopLicence/thumb/');
+
+                            $timestamp = time().  uniqid(); 
+                            $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                            File::makeDirectory(public_path().'asset/', 0777, true, true);
+                            $file->move($thumbPath,$filename);
+
+                            $userProfile->shop_document  = $filename ;
+                        }
+                    }
+
+                    $userProfile->save();
+                    $checkMobile->save();
+                    if($sellerActivationStatus == 1 )
+                    {
+                        $this->resultapi('1','Seller Registered Sucessfully.',$seller_mobile_verify_code);
+                    }
+                    else
+                    {
+                        $this->resultapi('2','You Have To Wait for Admin Approval.',false);
+                    }
                 }
             }
             else
