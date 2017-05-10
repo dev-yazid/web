@@ -207,41 +207,49 @@ public function getRegisterMobile(Request $request) {
                 {
                     if($request->customer_type == 2)
                     {
-                        if($checkMobileExist->status == 1)
+                        if($checkMobileExist->is_seller_updated == 1)
                         {
-                            $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
-
-                            if($checkMobileExist->seller_mobile_verified == 'Yes')
+                            if($checkMobileExist->status == 1)
                             {
-                                $checkMobileExist->phone_number                = $request->phone_number;
-                                $checkMobileExist->seller_mobile_verify_code   = $mobile_verify_code;
-                                $checkMobileExist->save();
+                                $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
 
-                                $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
-                            }
-                            else if($checkMobileExist->seller_mobile_verified == 'No')
-                            {
-                                $checkMobileExist->phone_number                = $request->phone_number;
-                                $checkMobileExist->seller_mobile_verify_code   = $mobile_verify_code;
-                                $checkMobileExist->save();
+                                if($checkMobileExist->seller_mobile_verified == 'Yes')
+                                {
+                                    $checkMobileExist->phone_number                = $request->phone_number;
+                                    $checkMobileExist->seller_mobile_verify_code   = $mobile_verify_code;
+                                    $checkMobileExist->save();
 
-                                $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
+                                    $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
+                                }
+                                else if($checkMobileExist->seller_mobile_verified == 'No')
+                                {
+                                    $checkMobileExist->phone_number                = $request->phone_number;
+                                    $checkMobileExist->seller_mobile_verify_code   = $mobile_verify_code;
+                                    $checkMobileExist->save();
+
+                                    $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
+                                }
+                                else
+                                {
+                                    $this->resultapi('0','Problem In User Verification.', $mobile_verify_code);
+                                }
                             }
                             else
                             {
-                                $this->resultapi('0','Problem In User Verification.', $mobile_verify_code);
+                                /*if($checkMobileExist->is_seller_updated == 1)
+                                {
+                                   $this->resultapi('2','You Have To Wait Until Admin Will Approve.', $mobile_verify_code);
+                                }
+                                else
+                                {
+                                    $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false);
+                                }*/
+                                $this->resultapi('2','You Have To Wait Until Admin Will Approve.', $mobile_verify_code);
                             }
                         }
                         else
                         {
-                            if($checkMobileExist->is_seller_updated == 1)
-                            {
-                               $this->resultapi('2','You Have To Wait Until Admin Will Approve.', $mobile_verify_code);
-                            }
-                            else
-                            {
-                                $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false);
-                            }
+                            $this->resultapi('0','This Mobile Number Not Registered as a Seller.',false);
                         }
                     }
                     else
