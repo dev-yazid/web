@@ -69,82 +69,80 @@ class SellerController extends Controller
         {   
             $checkMobile = User::where('phone_number',$request->phone_number)->first();
             if( count($checkMobile) > 0)
-            {
-                /*$checkMobile = User::where('phone_number',$request->phone_number)->first();
-                if($checkMobile->status == 1)
+            { 
+                if($checkMobile->is_seller_updated == 0)
                 {
-                    $seller_mobile_verify_code = rand (1000 , 9999);
-                    $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
-                   
-                    $checkMobile->is_seller_updated            = 1;
-                    $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
-                    $checkMobile->save();
-
-                    $this->resultapi('1','Verification Code Send To Your Mobile Number.',$seller_mobile_verify_code); 
-       
-                }
-                else if($checkMobile->status == 0)
-                {
-                    $userProfile = UserProfiles::where('user_id',$checkMobile->id)->first();
-                    if(count($userProfile) > 0)
+                    if($checkMobile->status == 0)
                     {
-                        $checkMobile->email               = trim($request->email);
-                        $checkMobile->phone_number        = trim($request->phone_number);
-                        $checkMobile->is_seller_updated   = 1;                        
-                        $userProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
-                        $userProfile->shop_name           = $request->shop_name;
-                        $userProfile->shop_mobile         = $request->phone_number;
-                        $userProfile->shop_address        = $request->shop_address;                    
-                        $userProfile->shop_city           = $request->shop_city;
-                        $userProfile->shop_start_time     = $request->shop_start_time;
-                        $userProfile->shop_close_time     = $request->shop_close_time;
-                        $userProfile->shop_location_map   = $request->shop_location_map;
-                        $userProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode : "";
-                        
-                        if($request->image_upload === "YES")
-                        {           
-                            if($request->hasFile('file'))
+                        $seller_mobile_verify_code = rand (1000 , 9999);
+                        $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
+                       
+                        $userProfile = UserProfiles::where('user_id',$checkMobile->id)->first();
+                        if(count($userProfile) > 0 )
+                        { 
+                            $checkMobile->email               = trim($request->email);
+                            $checkMobile->phone_number        = trim($request->phone_number);
+                            $checkMobile->is_seller_updated   = 1;
+                            $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
+
+                            $sellerActivationStatus = Setting::find(1);
+                            if(count($sellerActivationStatus) > 0)
                             {
-                                $file = $request->file('file');
-                                $path = public_path().'/asset/shopLicence/';
-                                $thumbPath = public_path('/asset/shopLicence/thumb/');
-
-                                $timestamp = time().  uniqid(); 
-                                $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                                File::makeDirectory(public_path().'asset/', 0777, true, true);
-                                $file->move($thumbPath,$filename);
-
-                                $userProfile->shop_document  = $filename ;
+                                $checkMobile->status           = $sellerActivationStatus->status;
                             }
-                        }
-                        $checkMobile->save();
-                        $userProfile->save();
+                            else
+                            {
+                                $checkMobile->status           = 0;
+                            }
 
-                        $this->resultapi('2','Profile Registered Sucessfully, You Have Wait for Admin Approval.',false);
+                            $userProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
+                            $userProfile->shop_name           = $request->shop_name;
+                            $userProfile->shop_mobile         = $request->phone_number;
+                            $userProfile->shop_address        = $request->shop_address;                    
+                            $userProfile->shop_city           = $request->shop_city;
+                            $userProfile->shop_start_time     = $request->shop_start_time;
+                            $userProfile->shop_close_time     = $request->shop_close_time;
+                            $userProfile->shop_location_map   = $request->shop_location_map;
+                            $userProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode : "";
+                            
+                            if($request->image_upload === "YES")
+                            {           
+                                if($request->hasFile('file'))
+                                {
+                                    $file = $request->file('file');
+                                    $path = public_path().'/asset/shopLicence/';
+                                    $thumbPath = public_path('/asset/shopLicence/thumb/');
+
+                                    $timestamp = time().  uniqid(); 
+                                    $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                                    File::makeDirectory(public_path().'asset/', 0777, true, true);
+                                    $file->move($thumbPath,$filename);
+
+                                    $userProfile->shop_document  = $filename ;
+                                }
+                            }
+
+                            $userProfile->save();
+                            $checkMobile->save();
+
+                            $this->resultapi('1','Registered Sucessfully.',$seller_mobile_verify_code);
+                        }
                     }
                     else
                     {
-                         $this->resultapi('0','Mobile Number Already Exist.',false); 
+                        $this->resultapi('0','This Mobile Number Is Already Registered.',false); 
                     }
                 }
                 else
                 {
-                    $this->resultapi('0','Some Problem In Verification.',false);           
-                }*/
-                if($checkMobile->status == 1)
-                {
-                    $this->resultapi('0','Mobile Number Already Exist.',false);
-                }
-                else
-                {
-                    /*$seller_mobile_verify_code = rand (1000 , 9999);
-                    $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
-                   
-                    $checkMobile->is_seller_updated            = 1;
-                    $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
-                    $checkMobile->save();*/
-
-                    $this->resultapi('2','You Have To Wait for Admin Approval.',false);
+                    if( $checkMobile->status == 1 )
+                    {
+                        $this->resultapi('0','This Mobile Number Is Already Registered.',false); 
+                    }
+                    else
+                    {
+                        $this->resultapi('0','You Have To Wait For Admin Approval.',false); 
+                    }
                 }
             }
             else

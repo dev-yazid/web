@@ -180,29 +180,6 @@ public function getRegisterMobile(Request $request) {
             $phoneNumber = $request->phone_number;
             $mobile_verify_code = rand (1000 , 9999);
 
-               /* if($request->customer_type == 2)
-                {
-                    if(count($checkMobileExist) > 0)
-                    {   
-                        if($checkMobileExist->status == 1)
-                        {
-                            $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
-                        }                        
-                        else
-                        {
-                            $this->resultapi('0','Mobile Number Not Exist.', 0);
-                        }
-                    }
-                    else
-                    {
-                        $this->resultapi('0','Mobile Number Not Exist.', 0);
-                    }
-                }
-                else
-                {
-                    $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));                
-                }*/
-
                 if(count($checkMobileExist) > 0)
                 {
                     if($request->customer_type == 2)
@@ -270,22 +247,12 @@ public function getRegisterMobile(Request $request) {
                 if($request->customer_type == 1)
                 {
                     $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
-                    $sellerActivationStatus = Setting::find(1);
+                    //$sellerActivationStatus = Setting::find(1);
 
                     $regNewMobile = new User;
                     $regNewMobile->name                 = "Feeh User";
                     $regNewMobile->phone_number         = $request->phone_number;
                     $regNewMobile->mobile_verify_code   = $mobile_verify_code;
-/*
-                    if(count($sellerActivationStatus) > 0)
-                    {
-                        $regNewMobile->status           = $sellerActivationStatus->status;
-                    }
-                    else
-                    {
-                        $regNewMobile->status           = 0;
-                    }
-*/
                     $regNewMobile->mobile_verified      = "No";
 
                     if($regNewMobile->save())
