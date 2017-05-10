@@ -246,56 +246,56 @@ public function getRegisterMobile(Request $request) {
                     }
                     else
                     {
-                        if($request->customer_type == 1)
-                        {
-                            $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                        $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
 
-                            $checkMobileExist->phone_number         = $request->phone_number;
-                            $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
-                            $checkMobileExist->mobile_verified      = "No";
-                            $checkMobileExist->is_customer_updated  = 1;
-                            $checkMobileExist->save();
+                        $checkMobileExist->phone_number         = $request->phone_number;
+                        $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
+                        $checkMobileExist->mobile_verified      = "No";
+                        $checkMobileExist->is_customer_updated  = 1;
+                        $checkMobileExist->save();
 
-                            $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
-                        }
-                        else
-                        {
-                            $this->resultapi('0','Mobile Number Not Exist.', $mobile_verify_code);
-                        }
+                        $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);                        
                     }
             }
             else
             {
-                $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
-                $sellerActivationStatus = Setting::find(1);
-
-                $regNewMobile = new User;
-                $regNewMobile->name                 = "Feeh User";
-                $regNewMobile->phone_number         = $request->phone_number;
-                $regNewMobile->mobile_verify_code   = $mobile_verify_code;
-
-                if(count($sellerActivationStatus) > 0)
+                if($request->customer_type == 1)
                 {
-                    $regNewMobile->status           = $sellerActivationStatus->status;
-                }
-                else
-                {
-                    $regNewMobile->status           = 0;
-                }
+                    $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                    $sellerActivationStatus = Setting::find(1);
 
-                $regNewMobile->mobile_verified      = "No";
+                    $regNewMobile = new User;
+                    $regNewMobile->name                 = "Feeh User";
+                    $regNewMobile->phone_number         = $request->phone_number;
+                    $regNewMobile->mobile_verify_code   = $mobile_verify_code;
 
-                if($regNewMobile->save())
-                {
-                    $userDetails = User::where('phone_number',$request->phone_number)->first();
-
-                    if(count($userDetails) > 0)
+                    if(count($sellerActivationStatus) > 0)
                     {
-                        $regNewProfile = new UserProfiles;
-                        $regNewProfile->user_id = $userDetails->id;
-                        $regNewProfile->save();
+                        $regNewMobile->status           = $sellerActivationStatus->status;
+                    }
+                    else
+                    {
+                        $regNewMobile->status           = 0;
+                    }
 
-                        $this->resultapi('1','Mobile Verification Code Send.', $userDetails->mobile_verify_code);
+                    $regNewMobile->mobile_verified      = "No";
+
+                    if($regNewMobile->save())
+                    {
+                        $userDetails = User::where('phone_number',$request->phone_number)->first();
+
+                        if(count($userDetails) > 0)
+                        {
+                            $regNewProfile = new UserProfiles;
+                            $regNewProfile->user_id = $userDetails->id;
+                            $regNewProfile->save();
+
+                            $this->resultapi('1','Mobile Verification Code Send.', $userDetails->mobile_verify_code);
+                        }
+                        else
+                        {
+                            $this->resultapi('0','User Details Not Found.', 0);
+                        }
                     }
                     else
                     {
@@ -304,7 +304,7 @@ public function getRegisterMobile(Request $request) {
                 }
                 else
                 {
-                    $this->resultapi('0','User Details Not Found.', 0);
+                    $this->resultapi('0','Mobile Number Not Exist.', $mobile_verify_code);
                 }
             }                
         }            
