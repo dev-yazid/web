@@ -246,15 +246,22 @@ public function getRegisterMobile(Request $request) {
                     }
                     else
                     {
-                        $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
+                        if($request->customer_type == 1)
+                        {
+                            $sendSms = User::sendSms(trim($request->phone_number), trim($mobile_verify_code));
 
-                        $checkMobileExist->phone_number         = $request->phone_number;
-                        $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
-                        $checkMobileExist->mobile_verified      = "No";
-                        $checkMobileExist->is_seller_updated    = 1;
-                        $checkMobileExist->save();
+                            $checkMobileExist->phone_number         = $request->phone_number;
+                            $checkMobileExist->mobile_verify_code   = $mobile_verify_code;
+                            $checkMobileExist->mobile_verified      = "No";
+                            $checkMobileExist->is_customer_updated  = 1;
+                            $checkMobileExist->save();
 
-                        $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
+                            $this->resultapi('1','Mobile Verification Code Send.', $mobile_verify_code);
+                        }
+                        else
+                        {
+                            $this->resultapi('0','Mobile Number Not Exist.', $mobile_verify_code);
+                        }
                     }
             }
             else
