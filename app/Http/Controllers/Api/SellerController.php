@@ -70,27 +70,28 @@ class SellerController extends Controller
             $checkMobile = User::where('phone_number',$request->phone_number)->first();
             if( count($checkMobile) > 0)
             {
-                /*$checkMobile = User::where('phone_number',$request->phone_number)->first();
-                if($checkMobile->status == 1)
+                if($checkMobile->is_seller_updated == 1 )
                 {
-                    $seller_mobile_verify_code = rand (1000 , 9999);
-                    $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
-                   
-                    $checkMobile->is_seller_updated            = 1;
-                    $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
-                    $checkMobile->save();
-
-                    $this->resultapi('1','Verification Code Send To Your Mobile Number.',$seller_mobile_verify_code); 
-       
+                    $this->resultapi('0','Mobile Number Already Exist.',false);
                 }
-                else if($checkMobile->status == 0)
+                else
                 {
-                    $userProfile = UserProfiles::where('user_id',$checkMobile->id)->first();
-                    if(count($userProfile) > 0)
+                    $sellerActivationStatus = Setting::find(1);
+                   
+                    if($sellerActivationStatus->status == 1)
                     {
-                        $checkMobile->email               = trim($request->email);
-                        $checkMobile->phone_number        = trim($request->phone_number);
-                        $checkMobile->is_seller_updated   = 1;                        
+
+                        $userProfile = UserProfiles::where('user_id',$checkMobile->id)->first();
+                        
+                        $seller_mobile_verify_code = rand (1000 , 9999);
+                        $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
+                                              
+                        $checkMobile->is_seller_updated            = 1;
+                        $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
+                        $checkMobile->email                        = trim($request->email);
+                        $checkMobile->phone_number                 = trim($request->phone_number);
+                        $checkMobile->status                       = 1;
+                                      
                         $userProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
                         $userProfile->shop_name           = $request->shop_name;
                         $userProfile->shop_mobile         = $request->phone_number;
@@ -120,80 +121,47 @@ class SellerController extends Controller
                         $checkMobile->save();
                         $userProfile->save();
 
-                        $this->resultapi('2','Profile Registered Sucessfully, You Have Wait for Admin Approval.',false);
-                    }
-                    else
-                    {
-                         $this->resultapi('0','Mobile Number Already Exist.',false); 
-                    }
-                }
-                else
-                {
-                    $this->resultapi('0','Some Problem In Verification.',false);           
-                }*/
-                if($checkMobile->status == 1)
-                {
-                    $this->resultapi('0','Mobile Number Already Exist.',false);
-                }
-                else
-                {
-                $seller_mobile_verify_code = rand (1000 , 9999);
-                $sendSms = User::sendSms(trim($request->phone_number), trim($seller_mobile_verify_code));
-               
-                $userProfile = UserProfiles::where('user_id',$checkMobile->id)->first();
-                if(count($userProfile) > 0 )
-                { 
-                    $checkMobile->email               = trim($request->email);
-                    $checkMobile->phone_number        = trim($request->phone_number);
-                    $checkMobile->is_seller_updated   = 1;
-                    $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
-
-                    $sellerActivationStatus = Setting::find(1);
-                    if(count($sellerActivationStatus) > 0)
-                    {
-                        $checkMobile->status           = $sellerActivationStatus->status;
-                    }
-                    else
-                    {
-                        $checkMobile->status           = 0;
-                    }
-
-                    $userProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
-                    $userProfile->shop_name           = $request->shop_name;
-                    $userProfile->shop_mobile         = $request->phone_number;
-                    $userProfile->shop_address        = $request->shop_address;                    
-                    $userProfile->shop_city           = $request->shop_city;
-                    $userProfile->shop_start_time     = $request->shop_start_time;
-                    $userProfile->shop_close_time     = $request->shop_close_time;
-                    $userProfile->shop_location_map   = $request->shop_location_map;
-                    $userProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode : "";
-                    
-                    if($request->image_upload === "YES")
-                    {           
-                        if($request->hasFile('file'))
-                        {
-                            $file = $request->file('file');
-                            $path = public_path().'/asset/shopLicence/';
-                            $thumbPath = public_path('/asset/shopLicence/thumb/');
-
-                            $timestamp = time().  uniqid(); 
-                            $filename = $timestamp.'_'.trim($file->getClientOriginalName());
-                            File::makeDirectory(public_path().'asset/', 0777, true, true);
-                            $file->move($thumbPath,$filename);
-
-                            $userProfile->shop_document  = $filename ;
-                        }
-                    }
-
-                    $userProfile->save();
-                    $checkMobile->save();
-                    if($sellerActivationStatus == 1 )
-                    {
                         $this->resultapi('1','Seller Registered Sucessfully.',$seller_mobile_verify_code);
-                    }
+                    }   
                     else
                     {
-                        $this->resultapi('2','You Have To Wait for Admin Approval.',false);
+                        $userProfile = UserProfiles::where('user_id',$checkMobile->id)->first();
+                        $seller_mobile_verify_code = rand (1000 , 9999);
+                        $checkMobile->is_seller_updated            = 1;
+                        $checkMobile->seller_mobile_verify_code    = $seller_mobile_verify_code;
+                        $checkMobile->email                        = trim($request->email);
+                        $checkMobile->phone_number                 = trim($request->phone_number);
+                                      
+                        $userProfile->seller_name         = $request->seller_name ? $request->seller_name : "Feeh User";
+                        $userProfile->shop_name           = $request->shop_name;
+                        $userProfile->shop_mobile         = $request->phone_number;
+                        $userProfile->shop_address        = $request->shop_address;                    
+                        $userProfile->shop_city           = $request->shop_city;
+                        $userProfile->shop_start_time     = $request->shop_start_time;
+                        $userProfile->shop_close_time     = $request->shop_close_time;
+                        $userProfile->shop_location_map   = $request->shop_location_map;
+                        $userProfile->shop_zipcode        = $request->shop_zipcode ? $request->shop_zipcode : "";
+                        
+                        if($request->image_upload === "YES")
+                        {           
+                            if($request->hasFile('file'))
+                            {
+                                $file = $request->file('file');
+                                $path = public_path().'/asset/shopLicence/';
+                                $thumbPath = public_path('/asset/shopLicence/thumb/');
+
+                                $timestamp = time().  uniqid(); 
+                                $filename = $timestamp.'_'.trim($file->getClientOriginalName());
+                                File::makeDirectory(public_path().'asset/', 0777, true, true);
+                                $file->move($thumbPath,$filename);
+
+                                $userProfile->shop_document  = $filename ;
+                            }
+                        }
+                        $checkMobile->save();
+                        $userProfile->save();
+
+                        $this->resultapi('2','You Have To Wait For Admin Approval.',false);
                     }
                 }
             }
@@ -243,7 +211,7 @@ class SellerController extends Controller
                         File::makeDirectory(public_path().'asset/', 0777, true, true);
                         $file->move($thumbPath,$filename);
 
-                        $regNewProfile->shop_document       = $filename ;
+                        $regNewProfile->shop_document    = $filename ;
                     }
                 }             
 
@@ -463,38 +431,79 @@ class SellerController extends Controller
                 {
                     $mobileVerification->seller_mobile_verified = "Yes";
                     $mobileVerification->save();
-                   
-                    if($mobileVerification->status == 1)
+
+                    $sellerActivationStatus = Setting::find(1);
+                    if($sellerActivationStatus->status == 1)
                     {
-                        if(Auth::attempt(array('phone_number' => trim($request->phone_number), 'password' => '123456','seller_mobile_verified' => 'Yes', 'status' => '1', 'seller_mobile_verify_code' => $request->verification_code)))
-                        {
-                            $user = Auth::user();
-                            $user['tokenId'] = $this->jwtAuth->fromUser($user);
-                            $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                     
-              
-                            if($user['profDetails'][0]['shop_location_map'] == "")
+                        if($mobileVerification->status == 1)
+                        {   
+                            
+                            if(Auth::attempt(array('phone_number' => trim($request->phone_number), 'password' => '123456','seller_mobile_verified' => 'Yes', 'status' => '1', 'seller_mobile_verify_code' => $request->verification_code)))
                             {
-                                $user['map_location'] = "";
-                                $mapUrl = "";
-                            }
+                                $user = Auth::user();
+                                $user['tokenId'] = $this->jwtAuth->fromUser($user);
+                                $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                     
+                  
+                                if($user['profDetails'][0]['shop_location_map'] == "")
+                                {
+                                    $user['map_location'] = "";
+                                    $mapUrl = "";
+                                }
+                                else
+                                {
+                                    $mapUrl ='https://www.google.com/maps?q=';
+                                    $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
+                                }
+
+                                $this->resultapi('1','Mobile Verified Sucessfully.', $user);
+                            } 
                             else
                             {
-                                $mapUrl ='https://www.google.com/maps?q=';
-                                $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
+                                $user = array();
+                                $this->resultapi('0','Wrong Mobile Number Or Verification Code.', $user);
                             }
-
-                            $this->resultapi('1','Mobile Verified Sucessfully.', $user);
-                        } 
+                        }
                         else
                         {
-                            $user = array();
-                            $this->resultapi('0','Wrong Mobile Number Or Verification Code.', $user);
+                            $this->resultapi('2','Mobile Verified Sucessfully, You Have To Wait Untill Admin Will Approve.', 'Not Approved By Admin.');
                         }
                     }
                     else
                     {
-                        $this->resultapi('2','Mobile Verified Sucessfully, You Have To Wait Untill Admin Will Approve.', 'Not Approved By Admin.');
+                        if($mobileVerification->status == 1)
+                        {   
+                            
+                            if(Auth::attempt(array('phone_number' => trim($request->phone_number), 'password' => '123456','seller_mobile_verified' => 'Yes', 'status' => '1', 'seller_mobile_verify_code' => $request->verification_code)))
+                            {
+                                $user = Auth::user();
+                                $user['tokenId'] = $this->jwtAuth->fromUser($user);
+                                $user['profDetails'] = UserProfiles::where('user_id',$user['id'])->get();                                     
+                  
+                                if($user['profDetails'][0]['shop_location_map'] == "")
+                                {
+                                    $user['map_location'] = "";
+                                    $mapUrl = "";
+                                }
+                                else
+                                {
+                                    $mapUrl ='https://www.google.com/maps?q=';
+                                    $user['map_location'] = $mapUrl.$user['profDetails'][0]['shop_location_map'];
+                                }
+
+                                $this->resultapi('1','Mobile Verified Sucessfully.', $user);
+                            } 
+                            else
+                            {
+                                $user = array();
+                                $this->resultapi('0','Wrong Mobile Number Or Verification Code.', $user);
+                            }
+                        }
+                        else
+                        {
+                            $this->resultapi('2','Mobile Verified Sucessfully, You Have To Wait Untill Admin Will Approve.', 'Not Approved By Admin.');
+                        }
                     }
+                    
                 } 
                 else
                 {

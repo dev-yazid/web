@@ -106,7 +106,7 @@ class SettingController extends Controller
             Session::flash('error_msg', 'Page not found.');
             return redirect('/admin/user');
         }
-        return view('admin/Setting/edit', ['title_for_layout' => 'Edit Setting', 'page' => $setting]);
+        return view('admin/Setting/edit', ['title_for_layout' => 'Seller Auto Approval Setting', 'page' => $setting]);
 
     }
 
