@@ -45,11 +45,11 @@
                 var sellerReply;
                 var fullName = aData.firstname+' '+aData.lastname;
 
-                if(aData.status == 0)
+                if(aData.status == 1)
                 {
                     status = "In Processing";
                 }
-                else if(aData.status == 1)
+                else if(aData.status == 2)
                 {
                     status = "Compleate";
                 }
