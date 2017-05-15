@@ -1,7 +1,0 @@
-storage/framework/
-public/asset/
-public/app/build/css/
-public/app/lib/language/
-.env
-*.DS_Store
-/nbproject/private/
