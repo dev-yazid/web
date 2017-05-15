@@ -1,0 +1,21 @@
+<div ng-include="'public/app/templates/site/partials/header.html'"></div>
+<div class="ContentArea" ng-controller="homeController">
+    <section class="banner-sec">
+        <img ng-src="public/app/build/images/banner.jpg" alt="">		
+    </section>
+    
+        <h2 class="md-headline title-box" translate>Case Studies</h2>
+        <div layout="row" layout-xs="column" class="feature-project-box-upper" ng-repeat='cityy in allCity'>
+            
+            <div flex="33" class="case-study-right">
+               
+                <p class="md-subhead">{{cityy.name}}</p>
+                
+            </div>
+        </div>
+    </div>
+
+
+<div ng-include="'public/app/templates/site/partials/footer.html'"></div>
+
+
